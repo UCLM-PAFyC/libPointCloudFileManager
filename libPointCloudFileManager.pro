@@ -1,4 +1,4 @@
-# Cambio desde QtCreator DGS
+# Cambio desde QtCreator DGS multirepositorio
 #-------------------------------------------------
 #
 # Project created by QtCreator 2020-03-25T09:25:54
