@@ -1,5 +1,4 @@
-# Cambio de david
-# Cambio desde QtCreator DGS instalacion GIT
+# Prueba con clave publica en github
 #-------------------------------------------------
 #
 # Project created by QtCreator 2020-03-25T09:25:54
