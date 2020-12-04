@@ -1,3 +1,4 @@
+# Cambio de david
 # Cambio desde QtCreator DGS instalacion GIT
 #-------------------------------------------------
 #
