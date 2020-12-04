@@ -1,4 +1,4 @@
-# Cambio desde QtCreator DGS multirepositorio
+# Cambio desde QtCreator DGS instalacion GIT
 #-------------------------------------------------
 #
 # Project created by QtCreator 2020-03-25T09:25:54
