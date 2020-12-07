@@ -27,12 +27,13 @@ TEMPLATE = lib
 
 DEFINES += LIBPOINTCLOUDFILEMANAGER_LIBRARY
 
-DESTDIR_RELEASE=C:\dev\release
-DESTDIR_DEBUG=C:\dev\debug
+DESTDIR_RELEASE= ./../../../build/release
+DESTDIR_DEBUG= ./../../../build/debug
 #OSGEO4W_PATH="C:\Program Files\QGIS 2.18"
 OSGEO4W_PATH="C:\Program Files\QGIS 3.4"
-LASTOOLS_PATH = E:\Qt5CreatorPrograms\TIDOP_TOOLS_USAL\libs\LASTools2019
-QUAZIPLIB_PATH="E:\Qt5CreatorPrograms\TIDOP_TOOLS_USAL\libs\libQuaZip"
+LASTOOLS_PATH = ./../../../depends/LASTools2019
+QUAZIPLIB_PATH= ./../../../depends/libQuaZip
+QT_3RDPARTY= C:/Qt/Qt5.6.3/5.6.3/Src/qtbase/src/3rdparty
 
 SOURCES += \
     PointCloudFileManager.cpp \
@@ -46,7 +47,7 @@ HEADERS += \
     PointCloudFile.h \
     Point.h
 
-INCLUDEPATH += "C:\Qt\Qt5.6.3\5.6.3\Src\qtbase\src\3rdparty\zlib"
+INCLUDEPATH += $$QT_3RDPARTY/zlib
 INCLUDEPATH += . $$QUAZIPLIB_PATH/include
 
 INCLUDEPATH += . ../libProcessTools
