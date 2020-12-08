@@ -14,10 +14,10 @@ CXX           = cl
 DEFINES       = -DUNICODE -DWIN32 -DWIN64 -DLIBPOINTCLOUDFILEMANAGER_LIBRARY -DQT_QML_DEBUG -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_SQL_LIB -DQT_XML_LIB -DQT_CONCURRENT_LIB -DQT_CORE_LIB -DNDEBUG -D_WINDLL
 CFLAGS        = -nologo -Zc:wchar_t -FS -Zc:strictStrings -O2 -MD -W3 -w44456 -w44457 -w44458 $(DEFINES)
 CXXFLAGS      = -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew -O2 -MD -GR -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -EHsc $(DEFINES)
-INCPATH       = -I. -IC:\Qt\Qt5.6.3\5.6.3\Src\qtbase\src\3rdparty\zlib -I. -I..\..\..\depends\libQuaZip\include -I. -I..\libProcessTools -I. -I..\libCRS -I. -I..\libIGDAL -I. -I..\libParameters -I.. -I..\..\..\depends\LASTools2019\LASlib\inc -I..\..\..\depends\LASTools2019\LASzip\src -I. -I"C:\Program Files\QGIS 3.4\include" -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtWidgets -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtGui -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtANGLE -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtSql -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtXml -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtConcurrent -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtCore -Irelease -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\win32-msvc2015 
+INCPATH       = -I. -IC:\Qt\Qt5.6.3\5.6.3\Src\qtbase\src\3rdparty\zlib -I. -I..\..\..\depends\libQuaZip\include -I. -I..\libProcessTools -I. -I..\libCRS -I. -I..\libIGDAL -I. -I..\libParameters -I.. -I..\..\..\depends\LASTools2019\LASlib\inc -I..\..\..\depends\LASTools2019\LASzip\src -I. -I"C:\Program Files\QGIS 3.10\include" -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtWidgets -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtGui -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtANGLE -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtSql -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtXml -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtConcurrent -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtCore -Irelease -IC:\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\win32-msvc2015 
 LINKER        = link
 LFLAGS        = /NOLOGO /DYNAMICBASE /NXCOMPAT /INCREMENTAL:NO /DLL /SUBSYSTEM:WINDOWS
-LIBS          = /LIBPATH:..\..\..\build\release /LIBPATH:..\..\..\depends\LASTools2019\lib64 ..\..\..\depends\LASTools2019\lib64\laslib.lib ..\..\..\depends\libQuaZip\lib\quazip.lib ..\..\..\build\release\libCRS.lib ..\..\..\build\release\libIGDAL.lib ..\..\..\build\release\libParameters.lib ..\..\..\build\release\libProcessTools.lib /LIBPATH:"C:\Program Files\QGIS 3.4\bin" "C:\Program Files\QGIS 3.4\lib\proj_i.lib" "C:\Program Files\QGIS 3.4\lib\gdal_i.lib" "C:\Program Files\QGIS 3.4\lib\geos_c.lib" /LIBPATH:C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Widgets.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Gui.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Sql.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Xml.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Concurrent.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Core.lib 
+LIBS          = /LIBPATH:..\..\..\build\release /LIBPATH:..\..\..\depends\LASTools2019\lib64 ..\..\..\depends\LASTools2019\lib64\laslib.lib ..\..\..\depends\libQuaZip\lib\quazip.lib ..\..\..\build\release\libCRS.lib ..\..\..\build\release\libIGDAL.lib ..\..\..\build\release\libParameters.lib ..\..\..\build\release\libProcessTools.lib /LIBPATH:"C:\Program Files\QGIS 3.10\bin" "C:\Program Files\QGIS 3.10\lib\proj_i.lib" "C:\Program Files\QGIS 3.10\lib\gdal_i.lib" "C:\Program Files\QGIS 3.10\lib\geos_c.lib" /LIBPATH:C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Widgets.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Gui.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Sql.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Xml.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Concurrent.lib C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\lib\Qt5Core.lib 
 QMAKE         = C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\bin\qmake.exe
 IDC           = idc
 IDL           = midl
@@ -226,7 +226,7 @@ release\moc_PointCloudFileManager.cpp: C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\Q
 		libPointCloudFileManager_global.h \
 		C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtCore\QString \
 		PointCloudFileManager.h
-	C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\bin\moc.exe $(DEFINES) -D_MSC_VER=1900 -D_WIN32 -D_WIN64 -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/mkspecs/win32-msvc2015 -IE:/dev/src/libs/libPointCloudFileManager -IC:/Qt/Qt5.6.3/5.6.3/Src/qtbase/src/3rdparty/zlib -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/depends/libQuaZip/include -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/src/libs/libProcessTools -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/src/libs/libCRS -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/src/libs/libIGDAL -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/src/libs/libParameters -IE:/dev/src/libs -IE:/dev/depends/LASTools2019/LASlib/inc -IE:/dev/depends/LASTools2019/LASzip/src -IE:/dev/src/libs/libPointCloudFileManager -I"C:/Program Files/QGIS 3.4/include" -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtWidgets -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtGui -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtANGLE -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtSql -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtXml -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtConcurrent -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtCore PointCloudFileManager.h -o release\moc_PointCloudFileManager.cpp
+	C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\bin\moc.exe $(DEFINES) -D_MSC_VER=1900 -D_WIN32 -D_WIN64 -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/mkspecs/win32-msvc2015 -IE:/dev/src/libs/libPointCloudFileManager -IC:/Qt/Qt5.6.3/5.6.3/Src/qtbase/src/3rdparty/zlib -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/depends/libQuaZip/include -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/src/libs/libProcessTools -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/src/libs/libCRS -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/src/libs/libIGDAL -IE:/dev/src/libs/libPointCloudFileManager -IE:/dev/src/libs/libParameters -IE:/dev/src/libs -IE:/dev/depends/LASTools2019/LASlib/inc -IE:/dev/depends/LASTools2019/LASzip/src -IE:/dev/src/libs/libPointCloudFileManager -I"C:/Program Files/QGIS 3.10/include" -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtWidgets -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtGui -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtANGLE -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtSql -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtXml -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtConcurrent -IC:/Qt/Qt5.6.3/5.6.3/msvc2015_64/include/QtCore PointCloudFileManager.h -o release\moc_PointCloudFileManager.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -516,30 +516,30 @@ release\PointCloudFileManager.obj: PointCloudFileManager.cpp C:\Qt\Qt5.6.3\5.6.3
 		C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtXml\qtxmlversion.h \
 		..\libIGDAL\Shapefile.h \
 		..\libIGDAL\libIGDAL_global.h \
-		"C:\Program Files\QGIS 3.4\include\ogrsf_frmts.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_progress.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_port.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_config.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_feature.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_atomic_ops.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_featurestyle.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_conv.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_vsi.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_error.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_string.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_core.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal_version.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_geometry.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_json.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_spatialref.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_srs_api.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal_priv.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_virtualmem.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_minixml.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_api.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal_frmts.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_multiproc.h" \
+		"C:\Program Files\QGIS 3.10\include\ogrsf_frmts.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_progress.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_port.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_config.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_feature.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_atomic_ops.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_featurestyle.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_conv.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_vsi.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_error.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_string.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_core.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal_version.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_geometry.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_json.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_spatialref.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_srs_api.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal_priv.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_virtualmem.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_minixml.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_api.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal_frmts.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_multiproc.h" \
 		..\libProcessTools\ProgressExternalProcessDialog.h \
 		C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtWidgets\QWidget \
 		..\libProcessTools\libprocesstools_global.h \
@@ -581,7 +581,7 @@ release\PointCloudFileManager.obj: PointCloudFileManager.cpp C:\Qt\Qt5.6.3\5.6.3
 		PointCloudFileDefinitions.h \
 		libPointCloudFileManager_global.h \
 		C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtCore\QMutex \
-		"C:\Program Files\QGIS 3.4\include\gdal_utils.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal_utils.h" \
 		..\..\..\depends\libQuaZip\include\quazip.h \
 		C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtCore\QTextCodec \
 		..\..\..\depends\libQuaZip\include\zip.h \
@@ -847,31 +847,31 @@ release\PointCloudFile.obj: PointCloudFile.cpp C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\i
 		C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtConcurrent\qtconcurrentrunbase.h \
 		C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtConcurrent\qtconcurrentstoredfunctioncall.h \
 		C:\Qt\Qt5.6.3\5.6.3\msvc2015_64\include\QtConcurrent\qtconcurrentversion.h \
-		"C:\Program Files\QGIS 3.4\include\ogrsf_frmts.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_progress.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_port.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_config.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_feature.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_atomic_ops.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_featurestyle.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_conv.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_vsi.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_error.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_string.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_core.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal_version.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_geometry.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_json.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_spatialref.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_srs_api.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal_priv.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_virtualmem.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_minixml.h" \
-		"C:\Program Files\QGIS 3.4\include\ogr_api.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal_frmts.h" \
-		"C:\Program Files\QGIS 3.4\include\cpl_multiproc.h" \
-		"C:\Program Files\QGIS 3.4\include\gdal_utils.h" \
+		"C:\Program Files\QGIS 3.10\include\ogrsf_frmts.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_progress.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_port.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_config.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_feature.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_atomic_ops.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_featurestyle.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_conv.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_vsi.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_error.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_string.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_core.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal_version.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_geometry.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_json.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_spatialref.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_srs_api.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal_priv.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_virtualmem.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_minixml.h" \
+		"C:\Program Files\QGIS 3.10\include\ogr_api.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal_frmts.h" \
+		"C:\Program Files\QGIS 3.10\include\cpl_multiproc.h" \
+		"C:\Program Files\QGIS 3.10\include\gdal_utils.h" \
 		..\..\..\depends\LASTools2019\LASlib\inc\lasreader.hpp \
 		..\..\..\depends\LASTools2019\LASlib\inc\lasdefinitions.hpp \
 		..\..\..\depends\LASTools2019\LASzip\src\mydefs.hpp \
