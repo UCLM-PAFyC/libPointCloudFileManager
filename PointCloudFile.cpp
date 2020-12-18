@@ -820,7 +820,7 @@ bool PointCloudFile::addPointCloudFiles(QVector<QString> &inputFileNames,
                                         QString &strError)
 {
     QString strAuxError;
-    if(!mUseMultiProcess)
+    if(!mUseMultiProcess||inputFileNames.size()==1)
     {
         for(int nf=0;nf<inputFileNames.size();nf++)
         {
