@@ -415,23 +415,27 @@ bool PointCloudFileManager::getLastoolsCommandsOutputDataFormat(QString &command
         enableOuputPath=true;
         enablePrefix=true;
     }
-    if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LASCLIP,Qt::CaseInsensitive)==0)
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LASCLIP,Qt::CaseInsensitive)==0)
     {
         enableOuputPath=true;
     }
-    if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LAS2DEM,Qt::CaseInsensitive)==0)
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LAS2DEM,Qt::CaseInsensitive)==0)
     {
         enableOutputFile=true;
     }
-    if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING,Qt::CaseInsensitive)==0)
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT,Qt::CaseInsensitive)==0)
     {
         enableOutputFile=true;
     }
-    if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING,Qt::CaseInsensitive)==0)
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING,Qt::CaseInsensitive)==0)
     {
         enableOutputFile=true;
     }
-    if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_E2OHC_PREPROCESSING,Qt::CaseInsensitive)==0)
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING,Qt::CaseInsensitive)==0)
+    {
+        enableOutputFile=true;
+    }
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_E2OHC_PREPROCESSING,Qt::CaseInsensitive)==0)
     {
         enableOutputFile=true;
 //        enableSuffix=false;
@@ -530,6 +534,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
+            if(type.compare(PARAMETER_TYPE_STRING,Qt::CaseInsensitive)==0
+                    ||type.compare(PARAMETER_TYPE_STRING_EN,Qt::CaseInsensitive)==0)
+            {
+                QString strValue;
+                ptrParameter->getValue(strValue);
+                strValue=strValue.trimmed();
+                if(strValue.isEmpty()) continue;
+            }
             parametersString+=" ";
             parametersString+=tag;
             if(type.compare(PARAMETER_TYPE_EMPTY_STRING,Qt::CaseInsensitive)==0
@@ -589,6 +601,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
+            if(type.compare(PARAMETER_TYPE_STRING,Qt::CaseInsensitive)==0
+                    ||type.compare(PARAMETER_TYPE_STRING_EN,Qt::CaseInsensitive)==0)
+            {
+                QString strValue;
+                ptrParameter->getValue(strValue);
+                strValue=strValue.trimmed();
+                if(strValue.isEmpty()) continue;
+            }
             parametersString+=" ";
             parametersString+=tag;
             if(type.compare(PARAMETER_TYPE_EMPTY_STRING,Qt::CaseInsensitive)==0
@@ -628,6 +648,73 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             lastoolsCommandStrings.push_back(commandString);
         }
     }
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT,Qt::CaseInsensitive)==0)
+    {
+        QVector<Parameter *> ptrParameters;
+        bool onlyEnabled=true;
+        if(!mPtrLastoolsCommandsParameters->getParametersByCommand(command,
+                                                                   ptrParameters,
+                                                                   onlyEnabled))
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            return(false);
+        }
+        QString parametersString;
+        for(int np=0;np<ptrParameters.size();np++)
+        {
+            Parameter* ptrParameter=ptrParameters[np];
+            QString code=ptrParameter->getCode();
+            QString tag=ptrParameter->getTag();
+            QString type=ptrParameter->getType();
+            if(type.compare(PARAMETER_TYPE_STRING,Qt::CaseInsensitive)==0
+                    ||type.compare(PARAMETER_TYPE_STRING_EN,Qt::CaseInsensitive)==0)
+            {
+                QString strValue;
+                ptrParameter->getValue(strValue);
+                strValue=strValue.trimmed();
+                if(strValue.isEmpty()) continue;
+            }
+            parametersString+=" ";
+            parametersString+=tag;
+            if(type.compare(PARAMETER_TYPE_EMPTY_STRING,Qt::CaseInsensitive)==0
+                    ||type.compare(PARAMETER_TYPE_EMPTY_STRING_EN,Qt::CaseInsensitive)==0)
+            {
+                continue;
+            }
+            QString strValue;
+            ptrParameter->getValue(strValue);
+            parametersString+=" ";
+            if(type.compare(PARAMETER_TYPE_DOUBLE,Qt::CaseInsensitive)==0
+                    ||type.compare(PARAMETER_TYPE_DOUBLE_EN,Qt::CaseInsensitive)==0)
+            {
+                int precision=ptrParameter->getPrintPrecision();
+                strValue=QString::number(strValue.toDouble(),'f',precision);
+            }
+            parametersString+=" ";
+            parametersString+=strValue;
+        }
+        for(int nf=0;nf<inputFiles.size();nf++)
+        {
+            QString commandString=mLastoolsPath+"/";
+            commandString+=command;
+            commandString+=" -i ";
+            commandString+=inputFiles.at(nf);
+            commandString+=parametersString;
+            if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT,Qt::CaseInsensitive)==0)
+            {
+                commandString+=" -odir ";
+                commandString+=outputPath;
+                if(!prefix.isEmpty())
+                {
+                    commandString+="/";
+                    commandString+=prefix;
+                }
+            }
+            lastoolsCommandStrings.push_back(commandString);
+        }
+    }
     else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LAS2DEM,Qt::CaseInsensitive)==0)
     {
         if(inputFiles.size()!=1)
@@ -655,6 +742,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
+            if(type.compare(PARAMETER_TYPE_STRING,Qt::CaseInsensitive)==0
+                    ||type.compare(PARAMETER_TYPE_STRING_EN,Qt::CaseInsensitive)==0)
+            {
+                QString strValue;
+                ptrParameter->getValue(strValue);
+                strValue=strValue.trimmed();
+                if(strValue.isEmpty()) continue;
+            }
             parametersString+=" ";
             parametersString+=tag;
             if(type.compare(PARAMETER_TYPE_EMPTY_STRING,Qt::CaseInsensitive)==0
@@ -4717,6 +4812,7 @@ bool PointCloudFileManager::setBasePath(QString basePath,
     mLastoolsCommandsParametersFileName=mBasePath+"/"+POINTCLOUDFILE_LASTOOLS_PARAMETERS_FILE_NAME;
     mLastoolsCommands.clear();
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASCLIP);
+    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASTILE);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LAS2DEM);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING);
@@ -4872,6 +4968,13 @@ bool PointCloudFileManager::setLastoolsPath(QString path,
         return(false);
     }
     mLastoolsPath=path;
+    return(true);
+}
+
+bool PointCloudFileManager::setMultiProcess(bool useMultiProcess,
+                                            QString &strError)
+{
+    mUseMultiProcess=useMultiProcess;
     return(true);
 }
 

@@ -44,6 +44,7 @@ public:
 //        mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_100); // falla
 //        mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_200);
         mMaxGridSize=mGridSizes[mGridSizes.size()-1];
+        mUseMultiProcess=false;
         setProjectTypes();
     };
     static inline PointCloudFileManager * getInstance(void )
@@ -95,6 +96,7 @@ public:
     bool getMaximumDensity(QString pcfPath,
                            double &maximumDensity,
                            QString& strError);
+    bool getMultiProcess(){return(mUseMultiProcess);};
     bool getPointsFromWktGeometry(QString pcfPath,
                                   QString wktGeometry,
                                   int geometryCrsEpsgCode,
@@ -141,6 +143,8 @@ public:
     bool setGeoidFilesLastoolsPath(QString value,
                                QString& strError);
     bool setLastoolsPath(QString path,
+                         QString& strError);
+    bool setMultiProcess(bool useMultiProcess,
                          QString& strError);
     bool setOutputPath(QString value,
                        QString& strError);
@@ -212,6 +216,7 @@ private:
     QString mGeoidFilessLastoolsPath;
     QVector<int> mGridSizes;
     int mMaxGridSize;
+    bool mUseMultiProcess;
 };
 }
 #endif // LIBPOINTCLOUDFILEMANAGER_H

@@ -55,7 +55,7 @@ PointCloudFile::PointCloudFile(libCRS::CRSTools* ptrCrsTools,
     mMinimumFc=POINTCLOUDFILE_NO_DOUBLE_MINIMUM_VALUE;
     mMinimumSc=POINTCLOUDFILE_NO_DOUBLE_MINIMUM_VALUE;
     mMinimumTc=POINTCLOUDFILE_NO_DOUBLE_MINIMUM_VALUE;
-    mUseMultiProcess=useMultiProcess;
+//    mUseMultiProcess=useMultiProcess;
     mPtrMpProgressDialog=NULL;
     mMpPtrGeometry=NULL;
 }
@@ -820,7 +820,8 @@ bool PointCloudFile::addPointCloudFiles(QVector<QString> &inputFileNames,
                                         QString &strError)
 {
     QString strAuxError;
-    if(!mUseMultiProcess||inputFileNames.size()==1)
+    bool useMultiProcess=mPtrPCFManager->getMultiProcess();
+    if(!useMultiProcess)
     {
         for(int nf=0;nf<inputFileNames.size();nf++)
         {
@@ -1626,7 +1627,7 @@ bool PointCloudFile::getPointsFromWktGeometry(QString wktGeometry,
             mMpPtrGeometry=NULL;
             return(false);
         }
-        bool useMultiProcess=mUseMultiProcess;
+        bool useMultiProcess=mPtrPCFManager->getMultiProcess();
 //        useMultiProcess=false;
         if(!useMultiProcess)
         {
@@ -1950,30 +1951,55 @@ bool PointCloudFile::getPointsFromWktGeometry(QString wktGeometry,
             }
             mTilesXToProcess.clear();
             mTilesYToProcess.clear();
-            pointsByTileByFileId[fileIndex]=mPointsByTile;
+//            pointsByTileByFileId[fileIndex]=mPointsByTile;
+//            {
+//                QMap<int,QMap<int,int> >::iterator iterX=mMpTilesNumberOfPointsInFile.begin();
+//                while(iterX!=mMpTilesNumberOfPointsInFile.end())
+//                {
+//                    int tileX=iterX.key();
+//                    QMap<int,int>::iterator iterY=iterX.value().begin();
+//                    while(iterY!=iterX.value().end())
+//                    {
+//                        int tileY=iterY.key();
+//                        int numberOfPreviousPoints=0;
+//                        if(tilesNumberOfPoints.contains(tileX))
+//                        {
+//                            if(tilesNumberOfPoints[tileX].contains(tileY))
+//                            {
+//                                numberOfPreviousPoints=tilesNumberOfPoints[tileX][tileY];
+//                            }
+//                        }
+//                        int numberOfPoints=mMpTilesNumberOfPointsInFile[tileX][tileY];
+//                        tilesNumberOfPoints[tileX][tileY]=numberOfPreviousPoints+numberOfPoints;
+//                        iterY++;
+//                    }
+//                    iterX++;
+//                }
+//            }
+        }
+        pointsByTileByFileId[fileIndex]=mPointsByTile;
+        {
+            QMap<int,QMap<int,int> >::iterator iterX=mMpTilesNumberOfPointsInFile.begin();
+            while(iterX!=mMpTilesNumberOfPointsInFile.end())
             {
-                QMap<int,QMap<int,int> >::iterator iterX=mMpTilesNumberOfPointsInFile.begin();
-                while(iterX!=mMpTilesNumberOfPointsInFile.end())
+                int tileX=iterX.key();
+                QMap<int,int>::iterator iterY=iterX.value().begin();
+                while(iterY!=iterX.value().end())
                 {
-                    int tileX=iterX.key();
-                    QMap<int,int>::iterator iterY=iterX.value().begin();
-                    while(iterY!=iterX.value().end())
+                    int tileY=iterY.key();
+                    int numberOfPreviousPoints=0;
+                    if(tilesNumberOfPoints.contains(tileX))
                     {
-                        int tileY=iterY.key();
-                        int numberOfPreviousPoints=0;
-                        if(tilesNumberOfPoints.contains(tileX))
+                        if(tilesNumberOfPoints[tileX].contains(tileY))
                         {
-                            if(tilesNumberOfPoints[tileX].contains(tileY))
-                            {
-                                numberOfPreviousPoints=tilesNumberOfPoints[tileX][tileY];
-                            }
+                            numberOfPreviousPoints=tilesNumberOfPoints[tileX][tileY];
                         }
-                        int numberOfPoints=mMpTilesNumberOfPointsInFile[tileX][tileY];
-                        tilesNumberOfPoints[tileX][tileY]=numberOfPreviousPoints+numberOfPoints;
-                        iterY++;
                     }
-                    iterX++;
+                    int numberOfPoints=mMpTilesNumberOfPointsInFile[tileX][tileY];
+                    tilesNumberOfPoints[tileX][tileY]=numberOfPreviousPoints+numberOfPoints;
+                    iterY++;
                 }
+                iterX++;
             }
         }
         mZipFilePoints.close();
@@ -2590,7 +2616,8 @@ bool PointCloudFile::getTilesNamesFromGeometry(QMap<int, QMap<int, QString> > &t
 {
     tilesTableName.clear();
     tilesOverlaps.clear();
-    if(!mUseMultiProcess)
+    bool useMultiProcess=mPtrPCFManager->getMultiProcess();
+    if(!useMultiProcess)
     {
         OGRwkbGeometryType geometryType=ptrGeometry->getGeometryType();
         QMap<int,QMap<int,OGRGeometry*> >::const_iterator iter1=mTilesGeometry.begin();
@@ -2820,7 +2847,8 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
             return(false);
         }
     }
-    if(!mUseMultiProcess)
+    bool useMultiProcess=mPtrPCFManager->getMultiProcess();
+    if(!useMultiProcess)
     {
         OGRwkbGeometryType geometryType=mMpPtrGeometry->getGeometryType();
         QMap<int,QMap<int,OGRGeometry*> >::const_iterator iter1=mTilesGeometry.begin();
@@ -2941,7 +2969,8 @@ bool PointCloudFile::getTilesWktGeometry(QMap<QString, QString> &values,
                                          QString &strError)
 {
     values.clear();
-    bool useMultiProcess=mUseMultiProcess;
+    bool useMultiProcess=mPtrPCFManager->getMultiProcess();
+    if(!useMultiProcess)
     useMultiProcess=false;
     if(!useMultiProcess)
     {
@@ -3625,7 +3654,8 @@ bool PointCloudFile::readHeader(QString &strError)
         }
         iterPvbc++;
     }   
-    if(!mUseMultiProcess)
+    bool useMultiProcess=mPtrPCFManager->getMultiProcess();
+    if(!useMultiProcess)
     {
         QMap<int,QMap<int,QString> >::const_iterator  iterTilesX=mTilesName.begin();
         while(iterTilesX!=mTilesName.end())

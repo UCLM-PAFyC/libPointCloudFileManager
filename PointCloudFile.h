@@ -200,7 +200,7 @@ private:
 //    QString mZipFileName;
 //    QuaZip* mPtrZipFile;
 
-    bool mUseMultiProcess;
+//    bool mUseMultiProcess;
     QProgressDialog* mPtrMpProgressDialog;
     QString mStrErrorMpProgressDialog;
     QMutex mMutex;
