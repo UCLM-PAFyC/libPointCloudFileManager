@@ -35,6 +35,7 @@ public:
     {
         mPtrCrsTools=NULL;
         mPtrLastoolsCommandsParameters=NULL;
+        mPtrInternalCommandsParameters=NULL;
         mPtrProgressExternalProcessDialog=NULL;
 //        mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_1);
         mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_5);
@@ -77,8 +78,16 @@ public:
                                QString& strError);
     bool getGridSizes(QVector<int> &gridSizes,
                       QString& strError);
+    bool getInternalCommands(QVector<QString>& internalCommands,
+                             QString& strError);
     bool getLastoolsCommands(QVector<QString>& lastoolsCommands,
                              QString& strError);
+    bool getInternalCommandOutputDataFormat(QString& command,
+                                            bool& enableOuputPath,
+                                            bool& enableOutputFile,
+                                            bool& enableSuffix,
+                                            bool& enablePrefix,
+                                            QString& strError);
     bool getLastoolsCommandsOutputDataFormat(QString& command,
                                              bool& enableOuputPath,
                                              bool& enableOutputFile,
@@ -124,6 +133,13 @@ public:
     bool initializeCrsTools(QString &strError);
     bool openPointCloudFile(QString pcPath,
                             QString& strError);
+    bool processInternalCommand(QString& command,
+                                QVector<QString>& inputFiles,
+                                QString& outputPath,
+                                QString& outputFile,
+                                QString& suffix,
+                                QString& prefix,
+                                QString& strError);
     bool processReclassificationConfusionMatrixReport(QString& pcfPath,
                                                       QString& outputFileName,
                                                       QVector<int>& selectedClasses,
@@ -134,6 +150,8 @@ public:
                         QString title,
                         QString& strError,
                         QWidget* ptrWidget=NULL);
+    bool selectInternalCommandParameters(QString internalCommand,
+                                         QString& strError);
     bool selectLastoolsCommandParameters(QString lastoolscommand,
                                          QString& strError);
     bool selectProjectParameters(QString projectType,
@@ -205,6 +223,9 @@ private:
     QString mLastoolsCommandsParametersFileName;
     QVector<QString> mLastoolsCommands;
     ParametersManager* mPtrLastoolsCommandsParameters;
+    QString mInternalCommandsParametersFileName;
+    QVector<QString> mInternalCommands;
+    ParametersManager* mPtrInternalCommandsParameters;
 
     ProcessTools::ProgressExternalProcessDialog* mPtrProgressExternalProcessDialog;
     QString mStrExecution;

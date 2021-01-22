@@ -379,6 +379,26 @@ bool PointCloudFileManager::getGridSizes(QVector<int> &gridSizes,
     return(true);
 }
 
+bool PointCloudFileManager::getInternalCommands(QVector<QString> &internalCommands,
+                                                QString &strError)
+{
+    if(mInternalCommandsParametersFileName.isEmpty())
+    {
+        strError=QObject::tr("PointCloudFileManager::getInternalCommands");
+        strError+=QObject::tr("\nInternal tools parameters file name is empty");
+        return(false);
+    }
+    if(!QFile::exists(mInternalCommandsParametersFileName))
+    {
+        strError=QObject::tr("PointCloudFileManager::getInternalCommands");
+        strError+=QObject::tr("\nNot exists Internal tools parameters file name:\n%1")
+                .arg(mInternalCommandsParametersFileName);
+        return(false);
+    }
+    internalCommands=mInternalCommands;
+    return(true);
+}
+
 bool PointCloudFileManager::getLastoolsCommands(QVector<QString> &lastoolsCommands,
                                                 QString &strError)
 {
@@ -396,6 +416,25 @@ bool PointCloudFileManager::getLastoolsCommands(QVector<QString> &lastoolsComman
         return(false);
     }
     lastoolsCommands=mLastoolsCommands;
+    return(true);
+}
+
+bool PointCloudFileManager::getInternalCommandOutputDataFormat(QString &command,
+                                                               bool &enableOuputPath,
+                                                               bool &enableOutputFile,
+                                                               bool &enableSuffix,
+                                                               bool &enablePrefix,
+                                                               QString &strError)
+{
+    enableOuputPath=false;
+    enableOutputFile=false;
+    enableSuffix=false;
+    enablePrefix=false;
+    if(command.compare(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_ESTIMATE,Qt::CaseInsensitive)==0)
+    {
+        enableOuputPath=true;
+    }
+    return(true);
     return(true);
 }
 
@@ -2938,6 +2977,17 @@ bool PointCloudFileManager::openPointCloudFile(QString pcPath,
     return(true);
 }
 
+bool PointCloudFileManager::processInternalCommand(QString &command,
+                                                   QVector<QString> &inputFiles,
+                                                   QString &outputPath,
+                                                   QString &outputFile,
+                                                   QString &suffix,
+                                                   QString &prefix,
+                                                   QString &strError)
+{
+    return(true);
+}
+
 bool PointCloudFileManager::processReclassificationConfusionMatrixReport(QString &pcfPath,
                                                                          QString &outputFileName,
                                                                          QVector<int> &selectedClasses,
@@ -4327,6 +4377,47 @@ bool PointCloudFileManager::runProcessList(QVector<QString> &processList,
     return(true);
 }
 
+bool PointCloudFileManager::selectInternalCommandParameters(QString internalCommand,
+                                                            QString &strError)
+{
+    QString strAuxError;
+    if(!mInternalCommands.contains(internalCommand))
+    {
+        strError=QObject::tr("PointCloudFileManager::selectInternalCommandParameters");
+        strError+=QObject::tr("\nInvalid Internal command: %1").arg(internalCommand);
+        return(false);
+    }
+    if(mInternalCommandsParametersFileName.isEmpty())
+    {
+        strError=QObject::tr("PointCloudFileManager::selectInternalCommandParameters");
+        strError+=QObject::tr("\nInternal commands parameters file name is empty");
+        return(false);
+    }
+    if(!QFile::exists(mInternalCommandsParametersFileName))
+    {
+        strError=QObject::tr("PointCloudFileManager::selectInternalCommandParameters");
+        strError+=QObject::tr("\nNot exists Internal commands parameters file name:\n%1")
+                .arg(mLastoolsCommandsParametersFileName);
+        return(false);
+    }
+    if(mPtrInternalCommandsParameters==NULL)
+    {
+        ParametersManager* ptrParametersManager=new ParametersManager();
+        if(!ptrParametersManager->loadFromXml(mInternalCommandsParametersFileName,strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::selectInternalCommandParameters");
+            strError+=QObject::tr("\nError loading parameters manager from file:\n%1\nError:\n%2")
+                    .arg(mInternalCommandsParametersFileName).arg(strAuxError);
+            delete(ptrParametersManager);
+            return(false);
+        }
+        mPtrInternalCommandsParameters=ptrParametersManager;
+    }
+    ParametersManagerDialog parameterDialog(mPtrInternalCommandsParameters,
+                                            internalCommand);
+    return(true);
+}
+
 bool PointCloudFileManager::processProjectFile(QString &fileName,
                                              QString &strError)
 {
@@ -4818,6 +4909,12 @@ bool PointCloudFileManager::setBasePath(QString basePath,
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_E2OHC_PREPROCESSING);
+    mInternalCommandsParametersFileName=mBasePath+"/"+POINTCLOUDFILE_INTERNALTOOLS_PARAMETERS_FILE_NAME;
+    mInternalCommands.clear();
+    mInternalCommands.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_ESTIMATE);
+//    mInternalCommands.push_back();
+//    mInternalCommands.push_back();
+//    mInternalCommands.push_back();
     if(mTempPath.isEmpty())
     {
         QString tempPath=mBasePath+POINTCLOUDFILE_PROCESS_DEFAULT_TEMP_PATH;
