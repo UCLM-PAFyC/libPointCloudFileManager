@@ -2985,6 +2985,34 @@ bool PointCloudFileManager::processInternalCommand(QString &command,
                                                    QString &prefix,
                                                    QString &strError)
 {
+    if(!mInternalCommands.contains(command))
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommand");
+        strError+=QObject::tr("\nInvalid Internal command: %1").arg(command);
+        return(false);
+    }
+    if(command.compare(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_ESTIMATE,Qt::CaseInsensitive)==0)
+    {
+        return(processInternalCommandVegetationGrowthEstimate(command,
+                                                              inputFiles,
+                                                              outputPath,
+                                                              outputFile,
+                                                              suffix,
+                                                              prefix,
+                                                              strError));
+    }
+    return(true);
+}
+
+bool PointCloudFileManager::processInternalCommandVegetationGrowthEstimate(QString &command,
+                                                                           QVector<QString> &inputFiles,
+                                                                           QString &outputPath,
+                                                                           QString &outputFile,
+                                                                           QString &suffix,
+                                                                           QString &prefix,
+                                                                           QString &strError)
+{
+
     return(true);
 }
 

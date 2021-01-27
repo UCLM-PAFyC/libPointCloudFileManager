@@ -140,6 +140,13 @@ public:
                                 QString& suffix,
                                 QString& prefix,
                                 QString& strError);
+    bool processInternalCommandVegetationGrowthEstimate(QString& command,
+                                                        QVector<QString>& inputFiles,
+                                                        QString& outputPath,
+                                                        QString& outputFile,
+                                                        QString& suffix,
+                                                        QString& prefix,
+                                                        QString& strError);
     bool processReclassificationConfusionMatrixReport(QString& pcfPath,
                                                       QString& outputFileName,
                                                       QVector<int>& selectedClasses,
