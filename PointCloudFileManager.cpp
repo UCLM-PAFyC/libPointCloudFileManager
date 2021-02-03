@@ -6,6 +6,8 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QApplication>
+#include <QtConcurrent>
+#include <qtconcurrentmap.h>
 
 #include "ParameterDefinitions.h"
 #include "Parameter.h"
@@ -20,6 +22,9 @@
 
 #include "PointCloudFile.h"
 #include "PointCloudFileManager.h"
+
+#include "lasreader.hpp"
+#include "laswriter.hpp"
 
 using namespace PCFile;
 
@@ -433,8 +438,8 @@ bool PointCloudFileManager::getInternalCommandOutputDataFormat(QString &command,
     if(command.compare(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_ESTIMATE,Qt::CaseInsensitive)==0)
     {
         enableOuputPath=true;
+        enableOutputFile=true;
     }
-    return(true);
     return(true);
 }
 
@@ -3007,12 +3012,716 @@ bool PointCloudFileManager::processInternalCommand(QString &command,
 bool PointCloudFileManager::processInternalCommandVegetationGrowthEstimate(QString &command,
                                                                            QVector<QString> &inputFiles,
                                                                            QString &outputPath,
-                                                                           QString &outputFile,
+                                                                           QString &outputFileName,
                                                                            QString &suffix,
                                                                            QString &prefix,
                                                                            QString &strError)
 {
+    QWidget* ptrWidget=new QWidget();
+    QString strAuxError;
+    if(mInternalCommandsParametersFileName.isEmpty())
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nInternal commands parameters file name is empty");
+        return(false);
+    }
+    if(!QFile::exists(mInternalCommandsParametersFileName))
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nNot exists Internal commands parameters file name:\n%1")
+                .arg(mLastoolsCommandsParametersFileName);
+        return(false);
+    }
+    if(mPtrInternalCommandsParameters==NULL)
+    {
+        ParametersManager* ptrParametersManager=new ParametersManager();
+        if(!ptrParametersManager->loadFromXml(mInternalCommandsParametersFileName,strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+            strError+=QObject::tr("\nError loading parameters manager from file:\n%1\nError:\n%2")
+                    .arg(mInternalCommandsParametersFileName).arg(strAuxError);
+            delete(ptrParametersManager);
+            return(false);
+        }
+        mPtrInternalCommandsParameters=ptrParametersManager;
+    }
+    QString strValue,parameterCode,reportFileName;
+    if(outputPath.isEmpty()&&outputFileName.isEmpty())
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nOutput path and output file are empty");
+        return(false);
+    }
+    if(outputPath.isEmpty())
+    {
+        QFileInfo outputPathInfo(outputFileName);
+        outputPath=outputPathInfo.absolutePath();
+    }
+    reportFileName=outputPath+"/";
+    reportFileName+=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_REPORT_FILE_BASENAME;
+    reportFileName+=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_REPORT_FILE_EXTENSION;
+    QString modelFileName=outputFileName;
+    if(modelFileName.isEmpty())
+    {
+        outputFileName=outputPath+"/";
+        outputFileName+=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_BASENAME;
+        outputFileName+=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_EXTENSION;
+    }
+    if(QFile::exists(reportFileName))
+    {
+        if(!QFile::remove(reportFileName))
+        {
+            strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+            strError+=QObject::tr("\nError removing report file:\n%1")
+                    .arg(reportFileName);
+            return(false);
+        }
+    }
+    bool okToInt=false;
+    bool okToDouble=false;
+    Parameter* ptrParameter=NULL;
+    parameterCode=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_USE_MULTI_PROCESS;
+    ptrParameter=mPtrInternalCommandsParameters->getParameter(parameterCode);
+    if(ptrParameter==NULL)
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nParameter: %1 not found in file:\n%2")
+                .arg(parameterCode).arg(mPtrInternalCommandsParameters->getFileName());
+        return(false);
+    }
+    ptrParameter->getValue(strValue);
+    bool useMultiProcess=true;
+    if(strValue.compare("true",Qt::CaseInsensitive)!=0
+            &&strValue.compare("false",Qt::CaseInsensitive)!=0)
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nParameter: %1 is not true or false, is:").arg(parameterCode).arg(strValue);
+        return(false);
+    }
+    if(strValue.compare("false",Qt::CaseInsensitive)==0)
+    {
+        useMultiProcess=false;
+    }
+    parameterCode=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_ESTIMATE_EPSG_CODE;
+    ptrParameter=mPtrInternalCommandsParameters->getParameter(parameterCode);
+    if(ptrParameter==NULL)
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nError getting parameters for internal command: %1")
+                .arg(command);
+        strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+        return(false);
+    }
+    ptrParameter->getValue(strValue);
+    int pcfsEpsgCode=strValue.trimmed().toInt(&okToInt);
+    if(!okToInt)
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nError getting parameters for internal command: %1")
+                .arg(command);
+        strError+=QObject::tr("\nParameter: %1 is not an integer").arg(parameterCode);
+        return(false);
+    }
+    parameterCode=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_ESTIMATE_SPATIAL_RESOLUTION;
+    ptrParameter=mPtrInternalCommandsParameters->getParameter(parameterCode);
+    if(ptrParameter==NULL)
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nError getting parameters for internal command: %1")
+                .arg(command);
+        strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+        return(false);
+    }
+    ptrParameter->getValue(strValue);
+    mPICVGESpatialResolution=strValue.trimmed().toInt(&okToInt);
+    if(!okToInt)
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nError getting parameters for internal command: %1")
+                .arg(command);
+        strError+=QObject::tr("\nParameter: %1 is not an integer").arg(parameterCode);
+        return(false);
+    }
+    parameterCode=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_UPDATE_EXISTING_MODEL;
+    ptrParameter=mPtrInternalCommandsParameters->getParameter(parameterCode);
+    if(ptrParameter==NULL)
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nError getting parameters for internal command: %1")
+                .arg(command);
+        strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+        return(false);
+    }
+    ptrParameter->getValue(strValue);
+    bool updateExistingModel=false;
+    strValue=strValue.trimmed();
+    if(strValue.compare("true",Qt::CaseInsensitive)==0)
+    {
+        updateExistingModel=true;
+    }
+    QMap<int,QVector<double> > vegetationGrowthModel;
+    if(QFile::exists(modelFileName))
+    {
+        if(!updateExistingModel)
+        {
+            if(!QFile::remove(modelFileName))
+            {
+                strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+                strError+=QObject::tr("\nError removing model file:\n%1")
+                        .arg(modelFileName);
+                return(false);
+            }
+        }
+        else
+        {
+            if(!readVegetationGrowthModel(modelFileName,
+                                          vegetationGrowthModel,
+                                          strAuxError))
+            {
+                strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+                strError+=QObject::tr("\nError reading vegetation growth model from file:\n%1")
+                        .arg(modelFileName);
+                strError+=QObject::tr("\nError:\n%1")
+                        .arg(strAuxError);
+                return(false);
+            }
+        }
+    }
 
+    QMap<int,QVector<quint16> > vegetationGrowthModelValues;
+    QVector<int> stretchs;
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_1_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_2_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_3_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_4_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_5_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_6_STRETCH_UPPER);
+    if(vegetationGrowthModel.isEmpty())
+    {
+        for(int ns=0;ns<stretchs.size();ns++)
+        {
+            QVector<double> aux(6); // numberOfValues,percentil95,mean,std,min,max
+            vegetationGrowthModel[stretchs[ns]]=aux;
+            QVector<quint16> aux16;
+            vegetationGrowthModelValues[stretchs[ns]]=aux16;
+        }
+    }
+    QString pcfsCrsDescription;
+    if(!mPtrCrsTools->appendUserCrs(pcfsEpsgCode,
+                                    pcfsCrsDescription,
+                                    strAuxError))
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nInvalid CRS From EPSG code: %1").arg(QString::number(pcfsEpsgCode));
+        return(false);
+    }
+    QFile reportFile(reportFileName);
+    if (!reportFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nError opening report file:\n%1")
+                .arg(reportFileName);
+        return(false);
+    }
+    QTextStream outReport(&reportFile);
+    outReport<<"VEGETATION GROWTH ESTIMATION FROM POINT CLOUDS REPORT"<<"\n";
+    outReport<<"- Number of input files ................: "<<QString::number(inputFiles.size())<<"\n";
+    QMap<int,QVector<int> > filePosByYear;
+    for(int nf=0;nf<inputFiles.size();nf++)
+    {
+        QString inputFileName=inputFiles.at(nf);
+        QFileInfo inputFileInfo(inputFileName);
+        QString inputBaseName=inputFileInfo.baseName();
+        QStringList strCandidates=inputBaseName.split("_");
+        bool existsYear=false;
+        for(int nsc=0;nsc<strCandidates.size();nsc++)
+        {
+            QString strCandidate=strCandidates.at(nsc).trimmed();
+            if(strCandidate.size()==4)
+            {
+                okToInt=false;
+                int year=strCandidate.toInt(&okToInt);
+                if(okToInt)
+                {
+                    if(year>=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MIN_YEAR)
+                    {
+                        if(existsYear)
+                        {
+                            strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+                            strError+=QObject::tr("\nFor file:\n%1").arg(inputFileName);
+                            strError+=QObject::tr("\nthere are more than one string candidate for year");
+                            reportFile.close();
+                            return(false);
+                        }
+                        if(!filePosByYear.contains(year))
+                        {
+                            QVector<int> aux;
+                            filePosByYear[year]=aux;
+                        }
+                        filePosByYear[year].push_back(nf);
+                        existsYear=true;
+                    }
+                }
+            }
+        }
+        if(!existsYear)
+        {
+            strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+            strError+=QObject::tr("\nFor file:\n%1").arg(inputFileName);
+            strError+=QObject::tr("\nthere are one string candidate for year");
+            reportFile.close();
+            return(false);
+        }
+    }
+    QVector<int> years;
+    QMap<int,QVector<int> >::const_iterator iterFilePosByYear=filePosByYear.begin();
+    outReport<<"- Files by year: "<<"\n";
+    while(iterFilePosByYear!=filePosByYear.end())
+    {
+        int year=iterFilePosByYear.key();
+        years.push_back(year);
+        outReport<<"  - Year ...............................: "<<QString::number(year)<<"\n";
+        for(int nf=0;nf<iterFilePosByYear.value().size();nf++)
+        {
+            QString fileName=inputFiles[iterFilePosByYear.value()[nf]];
+            outReport<<"    - File .............................: "<<fileName<<"\n";
+        }
+        iterFilePosByYear++;
+    }
+    double maxCoordinatesLenght=(pow(2,16)-1.)*mPICVGESpatialResolution;
+    int numberOfProcesses=inputFiles.size();
+    mPICVGEBoundingBoxesByFilePos.clear();
+    mPICVGEMaxHeightsByTileXYByFilePos.clear();
+    if(!useMultiProcess)
+    {
+        QProgressDialog* ptrProgress=NULL;
+        if(ptrWidget!=NULL)
+        {
+            QString title=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+            QString msgGlobal=QObject::tr("Reading point cloud files");
+            msgGlobal+=QObject::tr("\nNumber of files to read: %1").arg(QString::number(numberOfProcesses));
+            ptrProgress=new QProgressDialog(title, "Abort",0,numberOfProcesses, ptrWidget);
+            ptrProgress->setWindowModality(Qt::WindowModal);
+            ptrProgress->setLabelText(msgGlobal);
+            ptrProgress->show();
+            qApp->processEvents();
+        }
+        for(int nf=0;nf<inputFiles.size();nf++)
+        {
+            QString inputFileName=inputFiles.at(nf);
+            if(ptrWidget!=NULL)
+            {
+                ptrProgress->setValue(nf+1);
+                qApp->processEvents();
+            }
+            std::string stdFileName=inputFileName.toStdString();
+            const char* charFileName=stdFileName.c_str();
+            LASreadOpener lasreadopener;
+            lasreadopener.set_file_name(charFileName);
+            if (!lasreadopener.active())
+            {
+                strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+                strError+=QObject::tr("\nError opening file:\n%1").arg(inputFileName);
+                reportFile.close();
+                return(false);
+            }
+
+            LASreader* lasreader = lasreadopener.open();
+            LASheader* lasheader = &lasreader->header;
+            int numberOfPoints=lasreader->npoints;
+            double fileMinX=lasheader->min_x;
+            double fileMinY=lasheader->min_y;
+            double fileMaxX=lasheader->max_x;
+            double fileMaxY=lasheader->max_y;
+            QVector<double> boundingBox(4);
+            boundingBox[0]=fileMinX;
+            boundingBox[1]=fileMinY;
+            boundingBox[2]=fileMaxX;
+            boundingBox[3]=fileMaxY;
+            mPICVGEBoundingBoxesByFilePos[nf]=boundingBox;
+            QProgressDialog* ptrFileProgress=NULL;
+            int pointsStep=POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP;
+            int numberOfSteps=ceil((double)numberOfPoints/(double)pointsStep);
+            if(ptrWidget!=NULL)
+            {
+                QString title=QObject::tr("Adding Point Cloud File:");
+                QString msgGlobal=inputFileName;
+                msgGlobal+="\n";
+                msgGlobal+=QString::number(numberOfPoints,10);
+                msgGlobal+=" points";
+                ptrFileProgress=new QProgressDialog(title, "Abort",0,numberOfSteps, ptrWidget);
+                ptrFileProgress->setWindowModality(Qt::WindowModal);
+                ptrFileProgress->setLabelText(msgGlobal);
+                ptrFileProgress->show();
+                qApp->processEvents();
+            }
+            int pointPosition=-1;
+            int step=0;
+            int numberOfProcessedPoints=0;
+            int numberOfProcessedPointsInStep=0;
+            int numberOfPointsToProcessInStep=numberOfPoints;
+            if(POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP<numberOfPointsToProcessInStep)
+            {
+                numberOfPointsToProcessInStep=POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP;
+            }
+            while(lasreader->read_point()&&numberOfPointsToProcessInStep>0)
+            {
+                U8 pointClass=lasreader->point.get_classification();
+                if(pointClass==4||pointClass==5)
+                {
+                    double x=lasreader->point.get_X()*lasheader->x_scale_factor+lasheader->x_offset;
+                    double y=lasreader->point.get_Y()*lasheader->y_scale_factor+lasheader->y_offset;
+                    double z=lasreader->point.get_Z()*lasheader->z_scale_factor+lasheader->z_offset;
+                    quint16 posX=floor((x-fileMinX)/mPICVGESpatialResolution);
+                    quint16 posY=floor((y-fileMinY)/mPICVGESpatialResolution);
+                    quint16 height=qRound(z*1000.);
+                    if(posX>maxCoordinatesLenght
+                            ||posY>maxCoordinatesLenght)
+                    {
+                        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+                        strError+=QObject::tr("\nIn file:\n%1").arg(inputFileName);
+                        strError+=QObject::tr("\ncoordinates increments out of 16 bits domain for point: (%1,%2)")
+                                .arg(QString::number(x,'f',3)).arg(QString::number(y,'f',3));
+                        lasreader->close();
+                        delete lasreader;
+                        reportFile.close();
+                        return(false);
+                    }
+                    if(!mPICVGEMaxHeightsByTileXYByFilePos[nf].contains(posX))
+                    {
+                        mPICVGEMaxHeightsByTileXYByFilePos[nf][posX][posY]=height;
+                    }
+                    else if(!mPICVGEMaxHeightsByTileXYByFilePos[nf][posX].contains(posY))
+                    {
+                        mPICVGEMaxHeightsByTileXYByFilePos[nf][posX][posY]=height;
+                    }
+                    else
+                    {
+                        if(height>mPICVGEMaxHeightsByTileXYByFilePos[nf][posX][posY])
+                        {
+                            mPICVGEMaxHeightsByTileXYByFilePos[nf][posX][posY]=height;
+                        }
+                    }
+                }
+                numberOfProcessedPoints++;
+                numberOfProcessedPointsInStep++;
+                if(numberOfProcessedPointsInStep==numberOfPointsToProcessInStep)
+                {
+                    step++;
+                    numberOfPointsToProcessInStep=numberOfPoints-numberOfProcessedPoints;
+                    if(POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP<numberOfPointsToProcessInStep)
+                    {
+                        numberOfPointsToProcessInStep=POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP;
+                    }
+                    numberOfProcessedPointsInStep=0;
+                    if(ptrWidget!=NULL)
+                    {
+                        ptrFileProgress->setValue(step);
+                        qApp->processEvents();
+                    }
+                }
+            }
+            if(ptrWidget!=NULL)
+            {
+                ptrFileProgress->setValue(numberOfProcesses);
+                qApp->processEvents();
+                ptrFileProgress->close();
+                delete(ptrFileProgress);
+            }
+            lasreader->close();
+            delete lasreader;
+        }
+        if(ptrWidget!=NULL)
+        {
+            ptrProgress->setValue(numberOfProcesses);
+            qApp->processEvents();
+            ptrProgress->close();
+            delete(ptrProgress);
+        }
+    }
+    else
+    {
+        mInputFiles=inputFiles;
+        if(mPtrMpProgressDialog!=NULL)
+        {
+            delete(mPtrMpProgressDialog);
+        }
+        if(ptrWidget!=NULL)
+            mPtrMpProgressDialog=new QProgressDialog(ptrWidget);
+        else
+            mPtrMpProgressDialog=new QProgressDialog();
+        //        mNumberOfSqlsInTransaction=0;
+        mNumberOfFilesToProcess=mInputFiles.size();
+        QString dialogText=QObject::tr("Reading point cloud files");
+        dialogText+=QObject::tr("\nNumber of point cloud files to read:%1").arg(mNumberOfFilesToProcess);
+        dialogText+=QObject::tr("\n... progressing using %1 threads").arg(QThread::idealThreadCount());
+        //                mPtrMpProgressDialog->setWindowTitle(title);
+        QVector<int> posFiles;
+        mNumberOfPointsToProcessByFileName.clear();
+        for(int nf=0;nf<mNumberOfFilesToProcess;nf++)
+        {
+            QString inputFileName=mInputFiles[nf];
+//            dialogText+=QObject::tr("\nPoints to process %1 in file: %2")
+//                    .arg("All").arg(inputFileName);
+            mNumberOfPointsToProcessByFileName[inputFileName]=-1;
+            posFiles.push_back(nf);
+        }
+        mPtrMpProgressDialog->setLabelText(dialogText);
+        mPtrMpProgressDialog->setModal(true);
+        QFutureWatcher<void> futureWatcher;
+        QObject::connect(&futureWatcher, SIGNAL(finished()), mPtrMpProgressDialog, SLOT(reset()));
+        QObject::connect(mPtrMpProgressDialog, SIGNAL(canceled()), &futureWatcher, SLOT(cancel()));
+        QObject::connect(&futureWatcher, SIGNAL(progressRangeChanged(int,int)), mPtrMpProgressDialog, SLOT(setRange(int,int)));
+        QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), mPtrMpProgressDialog, SLOT(setValue(int)));
+        //                futureWatcher.setFuture(QtConcurrent::map(fieldsValuesToRetrieve, mpLoadPhotovoltaicPanelsFromDb));
+        futureWatcher.setFuture(QtConcurrent::map(posFiles,
+                                                  [this](int& data)
+        {mpProcessInternalCommandVegetationGrowthEstimate(data);}));
+        // Display the dialog and start the event loop.
+        mStrErrorMpProgressDialog="";
+        mPtrMpProgressDialog->exec();
+        futureWatcher.waitForFinished();
+        delete(mPtrMpProgressDialog);
+        mPtrMpProgressDialog=NULL;
+        if(!mStrErrorMpProgressDialog.isEmpty())
+        {
+            strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+            strError+=QObject::tr("\nError reading point cloud files");
+            strError+=QObject::tr("\nError:\n%1").arg(mStrErrorMpProgressDialog);
+            reportFile.close();
+            return(false);
+        }
+    }
+
+//    QVector<double> aux(3); // mean,std,numberOfValues
+//    vegetationGrowthModel[strectchs[ns]]=aux;
+//    QMap<int,QVector<double> > boundingBoxesByFilePos;
+//    QMap<int,QMap<quint16,QMap<quint16,quint16> > > maxHeightsByTileXYByFilePos;
+//    QVector<QString> inputFiles;
+    for(int fny=0;fny<(years.size()-1);fny++)
+    {
+        int firstYear=years[fny];
+        QVector<int> firstYearFilesPos=filePosByYear[firstYear];
+        for(int sny=fny+1;sny<years.size();sny++)
+        {
+            int secondYear=years[sny];
+            QVector<int> secondYearFilesPos=filePosByYear[secondYear];
+            for(int nfyf=0;nfyf<firstYearFilesPos.size();nfyf++)
+            {
+                int firstFilePos=firstYearFilesPos[nfyf];
+                double fMinX=mPICVGEBoundingBoxesByFilePos[firstFilePos][0];
+                double fMinY=mPICVGEBoundingBoxesByFilePos[firstFilePos][1];
+                double fMaxX=mPICVGEBoundingBoxesByFilePos[firstFilePos][2];
+                double fMaxY=mPICVGEBoundingBoxesByFilePos[firstFilePos][3];
+                QMap<quint16,QMap<quint16,quint16> > firstMaxHeightsByTileXY=mPICVGEMaxHeightsByTileXYByFilePos[firstFilePos];
+                for(int nsyf=0;nsyf<secondYearFilesPos.size();nsyf++)
+                {
+                    int secondFilePos=secondYearFilesPos[nsyf];
+                    double sMinX=mPICVGEBoundingBoxesByFilePos[secondFilePos][0];
+                    double sMinY=mPICVGEBoundingBoxesByFilePos[secondFilePos][1];
+                    double sMaxX=mPICVGEBoundingBoxesByFilePos[secondFilePos][2];
+                    double sMaxY=mPICVGEBoundingBoxesByFilePos[secondFilePos][3];
+                    if(sMaxX<=fMinX||sMinX>=fMaxX
+                            ||sMaxY<=fMinY||sMinY>=fMaxY)
+                    {
+                        continue;
+                    }
+                    QMap<quint16,QMap<quint16,quint16> > secondMaxHeightsByTileXY=mPICVGEMaxHeightsByTileXYByFilePos[secondFilePos];
+                    QMap<quint16,QMap<quint16,quint16> >::const_iterator iterShTileX=secondMaxHeightsByTileXY.begin();
+                    while(iterShTileX!=secondMaxHeightsByTileXY.end())
+                    {
+                        quint16 sPosX=iterShTileX.key();
+                        QMap<quint16,quint16> secondMaxHeightsByTileY=iterShTileX.value();
+                        QMap<quint16,quint16>::const_iterator iterShTileY=secondMaxHeightsByTileY.begin();
+                        while(iterShTileY!=secondMaxHeightsByTileY.end())
+                        {
+                            quint16 sPosY=iterShTileY.key();
+                            double x=sPosX*mPICVGESpatialResolution+sMinX+mPICVGESpatialResolution/2.0;
+                            double y=sPosY*mPICVGESpatialResolution+sMinY+mPICVGESpatialResolution/2.0;
+                            quint16 fPosX=floor((x-fMinX)/mPICVGESpatialResolution);
+                            quint16 fPosY=floor((y-fMinY)/mPICVGESpatialResolution);
+                            if(firstMaxHeightsByTileXY.contains(fPosX))
+                            {
+                                if(firstMaxHeightsByTileXY[fPosX].contains(fPosY))
+                                {
+                                    double fHeight=firstMaxHeightsByTileXY[fPosX][fPosY]/1000.;
+                                    double sHeight=secondMaxHeightsByTileXY[sPosX][sPosY]/1000.;
+                                    if(sHeight>fHeight)
+                                    {
+                                        double annualGrowthRate=(sHeight-fHeight)/(double(secondYear-firstYear));
+                                        quint16 value=(quint16)ceil(annualGrowthRate*1000.);
+                                        int pos=-1;
+                                        while(fHeight>stretchs[pos+1]) // hasta 2 m de altura es el primer crecimiento
+                                        {
+                                            pos++;
+                                        }
+                                        vegetationGrowthModelValues[pos].push_back(value);
+                                    }
+                                }
+                            }
+                            iterShTileY++;
+                        }
+                        iterShTileX++;
+                    }
+                }
+
+            }
+
+        }
+    }
+    mPICVGEBoundingBoxesByFilePos.clear();
+    mPICVGEMaxHeightsByTileXYByFilePos.clear();
+    //    outReport<<"- Number of input files ................: "<<QString::number(inputFiles.size())<<"\n";
+//    QMap<int,QVector<double> > vegetationGrowthModel;
+//    QVector<double> aux(6); // numberOfValues,percentil,mean,std,min,max,
+//    QMap<int,QVector<quint16> > vegetationGrowthModelValues;
+//    QVector<int> strectchs;
+    outReport<<"- Model calculated for annual growth rates by strech from input files:"<<"\n";
+    outReport<<"  - Stretchs (m)........................: "<<QString::number(stretchs.size())<<" values [";
+    for(int ns=0;ns<stretchs.size();ns++)
+    {
+        outReport<<QString::number(stretchs[ns]);
+        if(ns<(stretchs.size()-1)) outReport<<",";
+    }
+    outReport<<"]\n";
+    for(int ns=0;ns<stretchs.size();ns++)
+    {
+        double meanValue=0.;
+        double minimumValue=1000000.0;
+        double maximumValue=0.;
+        double stdValue=-1.;
+        double percentilValue=0;
+        bool existsValues=false;
+        if(vegetationGrowthModelValues[ns].size()>0)
+        {
+            existsValues=true;
+            for(int nv=0;nv<vegetationGrowthModelValues[ns].size();nv++)
+            {
+                double value=vegetationGrowthModelValues[ns][nv]/1000.;
+                if(value<minimumValue) minimumValue=value;
+                if(value>maximumValue) maximumValue=value;
+                meanValue+=value;
+            }
+            meanValue/=(vegetationGrowthModelValues[ns].size());
+            if(vegetationGrowthModelValues[ns].size()>1)
+            {
+                stdValue=0.;
+                std::vector<double> dblValues;
+                for(int nv=0;nv<vegetationGrowthModelValues[ns].size();nv++)
+                {
+                    double value=vegetationGrowthModelValues[ns][nv]/1000.;
+                    stdValue+=pow(meanValue-value,2.0);
+                    dblValues.push_back(value);
+                }
+                stdValue=sqrt(stdValue/(vegetationGrowthModelValues[ns].size()-1));
+                //            std::sort(v.begin(), v.end(), sort_using_greater_than); // de mas a menos
+                std::sort(dblValues.begin(), dblValues.end());
+                int posPercentil=floor(vegetationGrowthModelValues[ns].size()*POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL/100.);
+                percentilValue=dblValues[posPercentil];
+            }
+            else
+            {
+                percentilValue=meanValue;
+            }
+        }
+        outReport<<"  - Stretch (m).........................: "<<QString::number(stretchs[ns])<<"\n";
+        if(existsValues)
+        {
+            outReport<<"    - Number of values .................: "<<QString::number(vegetationGrowthModelValues[ns].size())<<"\n";
+            outReport<<"    - Percentil value "<< QString::number(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL);
+            outReport<<"% (m)...........: "<<QString::number(percentilValue,'f',2)<<"\n";
+            outReport<<"    - Mean value (m)....................: "<<QString::number(meanValue,'f',2)<<"\n";
+            outReport<<"    - Minimun value (m).................: "<<QString::number(minimumValue,'f',2)<<"\n";
+            outReport<<"    - Maximum value (m).................: "<<QString::number(maximumValue,'f',2)<<"\n";
+            if(stdValue>0)
+                outReport<<"    - Std value (m).....................: "<<QString::number(stdValue,'f',2)<<"\n";
+            if(vegetationGrowthModel[stretchs[ns]][0]==0)
+            {
+                vegetationGrowthModel[stretchs[ns]][0]=vegetationGrowthModelValues[ns].size();
+                vegetationGrowthModel[stretchs[ns]][1]=percentilValue;
+                vegetationGrowthModel[stretchs[ns]][2]=meanValue;
+                vegetationGrowthModel[stretchs[ns]][3]=minimumValue;
+                vegetationGrowthModel[stretchs[ns]][4]=maximumValue;
+                vegetationGrowthModel[stretchs[ns]][5]=stdValue;
+            }
+            else
+            {
+                int previousNumberOfValues=vegetationGrowthModel[stretchs[ns]][0];
+                double previousPercentileValue=vegetationGrowthModel[stretchs[ns]][1];
+                double previousMeanValue=vegetationGrowthModel[stretchs[ns]][2];
+                double previousMinimumValue=vegetationGrowthModel[stretchs[ns]][3];
+                double previousMaximumValue=vegetationGrowthModel[stretchs[ns]][4];
+                double previousStdValue=vegetationGrowthModel[stretchs[ns]][5];
+                int numberOfValues=vegetationGrowthModelValues[ns].size();
+                int finalNumberOfValues=previousNumberOfValues+numberOfValues;
+                double finalPercentilValue=(previousPercentileValue*previousNumberOfValues+percentilValue*numberOfValues)/(previousNumberOfValues+numberOfValues);
+                double finalMeanValue=(previousMeanValue*previousNumberOfValues+meanValue*numberOfValues)/(previousNumberOfValues+numberOfValues);
+                double finalStdValue=(previousStdValue*previousNumberOfValues+stdValue*numberOfValues)/(previousNumberOfValues+numberOfValues);
+                double finalMinimumValue=previousMinimumValue;
+                if(minimumValue<finalMinimumValue) finalMinimumValue=minimumValue;
+                double finalMaximumValue=previousMaximumValue;
+                if(maximumValue>finalMaximumValue) finalMaximumValue=maximumValue;
+                vegetationGrowthModel[stretchs[ns]][0]=finalNumberOfValues;
+                vegetationGrowthModel[stretchs[ns]][1]=finalPercentilValue;
+                vegetationGrowthModel[stretchs[ns]][2]=finalMeanValue;
+                vegetationGrowthModel[stretchs[ns]][3]=finalMinimumValue;
+                vegetationGrowthModel[stretchs[ns]][4]=finalMaximumValue;
+                vegetationGrowthModel[stretchs[ns]][5]=finalStdValue;
+            }
+        }
+        else
+        {
+            outReport<<"    - There are no values"<<"\n";
+        }
+    }
+    reportFile.close();
+    if(QFile::exists(modelFileName))
+    {
+//        outReport<<"- Model combining the calculated with the existing one:"<<"\n";
+        if(!QFile::remove(modelFileName))
+        {
+            strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+            strError+=QObject::tr("\nError removing model file:\n%1").arg(modelFileName);
+            return(false);
+        }
+    }
+    QFile modelFile(modelFileName);
+    if (!modelFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        strError=QObject::tr("PointCloudFileManager::processInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nError opening model file:\n%1")
+                .arg(modelFileName);
+        return(false);
+    }
+    QTextStream outModel(&modelFile);
+    outModel<<"VEGETATION GROWTH ESTIMATION FROM POINT CLOUDS MODEL"<<"\n";
+    for(int ns=0;ns<stretchs.size();ns++)
+    {
+        outModel<<"- Stretch ............................";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(stretchs[ns])<<"\n";
+        outModel<<"  - Number of values .................";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][0])<<"\n";
+        if(vegetationGrowthModel[stretchs[ns]][0]==0) continue;
+        outModel<<"  - Percentil value "<< QString::number(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL);
+        outModel<<"% (m)...........";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][1],'f',2)<<"\n";
+        outModel<<"  - Mean value (m)....................";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][2],'f',2)<<"\n";
+        outModel<<"  - Minimun value (m).................";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][3],'f',2)<<"\n";
+        outModel<<"  - Maximum value (m).................";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][4],'f',2)<<"\n";
+        outModel<<"  - Std value (m).....................";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][5],'f',2)<<"\n";
+    }
+    modelFile.close();
     return(true);
 }
 
@@ -4842,6 +5551,265 @@ bool PointCloudFileManager::processReclassificationConfusionMatrixReport(QString
     return(true);
 }
 
+bool PointCloudFileManager::readVegetationGrowthModel(QString &fileName,
+                                                      QMap<int, QVector<double> > &vegetationGrowthModel,
+                                                      QString &strError)
+{
+    vegetationGrowthModel.clear();
+    if(fileName.isEmpty())
+    {
+        strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+        strError+=QObject::tr("\nInput file name is empty");
+        return(false);
+    }
+    if(!QFile::exists(fileName))
+    {
+        strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+        strError+=QObject::tr("\nNot exists input file: \n%1").arg(fileName);
+        return(false);
+    }
+    QFile fileInput(fileName);
+    if (!fileInput.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+        strError+=QObject::tr("\nError opening file: \n%1").arg(fileName);
+        return(false);
+    }
+    QFileInfo fileInputInfo(fileName);
+    QString projectFileBaseName=fileInputInfo.completeBaseName();
+
+    QTextStream in(&fileInput);
+    QVector<int> stretchs;
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_1_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_2_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_3_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_4_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_5_STRETCH_UPPER);
+    stretchs.push_back(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_6_STRETCH_UPPER);
+
+    int intValue,nline=0;
+    double dblValue;
+    bool okToInt,okToDouble;
+    QString strLine,strValue;
+    QStringList strList;
+    QStringList strAuxList;
+    QDir currentDir=QDir::current();
+
+    QString msg;
+
+    // Ignore header
+    nline++;
+    strLine=in.readLine();
+
+    for(int ns=0;ns<stretchs.size();ns++)
+    {
+        // Reading stretch, integer
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToInt=false;
+        int stretch=strValue.toInt(&okToInt);
+        if(!okToInt)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nStretch is not an integer: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+
+        // Reading number of values
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToInt=false;
+        int numberOfValues=strValue.toInt(&okToInt);
+        if(!okToInt)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nNumber of values is not an integer: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+        if(numberOfValues==0)
+        {
+            QVector<double> values(6);
+            vegetationGrowthModel[stretch]=values;
+            continue;
+        }
+
+        // Reading percentile 95% value
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToDouble=false;
+        double percentileValue=strValue.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nPercentil 95% value is not a double: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+
+        // Reading mean value
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToDouble=false;
+        double meanValue=strValue.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nMean value is not a double: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+
+        // Reading minimum value
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToDouble=false;
+        double minimumValue=strValue.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nMinimum value is not a double: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+
+        // Reading maximum value
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToDouble=false;
+        double maximumValue=strValue.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nMaximum value is not a double: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+
+        // Reading std value
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToDouble=false;
+        double stdValue=strValue.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nStandard deviation value is not a double: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+        QVector<double> values(6);
+        values[0]=numberOfValues;
+        values[1]=percentileValue;
+        values[2]=meanValue;
+        values[3]=minimumValue;
+        values[4]=maximumValue;
+        values[5]=stdValue;
+        vegetationGrowthModel[stretch]=values;
+    }
+    fileInput.close();
+    return(true);
+}
+
 bool PointCloudFileManager::selectLastoolsCommandParameters(QString lastoolscommand,
                                                             QString &strError)
 {
@@ -5424,4 +6392,130 @@ bool PointCloudFileManager::writePointCloudFile(QString fileName,
         return(false);
     }
     return(true);
+}
+
+void PointCloudFileManager::mpProcessInternalCommandVegetationGrowthEstimate(int nf)
+{
+    QString strError,strAuxError;
+    QString inputFileName=mInputFiles.at(nf);
+    std::string stdFileName=inputFileName.toStdString();
+    const char* charFileName=stdFileName.c_str();
+    LASreadOpener lasreadopener;
+    lasreadopener.set_file_name(charFileName);
+    if (!lasreadopener.active())
+    {
+        strError=QObject::tr("PointCloudFileManager::mpProcessInternalCommandVegetationGrowthEstimate");
+        strError+=QObject::tr("\nError opening file:\n%1").arg(inputFileName);
+        mStrErrorMpProgressDialog=strError;
+        emit(mPtrMpProgressDialog->canceled());
+        return;
+    }
+
+    double maxCoordinatesLenght=(pow(2,16)-1.)*mPICVGESpatialResolution;
+    LASreader* lasreader = lasreadopener.open();
+    LASheader* lasheader = &lasreader->header;
+    int numberOfPoints=lasreader->npoints;
+    double fileMinX=lasheader->min_x;
+    double fileMinY=lasheader->min_y;
+    double fileMaxX=lasheader->max_x;
+    double fileMaxY=lasheader->max_y;
+    QVector<double> boundingBox(4);
+    boundingBox[0]=fileMinX;
+    boundingBox[1]=fileMinY;
+    boundingBox[2]=fileMaxX;
+    boundingBox[3]=fileMaxY;
+    int pointsStep=POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP;
+    int numberOfSteps=ceil((double)numberOfPoints/(double)pointsStep);
+    int pointPosition=-1;
+    int step=0;
+    int numberOfProcessedPoints=0;
+    int numberOfProcessedPointsInStep=0;
+    int numberOfPointsToProcessInStep=numberOfPoints;
+    if(POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP<numberOfPointsToProcessInStep)
+    {
+        numberOfPointsToProcessInStep=POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP;
+    }
+    while(lasreader->read_point()&&numberOfPointsToProcessInStep>0)
+    {
+        U8 pointClass=lasreader->point.get_classification();
+        if(pointClass==4||pointClass==5)
+        {
+            double x=lasreader->point.get_X()*lasheader->x_scale_factor+lasheader->x_offset;
+            double y=lasreader->point.get_Y()*lasheader->y_scale_factor+lasheader->y_offset;
+            double z=lasreader->point.get_Z()*lasheader->z_scale_factor+lasheader->z_offset;
+            quint16 posX=floor((x-fileMinX)/mPICVGESpatialResolution);
+            quint16 posY=floor((y-fileMinY)/mPICVGESpatialResolution);
+            quint16 height=qRound(z*1000.);
+            if(posX>maxCoordinatesLenght
+                    ||posY>maxCoordinatesLenght)
+            {
+                strError=QObject::tr("PointCloudFileManager::mpProcessInternalCommandVegetationGrowthEstimate");
+                strError+=QObject::tr("\nIn file:\n%1").arg(inputFileName);
+                strError+=QObject::tr("\ncoordinates increments out of 16 bits domain for point: (%1,%2)")
+                        .arg(QString::number(x,'f',3)).arg(QString::number(y,'f',3));
+                lasreader->close();
+                mStrErrorMpProgressDialog=strError;
+                emit(mPtrMpProgressDialog->canceled());
+                return;
+            }
+            mMutex.lock();
+            if(!mPICVGEMaxHeightsByTileXYByFilePos[nf].contains(posX))
+            {
+                mPICVGEMaxHeightsByTileXYByFilePos[nf][posX][posY]=height;
+            }
+            else if(!mPICVGEMaxHeightsByTileXYByFilePos[nf][posX].contains(posY))
+            {
+                mPICVGEMaxHeightsByTileXYByFilePos[nf][posX][posY]=height;
+            }
+            else
+            {
+                if(height>mPICVGEMaxHeightsByTileXYByFilePos[nf][posX][posY])
+                {
+                    mPICVGEMaxHeightsByTileXYByFilePos[nf][posX][posY]=height;
+                }
+            }
+            mMutex.unlock();
+        }
+        numberOfProcessedPoints++;
+        numberOfProcessedPointsInStep++;
+        if(numberOfProcessedPointsInStep==numberOfPointsToProcessInStep)
+        {
+            step++;
+            numberOfPointsToProcessInStep=numberOfPoints-numberOfProcessedPoints;
+            if(POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP<numberOfPointsToProcessInStep)
+            {
+                numberOfPointsToProcessInStep=POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP;
+            }
+            numberOfProcessedPointsInStep=0;
+            int numberOfPointsToProcess=numberOfPoints-numberOfProcessedPoints;
+            mMutex.lock();
+            mNumberOfPointsToProcessByFileName[inputFileName]=numberOfPointsToProcess;
+//            QString dialogText=QObject::tr("Reading point cloud files");
+//            dialogText+=QObject::tr("\nNumber of point cloud files to read:%1").arg(mNumberOfFilesToProcess);
+//            dialogText+=QObject::tr("\n... progressing using %1 threads").arg(QThread::idealThreadCount());
+//    //                mPtrMpProgressDialog->setWindowTitle(title);
+//            QMap<QString,int>::iterator iter=mNumberOfPointsToProcessByFileName.begin();
+//            while(iter!=mNumberOfPointsToProcessByFileName.end())
+//            {
+//                QString auxInputFileName=iter.key();
+//                int auxNumberOfPointsToProcess=iter.value();
+//                QString strNumberOfPointsToProcess="All";
+//                if(auxNumberOfPointsToProcess!=-1)
+//                {
+//                    strNumberOfPointsToProcess=QString::number(auxNumberOfPointsToProcess);
+//                }
+//                dialogText+=QObject::tr("\nPoints to process %1 in file: %2")
+//                        .arg(strNumberOfPointsToProcess).arg(auxInputFileName);
+//                iter++;
+//            }
+//            mPtrMpProgressDialog->setLabelText(dialogText);
+            mMutex.unlock();
+        }
+    }
+    lasreader->close();
+    delete lasreader;
+    mMutex.lock();
+    mPICVGEBoundingBoxesByFilePos[nf]=boundingBox;
+    mMutex.unlock();
+    return;
 }

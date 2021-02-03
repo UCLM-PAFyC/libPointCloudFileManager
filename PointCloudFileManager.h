@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QTextStream>
 #include <QDateTime>
+#include <QMutex>
+#include <QProgressDialog>
 
 #include "PointCloudFileDefinitions.h"
 #include "Point.h"
@@ -37,6 +39,7 @@ public:
         mPtrLastoolsCommandsParameters=NULL;
         mPtrInternalCommandsParameters=NULL;
         mPtrProgressExternalProcessDialog=NULL;
+        mPtrMpProgressDialog=NULL;
 //        mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_1);
         mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_5);
         mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_10);
@@ -143,7 +146,7 @@ public:
     bool processInternalCommandVegetationGrowthEstimate(QString& command,
                                                         QVector<QString>& inputFiles,
                                                         QString& outputPath,
-                                                        QString& outputFile,
+                                                        QString& outputFileName,
                                                         QString& suffix,
                                                         QString& prefix,
                                                         QString& strError);
@@ -207,6 +210,9 @@ private:
     bool processReclassificationConfusionMatrixReport(QString fileName,
                                                       QTextStream& in,
                                                       QString& strError);
+    bool readVegetationGrowthModel(QString& fileName,
+                                   QMap<int,QVector<double> >& vegetationGrowthModel,
+                                   QString& strError);
     bool removeDir(QString dirName,
                    bool onlyContent=false);
     bool setProjectsParametersManager(QString projectType,
@@ -218,6 +224,8 @@ private:
     bool writePointCloudFile(QString fileName,
                              QTextStream& in,
                              QString& strError);
+
+    void mpProcessInternalCommandVegetationGrowthEstimate(int nf);
 
     static PointCloudFileManager * mInstance;
     libCRS::CRSTools* mPtrCrsTools;
@@ -245,6 +253,17 @@ private:
     QVector<int> mGridSizes;
     int mMaxGridSize;
     bool mUseMultiProcess;
+
+    QMutex mMutex;
+    int mNumberOfFilesToProcess;
+    QMap<QString,int> mNumberOfPointsToProcessByFileName;
+    QVector<QString> mInputFiles;
+    QProgressDialog* mPtrMpProgressDialog;
+    QString mStrErrorMpProgressDialog;
+
+    int mPICVGESpatialResolution;
+    QMap<int,QVector<double> > mPICVGEBoundingBoxesByFilePos;
+    QMap<int,QMap<quint16,QMap<quint16,quint16> > > mPICVGEMaxHeightsByTileXYByFilePos;
 };
 }
 #endif // LIBPOINTCLOUDFILEMANAGER_H
