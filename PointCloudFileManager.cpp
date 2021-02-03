@@ -3017,6 +3017,7 @@ bool PointCloudFileManager::processInternalCommandVegetationGrowthEstimate(QStri
                                                                            QString &prefix,
                                                                            QString &strError)
 {
+    int yo=1;
     QWidget* ptrWidget=new QWidget();
     QString strAuxError;
     if(mInternalCommandsParametersFileName.isEmpty())
