@@ -3200,7 +3200,7 @@ bool PointCloudFileManager::processInternalCommandVegetationGrowthEstimate(QStri
     {
         for(int ns=0;ns<stretchs.size();ns++)
         {
-            QVector<double> aux(6); // numberOfValues,percentil95,mean,std,min,max
+            QVector<double> aux(5); // numberOfValues,mean,std,percentil05,percentil95
             vegetationGrowthModel[stretchs[ns]]=aux;
             QVector<quint16> aux16;
             vegetationGrowthModelValues[stretchs[ns]]=aux16;
@@ -3587,86 +3587,80 @@ bool PointCloudFileManager::processInternalCommandVegetationGrowthEstimate(QStri
     for(int ns=0;ns<stretchs.size();ns++)
     {
         double meanValue=0.;
-        double minimumValue=1000000.0;
-        double maximumValue=0.;
         double stdValue=-1.;
-        double percentilValue=0;
+        double percentil95Value=0;
+        double percentil05Value=0;
         bool existsValues=false;
-        if(vegetationGrowthModelValues[ns].size()>0)
+        int numberOfUsedValues=0;
+        if(vegetationGrowthModelValues[ns].size()>=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_MINIMUM_NUMBER_OF_VALUES_FOR_STATISTICS)
         {
             existsValues=true;
+            std::vector<double> dblValues;
             for(int nv=0;nv<vegetationGrowthModelValues[ns].size();nv++)
             {
                 double value=vegetationGrowthModelValues[ns][nv]/1000.;
-                if(value<minimumValue) minimumValue=value;
-                if(value>maximumValue) maximumValue=value;
+                stdValue+=pow(meanValue-value,2.0);
+                dblValues.push_back(value);
+            }
+            std::sort(dblValues.begin(), dblValues.end());
+            int posPercentil95=ceil(vegetationGrowthModelValues[ns].size()*POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL/100.);
+            percentil95Value=dblValues[posPercentil95];
+            int posPercentil05=floor(vegetationGrowthModelValues[ns].size()*(1.-POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL/100.));
+            percentil05Value=dblValues[posPercentil05];
+            numberOfUsedValues=posPercentil95-posPercentil05;
+            for(int nv=posPercentil05;nv<posPercentil95;nv++)
+            {
+                double value=dblValues[nv];
                 meanValue+=value;
             }
-            meanValue/=(vegetationGrowthModelValues[ns].size());
-            if(vegetationGrowthModelValues[ns].size()>1)
+            meanValue/=numberOfUsedValues;
+            stdValue=0.;
+            for(int nv=posPercentil05;nv<posPercentil95;nv++)
             {
-                stdValue=0.;
-                std::vector<double> dblValues;
-                for(int nv=0;nv<vegetationGrowthModelValues[ns].size();nv++)
-                {
-                    double value=vegetationGrowthModelValues[ns][nv]/1000.;
-                    stdValue+=pow(meanValue-value,2.0);
-                    dblValues.push_back(value);
-                }
-                stdValue=sqrt(stdValue/(vegetationGrowthModelValues[ns].size()-1));
-                //            std::sort(v.begin(), v.end(), sort_using_greater_than); // de mas a menos
-                std::sort(dblValues.begin(), dblValues.end());
-                int posPercentil=floor(vegetationGrowthModelValues[ns].size()*POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL/100.);
-                percentilValue=dblValues[posPercentil];
+                double value=dblValues[nv];
+                stdValue+=pow(meanValue-value,2.0);
+                dblValues.push_back(value);
             }
-            else
-            {
-                percentilValue=meanValue;
-            }
+            stdValue=sqrt(stdValue/(numberOfUsedValues-1));
+            //            std::sort(v.begin(), v.end(), sort_using_greater_than); // de mas a menos
         }
         outReport<<"  - Stretch (m).........................: "<<QString::number(stretchs[ns])<<"\n";
         if(existsValues)
         {
-            outReport<<"    - Number of values .................: "<<QString::number(vegetationGrowthModelValues[ns].size())<<"\n";
-            outReport<<"    - Percentil value "<< QString::number(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL);
-            outReport<<"% (m)...........: "<<QString::number(percentilValue,'f',2)<<"\n";
+//            outReport<<"    - Number of values .................: "<<QString::number(vegetationGrowthModelValues[ns].size())<<"\n";
+            outReport<<"    - Number of values .................: "<<QString::number(numberOfUsedValues)<<"\n";
             outReport<<"    - Mean value (m)....................: "<<QString::number(meanValue,'f',2)<<"\n";
-            outReport<<"    - Minimun value (m).................: "<<QString::number(minimumValue,'f',2)<<"\n";
-            outReport<<"    - Maximum value (m).................: "<<QString::number(maximumValue,'f',2)<<"\n";
+            outReport<<"    - Std value (m).....................: "<<QString::number(stdValue,'f',2)<<"\n";
+            outReport<<"    - Percentil value  "<< QString::number(100-POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL);
+            outReport<<"% (m)...........: "<<QString::number(percentil05Value,'f',2)<<"\n";
+            outReport<<"    - Percentil value "<< QString::number(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL);
+            outReport<<"% (m)...........: "<<QString::number(percentil95Value,'f',2)<<"\n";
             if(stdValue>0)
-                outReport<<"    - Std value (m).....................: "<<QString::number(stdValue,'f',2)<<"\n";
             if(vegetationGrowthModel[stretchs[ns]][0]==0)
             {
                 vegetationGrowthModel[stretchs[ns]][0]=vegetationGrowthModelValues[ns].size();
-                vegetationGrowthModel[stretchs[ns]][1]=percentilValue;
-                vegetationGrowthModel[stretchs[ns]][2]=meanValue;
-                vegetationGrowthModel[stretchs[ns]][3]=minimumValue;
-                vegetationGrowthModel[stretchs[ns]][4]=maximumValue;
-                vegetationGrowthModel[stretchs[ns]][5]=stdValue;
+                vegetationGrowthModel[stretchs[ns]][1]=meanValue;
+                vegetationGrowthModel[stretchs[ns]][2]=stdValue;
+                vegetationGrowthModel[stretchs[ns]][3]=percentil05Value;
+                vegetationGrowthModel[stretchs[ns]][4]=percentil95Value;
             }
             else
             {
                 int previousNumberOfValues=vegetationGrowthModel[stretchs[ns]][0];
-                double previousPercentileValue=vegetationGrowthModel[stretchs[ns]][1];
-                double previousMeanValue=vegetationGrowthModel[stretchs[ns]][2];
-                double previousMinimumValue=vegetationGrowthModel[stretchs[ns]][3];
-                double previousMaximumValue=vegetationGrowthModel[stretchs[ns]][4];
-                double previousStdValue=vegetationGrowthModel[stretchs[ns]][5];
-                int numberOfValues=vegetationGrowthModelValues[ns].size();
-                int finalNumberOfValues=previousNumberOfValues+numberOfValues;
-                double finalPercentilValue=(previousPercentileValue*previousNumberOfValues+percentilValue*numberOfValues)/(previousNumberOfValues+numberOfValues);
-                double finalMeanValue=(previousMeanValue*previousNumberOfValues+meanValue*numberOfValues)/(previousNumberOfValues+numberOfValues);
-                double finalStdValue=(previousStdValue*previousNumberOfValues+stdValue*numberOfValues)/(previousNumberOfValues+numberOfValues);
-                double finalMinimumValue=previousMinimumValue;
-                if(minimumValue<finalMinimumValue) finalMinimumValue=minimumValue;
-                double finalMaximumValue=previousMaximumValue;
-                if(maximumValue>finalMaximumValue) finalMaximumValue=maximumValue;
+                double previousMeanValue=vegetationGrowthModel[stretchs[ns]][1];
+                double previousStdValue=vegetationGrowthModel[stretchs[ns]][2];
+                double previousPercentile05Value=vegetationGrowthModel[stretchs[ns]][3];
+                double previousPercentile95Value=vegetationGrowthModel[stretchs[ns]][4];
+                int finalNumberOfValues=previousNumberOfValues+numberOfUsedValues;
+                double finalPercentil05Value=(previousPercentile05Value*previousNumberOfValues+percentil05Value*numberOfUsedValues)/(previousNumberOfValues+numberOfUsedValues);
+                double finalPercentil95Value=(previousPercentile95Value*previousNumberOfValues+percentil95Value*numberOfUsedValues)/(previousNumberOfValues+numberOfUsedValues);
+                double finalMeanValue=(previousMeanValue*previousNumberOfValues+meanValue*numberOfUsedValues)/(previousNumberOfValues+numberOfUsedValues);
+                double finalStdValue=(previousStdValue*previousNumberOfValues+stdValue*numberOfUsedValues)/(previousNumberOfValues+numberOfUsedValues);
                 vegetationGrowthModel[stretchs[ns]][0]=finalNumberOfValues;
-                vegetationGrowthModel[stretchs[ns]][1]=finalPercentilValue;
-                vegetationGrowthModel[stretchs[ns]][2]=finalMeanValue;
-                vegetationGrowthModel[stretchs[ns]][3]=finalMinimumValue;
-                vegetationGrowthModel[stretchs[ns]][4]=finalMaximumValue;
-                vegetationGrowthModel[stretchs[ns]][5]=finalStdValue;
+                vegetationGrowthModel[stretchs[ns]][1]=finalMeanValue;
+                vegetationGrowthModel[stretchs[ns]][2]=finalStdValue;
+                vegetationGrowthModel[stretchs[ns]][3]=finalPercentil05Value;
+                vegetationGrowthModel[stretchs[ns]][4]=finalPercentil95Value;
             }
         }
         else
@@ -3704,22 +3698,20 @@ bool PointCloudFileManager::processInternalCommandVegetationGrowthEstimate(QStri
         outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
         outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][0])<<"\n";
         if(vegetationGrowthModel[stretchs[ns]][0]==0) continue;
+        outModel<<"  - Mean value (m)....................";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][1],'f',2)<<"\n";
+        outModel<<"  - Std value (m).....................";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][2],'f',2)<<"\n";
+        outModel<<"  - Percentil value  "<< QString::number(100-POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL);
+        outModel<<"% (m)...........";
+        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
+        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][3],'f',2)<<"\n";
         outModel<<"  - Percentil value "<< QString::number(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_STRETCH_PERCENTIL);
         outModel<<"% (m)...........";
         outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
-        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][1],'f',2)<<"\n";
-        outModel<<"  - Mean value (m)....................";
-        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
-        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][2],'f',2)<<"\n";
-        outModel<<"  - Minimun value (m).................";
-        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
-        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][3],'f',2)<<"\n";
-        outModel<<"  - Maximum value (m).................";
-        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
         outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][4],'f',2)<<"\n";
-        outModel<<"  - Std value (m).....................";
-        outModel<<POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR<<" ";
-        outModel<<QString::number(vegetationGrowthModel[stretchs[ns]][5],'f',2)<<"\n";
     }
     modelFile.close();
     return(true);
@@ -5658,36 +5650,9 @@ bool PointCloudFileManager::readVegetationGrowthModel(QString &fileName,
         }
         if(numberOfValues==0)
         {
-            QVector<double> values(6);
+            QVector<double> values(5);
             vegetationGrowthModel[stretch]=values;
             continue;
-        }
-
-        // Reading percentile 95% value
-        nline++;
-        strLine=in.readLine();
-        strLine=strLine.trimmed();
-        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
-        if(strList.size()!=2)
-        {
-            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
-            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
-            fileInput.close();
-            return(false);
-        }
-        strValue=strList.at(1).trimmed();
-        okToDouble=false;
-        double percentileValue=strValue.toDouble(&okToDouble);
-        if(!okToDouble)
-        {
-            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
-            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-            strError+=QObject::tr("\nPercentil 95% value is not a double: %1").arg(strValue);
-            fileInput.close();
-            return(false);
         }
 
         // Reading mean value
@@ -5713,60 +5678,6 @@ bool PointCloudFileManager::readVegetationGrowthModel(QString &fileName,
             strError+=QObject::tr("\nError reading file: %1").arg(fileName);
             strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
             strError+=QObject::tr("\nMean value is not a double: %1").arg(strValue);
-            fileInput.close();
-            return(false);
-        }
-
-        // Reading minimum value
-        nline++;
-        strLine=in.readLine();
-        strLine=strLine.trimmed();
-        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
-        if(strList.size()!=2)
-        {
-            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
-            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
-            fileInput.close();
-            return(false);
-        }
-        strValue=strList.at(1).trimmed();
-        okToDouble=false;
-        double minimumValue=strValue.toDouble(&okToDouble);
-        if(!okToDouble)
-        {
-            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
-            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-            strError+=QObject::tr("\nMinimum value is not a double: %1").arg(strValue);
-            fileInput.close();
-            return(false);
-        }
-
-        // Reading maximum value
-        nline++;
-        strLine=in.readLine();
-        strLine=strLine.trimmed();
-        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
-        if(strList.size()!=2)
-        {
-            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
-            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
-            fileInput.close();
-            return(false);
-        }
-        strValue=strList.at(1).trimmed();
-        okToDouble=false;
-        double maximumValue=strValue.toDouble(&okToDouble);
-        if(!okToDouble)
-        {
-            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
-            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-            strError+=QObject::tr("\nMaximum value is not a double: %1").arg(strValue);
             fileInput.close();
             return(false);
         }
@@ -5797,13 +5708,67 @@ bool PointCloudFileManager::readVegetationGrowthModel(QString &fileName,
             fileInput.close();
             return(false);
         }
-        QVector<double> values(6);
+
+        // Reading percentile 05% value
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToDouble=false;
+        double percentile05Value=strValue.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nPercentil 95% value is not a double: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+
+        // Reading percentile 95% value
+        nline++;
+        strLine=in.readLine();
+        strLine=strLine.trimmed();
+        strList=strLine.split(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+        if(strList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_STRING_SEPARATOR);
+            fileInput.close();
+            return(false);
+        }
+        strValue=strList.at(1).trimmed();
+        okToDouble=false;
+        double percentile95Value=strValue.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::readVegetationGrowthModel");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nPercentil 95% value is not a double: %1").arg(strValue);
+            fileInput.close();
+            return(false);
+        }
+
+        QVector<double> values(5);
         values[0]=numberOfValues;
-        values[1]=percentileValue;
-        values[2]=meanValue;
-        values[3]=minimumValue;
-        values[4]=maximumValue;
-        values[5]=stdValue;
+        values[1]=meanValue;
+        values[2]=stdValue;
+        values[3]=percentile05Value;
+        values[4]=percentile95Value;
         vegetationGrowthModel[stretch]=values;
     }
     fileInput.close();
