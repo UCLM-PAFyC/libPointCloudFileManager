@@ -3017,6 +3017,8 @@ bool PointCloudFileManager::processInternalCommandVegetationGrowthEstimate(QStri
                                                                            QString &prefix,
                                                                            QString &strError)
 {
+    outputFileName=outputFileName.trimmed();
+    outputPath=outputPath.trimmed();
     QWidget* ptrWidget=new QWidget();
     QString strAuxError;
     if(mInternalCommandsParametersFileName.isEmpty())
@@ -3063,9 +3065,9 @@ bool PointCloudFileManager::processInternalCommandVegetationGrowthEstimate(QStri
     QString modelFileName=outputFileName;
     if(modelFileName.isEmpty())
     {
-        outputFileName=outputPath+"/";
-        outputFileName+=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_BASENAME;
-        outputFileName+=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_EXTENSION;
+        modelFileName=outputPath+"/";
+        modelFileName+=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_BASENAME;
+        modelFileName+=POINTCLOUDFILE_INTERNALTOOLS_COMMAND_VEGETATION_GROWTH_MODEL_FILE_EXTENSION;
     }
     if(QFile::exists(reportFileName))
     {
