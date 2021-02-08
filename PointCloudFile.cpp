@@ -4320,6 +4320,8 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
         numberOfProcessedPointsInStep++;
         if(numberOfProcessedPointsInStep==pointsByStep)
         {
+            // comentado por error detectado de que no se puede usar un widget creado en otro hilo
+            /*
             mMutex.lock();
             int numberOfPointsToProcess=numberOfPoints-numberOfProcessedPoints;
             mNumberOfPointsToProcessByFileName[inputFileName]=numberOfPointsToProcess;
@@ -4343,6 +4345,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
             }
             mPtrMpProgressDialog->setLabelText(dialogText);
             mMutex.unlock();
+            */
             numberOfProcessedPointsInStep=0;
         }
         bool includedPoint=true;
