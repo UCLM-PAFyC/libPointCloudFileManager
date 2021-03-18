@@ -1391,7 +1391,12 @@ bool PointCloudFile::getPointsFromWktGeometry(QString wktGeometry,
     QByteArray byteArrayWktGeometry = wktGeometry.toUtf8();
     char *charsWktGeometry = byteArrayWktGeometry.data();
     bool validGeometry=false;
-    if(wktGeometry.toLower().contains("polygon"))
+    if(wktGeometry.toLower().contains("multipolygon"))
+    {
+        mMpPtrGeometry=OGRGeometryFactory::createGeometry(wkbMultiPolygon);
+        validGeometry=true;
+    }
+    else if(wktGeometry.toLower().contains("polygon"))
     {
         mMpPtrGeometry=OGRGeometryFactory::createGeometry(wkbPolygon);
         validGeometry=true;
@@ -5489,7 +5494,7 @@ bool PointCloudFile::writePointCloudFiles(QString suffix,
         if(!QFile::exists(inputPointCloudFileName))
         {
             strError=QObject::tr("PointCloudFile::writePointCloudFiles");
-            strError+=QObject::tr("\nNot exists point cloud file:\n").arg(inputPointCloudFileName);
+            strError+=QObject::tr("\nNot exists point cloud file:\n%1").arg(inputPointCloudFileName);
             if(ptrWidget!=NULL)
             {
                 ptrProgress->setValue(numberOfSteps);

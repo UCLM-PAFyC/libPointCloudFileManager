@@ -672,6 +672,9 @@ debug\PointCloudFileManager.obj: PointCloudFileManager.cpp C:\Qt\Qt5.11.2\5.11.2
 		..\..\..\depends\libQuaZip\include\quazipnewinfo.h \
 		PointCloudFileManager.h \
 		Point.h \
+		..\libLicenseManager\ILicenseManager.h \
+		C:\Qt\Qt5.11.2\5.11.2\msvc2015_64\include\QtCore\QDate \
+		..\libLicenseManager\liblicensemanager_global.h \
 		..\..\..\depends\LASTools2019\LASlib\inc\lasreader.hpp \
 		..\..\..\depends\LASTools2019\LASlib\inc\lasdefinitions.hpp \
 		..\..\..\depends\LASTools2019\LASzip\src\mydefs.hpp \

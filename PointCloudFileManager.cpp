@@ -5244,7 +5244,7 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
         strList=strLine.split(POINTCLOUDFILE_PROJECT_STRING_SEPARATOR);
         if(strList.size()!=2)
         {
-            strError=QObject::tr("PointCloudFileManager::setFromProjectFile");
+            strError=QObject::tr("PointCloudFileManager::processProjectFile");
             strError+=QObject::tr("\nError reading file: %1").arg(fileName);
             strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
             strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_PROJECT_STRING_SEPARATOR);
@@ -5268,7 +5268,7 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
         {
             if(!createPointCloudFile(fileName,in,strAuxError))
             {
-                strError=QObject::tr("PointCloudFileManager::setFromProjectFile");
+                strError=QObject::tr("PointCloudFileManager::processProjectFile");
                 strError+=QObject::tr("\nError reading file: %1").arg(fileName);
                 strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
                 strError+=QObject::tr("\nError in process create point cloud file:\n%1").arg(strAuxError);
@@ -5287,7 +5287,7 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
         {
             if(!addPointCloudFile(fileName,in,strAuxError))
             {
-                strError=QObject::tr("PointCloudFileManager::setFromProjectFile");
+                strError=QObject::tr("PointCloudFileManager::processProjectFile");
                 strError+=QObject::tr("\nError reading file: %1").arg(fileName);
                 strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
                 strError+=QObject::tr("\nError adding point cloud file:\n%1").arg(strAuxError);
@@ -5306,7 +5306,7 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
         {
             if(!addPointCloudFiles(fileName,in,strAuxError))
             {
-                strError=QObject::tr("PointCloudFileManager::setFromProjectFile");
+                strError=QObject::tr("PointCloudFileManager::processProjectFile");
                 strError+=QObject::tr("\nError reading file: %1").arg(fileName);
                 strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
                 strError+=QObject::tr("\nError adding point cloud file:\n%1").arg(strAuxError);
@@ -5325,7 +5325,7 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
         {
             if(!addROI(fileName,in,strAuxError))
             {
-                strError=QObject::tr("PointCloudFileManager::setFromProjectFile");
+                strError=QObject::tr("PointCloudFileManager::processProjectFile");
                 strError+=QObject::tr("\nError reading file: %1").arg(fileName);
                 strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
                 strError+=QObject::tr("\nError adding ROI:\n%1").arg(strAuxError);
@@ -5344,7 +5344,7 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
         {
             if(!writePointCloudFile(fileName,in,strAuxError))
             {
-                strError=QObject::tr("PointCloudFileManager::setFromProjectFile");
+                strError=QObject::tr("PointCloudFileManager::processProjectFile");
                 strError+=QObject::tr("\nError reading file: %1").arg(fileName);
                 strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
                 strError+=QObject::tr("\nError in process create database:\n%1").arg(strAuxError);
@@ -5363,7 +5363,7 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
         {
             if(!processReclassificationConfusionMatrixReport(fileName,in,strAuxError))
             {
-                strError=QObject::tr("PointCloudFileManager::setFromProjectFile");
+                strError=QObject::tr("PointCloudFileManager::processProjectFile");
                 strError+=QObject::tr("\nError reading file: %1").arg(fileName);
                 strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
                 strError+=QObject::tr("\nError in process create database:\n%1").arg(strAuxError);
@@ -6278,7 +6278,7 @@ bool PointCloudFileManager::writePointCloudFile(QString fileName,
     }
     if(!currentDir.exists(pcPath))
     {
-        strError=QObject::tr("PointCloudFileManager::addPointCloudFile");
+        strError=QObject::tr("PointCloudFileManager::writePointCloudFile");
         strError+=QObject::tr("\nError reading file: %1").arg(fileName);
         strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
         strError+=QObject::tr("\nNot exists point cloud path:\n%1\nYou must create it before").arg(pcPath);
