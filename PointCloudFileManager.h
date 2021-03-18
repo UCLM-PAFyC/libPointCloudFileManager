@@ -14,8 +14,6 @@
 
 #include "libPointCloudFileManager_global.h"
 
-//#include "cpl_conv.h"
-
 class ParametersManager;
 class ILicenseManager;
 
