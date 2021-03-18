@@ -5164,6 +5164,301 @@ bool PointCloudFile::setTempPath(QString value,
     return(true);
 }
 
+bool PointCloudFile::updateNotEdited2dToolsPoints(QString pcfPath,
+                                                  QMap<int, QMap<int, QVector<int> > > &pointFileIdByTile,
+                                                  QMap<int, QMap<int, QVector<int> > > &pointPositionByTile,
+                                                  QMap<int, QMap<int, QVector<quint8> > > &pointClassNewByTile,
+                                                  QMap<int, QMap<int, QVector<quint8> > > &pointClassByTile,
+                                                  QString &strError)
+{
+    QWidget* ptrWidget=new QWidget();
+    QProgressDialog* ptrProgress=NULL;
+    QMap<int,QMap<int,QMap<int,QVector<int> > > > pointsIndexByTilesByFileIndex;
+    QMap<int, QMap<int, QVector<int> > >::const_iterator iterTileX=pointFileIdByTile.begin();
+    while(iterTileX!=pointFileIdByTile.end())
+    {
+        int tileX=iterTileX.key();
+        QMap<int, QVector<int> >::const_iterator iterTileY=iterTileX.value().begin();
+        while(iterTileY!=iterTileX.value().end())
+        {
+            int tileY=iterTileY.key();
+            QVector<int> filesIndex=iterTileY.value();
+            for(int i=0;i<filesIndex.size();i++)
+            {
+                int fileIndex=filesIndex[i];
+                if(!pointsIndexByTilesByFileIndex.contains(fileIndex))
+                {
+                    QMap<int,QMap<int,QVector<int> > > aux;
+                    pointsIndexByTilesByFileIndex[fileIndex]=aux;
+                }
+                else if(!pointsIndexByTilesByFileIndex[fileIndex].contains(tileX))
+                {
+                    QMap<int,QVector<int> > aux;
+                    pointsIndexByTilesByFileIndex[fileIndex][tileX]=aux;
+                }
+                pointsIndexByTilesByFileIndex[fileIndex][tileX][tileY].push_back(i);
+            }
+            iterTileY++;
+        }
+        iterTileX++;
+    }
+    int numberOfSteps=pointsIndexByTilesByFileIndex.size();
+    QDir auxDir=QDir::currentPath();
+    if(ptrWidget!=NULL)
+    {
+        QString title=QObject::tr("PointCloudFile::updateNotEdited2dToolsPoints");
+        QString msgGlobal=QObject::tr("Updating points from %1 files and tiles")
+                .arg(QString::number(numberOfSteps));
+        ptrProgress=new QProgressDialog(title, "Abort",0,numberOfSteps, ptrWidget);
+        ptrProgress->setWindowModality(Qt::WindowModal);
+        ptrProgress->setLabelText(msgGlobal);
+        ptrProgress->show();
+        qApp->processEvents();
+    }
+    int step=0;
+    QMap<int,QMap<int,QMap<int,QVector<int> > > >::const_iterator iterFiles=pointsIndexByTilesByFileIndex.begin();
+    while(iterFiles!=pointsIndexByTilesByFileIndex.end())
+    {
+        step++;
+        if(ptrWidget!=NULL)
+        {
+            ptrProgress->setValue(step);
+            qApp->processEvents();
+        }
+        int fileIndex=iterFiles.key();
+        if(!mClassesFileByIndex.contains(fileIndex))
+        {
+            strError=QObject::tr("PointCloudFile::updateNotEdited2dToolsPoints");
+            strError+=QObject::tr("\nThere is no classes file for index: %1")
+                    .arg(QString::number(fileIndex));
+            if(ptrWidget!=NULL)
+            {
+                ptrProgress->setValue(step);
+                qApp->processEvents();
+            }
+            return(false);
+        }
+        QString pointsClassFileName=mClassesFileByIndex[fileIndex];
+        QFile pointsClassFile(pointsClassFileName);
+        if (!pointsClassFile.open(QIODevice::ReadOnly))
+        {
+            strError=QObject::tr("PointCloudFile::updateNotEdited2dToolsPoints");
+            strError+=QObject::tr("\nError opening file:\n%1").arg(pointsClassFileName);
+            if(ptrWidget!=NULL)
+            {
+                ptrProgress->setValue(step);
+                qApp->processEvents();
+            }
+            return(false);
+        }
+        QDataStream inPointsClass(&pointsClassFile);
+        QMap<QString,bool> existsFields;
+        QMap<int,QMap<int,QVector<quint8> > > tilesPointsClass;
+        QMap<int,QMap<int,QMap<int,quint8> > > tilesPointsClassNewByPos; // se guarda vacío
+        QMap<int,QMap<int,int> > tilesNop;
+        inPointsClass>>tilesNop;
+        inPointsClass>>existsFields;
+        inPointsClass>>tilesPointsClass;
+        inPointsClass>>tilesPointsClassNewByPos;
+        pointsClassFile.close();
+        QMap<int,QMap<int,QVector<int> > > pointsIndexByTiles=iterFiles.value();
+        QMap<int,QMap<int,QVector<int> > >::const_iterator iterTileX=pointsIndexByTiles.begin();
+        bool existsChanges=false;
+        while(iterTileX!=pointsIndexByTiles.end())
+        {
+            int tileX=iterTileX.key();
+            QMap<int,QVector<int> >::const_iterator iterTileY=iterTileX.value().begin();
+            while(iterTileY!=iterTileX.value().end())
+            {
+                int tileY=iterTileY.key();
+                QVector<int> pointsIndex=iterTileY.value();
+                for(int npi=0;npi<pointsIndex.size();npi++)
+                {
+                    int pointIndex=pointsIndex[npi];
+//                    if(!pointClassByTile.contains(tileX)
+//                            ||!pointPositionByTile.contains(tileX)
+//                            ||!pointClassNewByTile.contains(tileX))
+                    if(!pointPositionByTile.contains(tileX)
+                            ||!tilesPointsClass.contains(tileX))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point index: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    if(!pointClassNewByTile.contains(tileX)
+                            ||!pointClassNewByTile.contains(tileX))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point class new: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    if(!pointClassByTile.contains(tileX)
+                            ||!pointClassByTile.contains(tileX))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point class: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    if(!pointPositionByTile[tileX].contains(tileY)
+                            ||!tilesPointsClass[tileX].contains(tileY))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point index: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    if(!pointClassNewByTile[tileX].contains(tileY)
+                            ||!pointClassNewByTile[tileX].contains(tileY))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point class new: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    if(!pointClassByTile[tileX].contains(tileY)
+                            ||!pointClassByTile[tileX].contains(tileY))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point class: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    if(pointIndex>(pointPositionByTile[tileX][tileY].size()-1))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point index: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    if(pointIndex>(pointClassNewByTile[tileX][tileY].size()-1))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point class new: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    if(pointIndex>(pointClassByTile[tileX][tileY].size()-1))
+                    {
+                        strError=QObject::tr("PointCloudFile::updatePoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point class: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    int pointPositionInTile=pointPositionByTile[tileX][tileY][pointIndex];
+                    if(pointPositionInTile>(tilesPointsClass[tileX][tileY].size()-1))
+                    {
+                        strError=QObject::tr("PointCloudFile::updateNotEdited2dToolsPoints");
+                        strError+=QObject::tr("\nFor file index: %1, not exists tile X: %2 tile Y: %3 point index: %4")
+                                .arg(QString::number(fileIndex)).arg(QString::number(tileX))
+                                .arg(QString::number(tileY).arg(QString::number(pointIndex)));
+                        if(ptrWidget!=NULL)
+                        {
+                            ptrProgress->setValue(step);
+                            qApp->processEvents();
+                        }
+                        return(false);
+                    }
+                    quint8 pointClassNewChanged=pointClassNewByTile[tileX][tileY][pointIndex];
+                    quint8 pointClassChanged=pointClassByTile[tileX][tileY][pointIndex];
+                    quint8 pointClass=tilesPointsClass[tileX][tileY][pointPositionInTile];
+                    quint8 pointClassNew=pointClass;
+                    if(tilesPointsClassNewByPos.contains(tileX))
+                    {
+                        if(tilesPointsClassNewByPos[tileX].contains(tileY))
+                        {
+                            if(tilesPointsClassNewByPos[tileX][tileY].contains(pointPositionInTile))
+                            {
+                                pointClassNew=tilesPointsClassNewByPos[tileX][tileY][pointPositionInTile];
+                            }
+                        }
+                    }
+                    if(pointClassNewChanged!=pointClassNew)
+                    {
+                        tilesPointsClassNewByPos[tileX][tileY][pointPositionInTile]=pointClassNewChanged;
+                        if(!existsChanges) existsChanges=true;
+                    }
+                }
+                iterTileY++;
+            }
+            iterTileX++;
+        }
+        if(existsChanges)
+        {
+            pointsClassFile.open(QIODevice::WriteOnly);
+            QDataStream outPointsClass(&pointsClassFile);   // we will serialize the data into the file
+            outPointsClass<<tilesNop;
+            outPointsClass<<existsFields;
+            outPointsClass<<tilesPointsClass;
+            outPointsClass<<tilesPointsClassNewByPos;
+            pointsClassFile.close();
+        }
+        iterFiles++;
+    }
+    if(ptrWidget!=NULL)
+    {
+        ptrProgress->close();
+        delete(ptrProgress);
+    }
+    return(true);
+}
+
 bool PointCloudFile::updatePoints(QString strAction,
                                   quint8 classValue,
                                   QMap<int, QMap<int, QVector<int> > > &pointFileIdByTile,

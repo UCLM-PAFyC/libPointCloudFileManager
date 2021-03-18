@@ -112,6 +112,12 @@ public:
                        QString& strError);
     bool setTempPath(QString value,
                      QString& strError);
+    bool updateNotEdited2dToolsPoints(QString pcfPath,
+                                      QMap<int, QMap<int, QVector<int> > > &pointFileIdByTile,
+                                      QMap<int, QMap<int, QVector<int> > > &pointPositionByTile,
+                                      QMap<int, QMap<int, QVector<quint8> > > &pointClassNewByTile,
+                                      QMap<int, QMap<int, QVector<quint8> > > &pointClassByTile,
+                                      QString& strError);
     bool updatePoints(QString strAction,
                       quint8 classValue,
                       QMap<int, QMap<int, QVector<int> > > &pointFileIdByTile,

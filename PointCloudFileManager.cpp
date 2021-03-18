@@ -6160,6 +6160,33 @@ bool PointCloudFileManager::setTempPath(QString value,
     return(true);
 }
 
+bool PointCloudFileManager::updateNotEdited2dToolsPoints(QString pcfPath,
+                                                         QMap<int, QMap<int, QVector<int> > > &pointFileIdByTile,
+                                                         QMap<int, QMap<int, QVector<int> > > &pointPositionByTile,
+                                                         QMap<int, QMap<int, QVector<quint8> > > &pointClassNewByTile,
+                                                         QMap<int, QMap<int, QVector<quint8> > > &pointClassByTile,
+                                                         QString &strError)
+{
+    QString strAuxError;
+    if(!mPtrPcFiles.contains(pcfPath))
+    {
+        if(!openPointCloudFile(pcfPath,
+                               strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::updatePoints");
+            strError+=QObject::tr("\nError openning spatialite:\n%1\nError:\n%2")
+                    .arg(pcfPath).arg(strAuxError);
+            return(false);
+        }
+    }
+    return(mPtrPcFiles[pcfPath]->updateNotEdited2dToolsPoints(pcfPath,
+                                              pointFileIdByTile,
+                                              pointPositionByTile,
+                                              pointClassNewByTile,
+                                              pointClassByTile,
+                                              strError));
+}
+
 bool PointCloudFileManager::updatePoints(QString pcfPath,
                                          QString strAction,
                                          quint8 classValue,
