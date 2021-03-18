@@ -17,6 +17,7 @@
 //#include "cpl_conv.h"
 
 class ParametersManager;
+class ILicenseManager;
 
 namespace ProcessTools{
 class ProgressExternalProcessDialog;
@@ -40,6 +41,7 @@ public:
         mPtrInternalCommandsParameters=NULL;
         mPtrProgressExternalProcessDialog=NULL;
         mPtrMpProgressDialog=NULL;
+        mPtrILicenseManager=NULL;
 //        mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_1);
         mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_5);
         mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_10);
@@ -170,6 +172,8 @@ public:
     void setCrsTools(libCRS::CRSTools* ptrCrsTools){mPtrCrsTools=ptrCrsTools;}
     bool setGeoidFilesLastoolsPath(QString value,
                                QString& strError);
+    bool setILicenseManager(ILicenseManager* ptrILicenseManager,
+                            QString& strError);
     bool setLastoolsPath(QString path,
                          QString& strError);
     bool setMultiProcess(bool useMultiProcess,
@@ -227,6 +231,7 @@ private:
 
     void mpProcessInternalCommandVegetationGrowthEstimate(int nf);
 
+    ILicenseManager* mPtrILicenseManager;
     static PointCloudFileManager * mInstance;
     libCRS::CRSTools* mPtrCrsTools;
     QMap<QString,PCFile::PointCloudFile*> mPtrPcFiles;

@@ -54,6 +54,7 @@ INCLUDEPATH += . ../libProcessTools
 INCLUDEPATH += . ../libCRS
 INCLUDEPATH += . ../libIGDAL
 INCLUDEPATH += . ../libParameters
+INCLUDEPATH += . ../libLicenseManager
 INCLUDEPATH += ../
 #INCLUDEPATH += . ../libProcessTools
 INCLUDEPATH += $$LASTOOLS_PATH\LASlib\inc
@@ -81,6 +82,7 @@ LIBS += -llibCRS
 LIBS += -llibIGDAL
 LIBS += -llibParameters
 LIBS += -llibProcessTools
+LIBS += -llibLicenseManager
 #LIBS += -llibProcessTools
 
 INCLUDEPATH += . $$OSGEO4W_PATH/include

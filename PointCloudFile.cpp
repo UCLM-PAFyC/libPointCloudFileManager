@@ -1014,14 +1014,16 @@ bool PointCloudFile::addPointCloudFiles(QVector<QString> &inputFileNames,
                 numberOfTilesToRemoveTileXs.push_back(tileX);
                 numberOfTilesToRemoveTileYs.push_back(tileY);
             }
-            else
-            {
-                double tileDensity=((double)numberOfPoints)/pow(mGridSize,2.0);
-                if(tileDensity>mMaximumDensity)
-                {
-                    mMaximumDensity=tileDensity;
-                }
-            }
+            //20210316
+//            else
+//            {
+//                double tileDensity=((double)numberOfPoints)/pow(mGridSize,2.0);
+//                if(tileDensity>mMaximumDensity)
+//                {
+//                    mMaximumDensity=tileDensity;
+//                }
+//            }
+            //20210316
             iterTileY++;
         }
         iterTileX++;
@@ -4717,6 +4719,13 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
                 {
                     mTilesByFileIndex[fileIndex][tileX].push_back(tileY);
                 }
+                //20210316
+                double tileDensity=((double)numberOfPoints)/pow(mGridSize,2.0);
+                if(tileDensity>mMaximumDensity)
+                {
+                    mMaximumDensity=tileDensity;
+                }
+                //20210316
             }
             iterTileY++;
         }

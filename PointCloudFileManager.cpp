@@ -22,6 +22,7 @@
 
 #include "PointCloudFile.h"
 #include "PointCloudFileManager.h"
+#include "ILicenseManager.h"
 
 #include "lasreader.hpp"
 #include "laswriter.hpp"
@@ -6017,6 +6018,13 @@ bool PointCloudFileManager::setGeoidFilesLastoolsPath(QString value,
     return(true);
 }
 
+bool PointCloudFileManager::setILicenseManager(ILicenseManager *ptrILicenseManager,
+                                               QString &strError)
+{
+    mPtrILicenseManager=ptrILicenseManager;
+    return(true);
+}
+
 bool PointCloudFileManager::setLastoolsPath(QString path,
                                             QString &strError)
 {
@@ -6109,17 +6117,17 @@ void PointCloudFileManager::setProjectTypes()
         return;
     }
     QString generic=QString::fromLatin1(POINTCLOUDFILE_PROJECT_TYPE_GENERIC_TAG).toLower();
-    QString powerline=QString::fromLatin1(POINTCLOUDFILE_PROJECT_TYPE_POWERLINE_TAG).toLower();
-    QString solarpark=QString::fromLatin1(POINTCLOUDFILE_PROJECT_TYPE_SOLARPARK_TAG).toLower();
+//    QString powerline=QString::fromLatin1(POINTCLOUDFILE_PROJECT_TYPE_POWERLINE_TAG).toLower();
+//    QString solarpark=QString::fromLatin1(POINTCLOUDFILE_PROJECT_TYPE_SOLARPARK_TAG).toLower();
     mProjectTypes.push_back(generic);
-    mProjectTypes.push_back(powerline);
-    mProjectTypes.push_back(solarpark);
+//    mProjectTypes.push_back(powerline);
+//    mProjectTypes.push_back(solarpark);
     mProjectParametersFileByProjectType[generic]=mBasePath+"/"+POINTCLOUDFILE_PROJECT_TYPE_GENERIC_PARAMETERS_FILE_NAME;
-    mProjectParametersFileByProjectType[powerline]=mBasePath+"/"+POINTCLOUDFILE_PROJECT_TYPE_POWERLINE_PARAMETERS_FILE_NAME;
-    mProjectParametersFileByProjectType[solarpark]=mBasePath+"/"+POINTCLOUDFILE_PROJECT_TYPE_SOLARPARK_PARAMETERS_FILE_NAME;
+//    mProjectParametersFileByProjectType[powerline]=mBasePath+"/"+POINTCLOUDFILE_PROJECT_TYPE_POWERLINE_PARAMETERS_FILE_NAME;
+//    mProjectParametersFileByProjectType[solarpark]=mBasePath+"/"+POINTCLOUDFILE_PROJECT_TYPE_SOLARPARK_PARAMETERS_FILE_NAME;
     mPtrProjectsParametersManagerByProjectType[generic]=NULL;
-    mPtrProjectsParametersManagerByProjectType[powerline]=NULL;
-    mPtrProjectsParametersManagerByProjectType[solarpark]=NULL;
+//    mPtrProjectsParametersManagerByProjectType[powerline]=NULL;
+//    mPtrProjectsParametersManagerByProjectType[solarpark]=NULL;
 }
 
 bool PointCloudFileManager::setTempPath(QString value,
