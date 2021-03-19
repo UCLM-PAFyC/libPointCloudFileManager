@@ -1388,8 +1388,7 @@ bool PointCloudFile::getPointsFromWktGeometry(QString wktGeometry,
         OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
         mMpPtrGeometry=NULL;
     }
-    QByteArray byteArrayWktGeometry = wktGeometry.toUtf8();
-    char *charsWktGeometry = byteArrayWktGeometry.data();
+    wktGeometry=wktGeometry.toLower();
     bool validGeometry=false;
     if(wktGeometry.toLower().contains("multipolygon"))
     {
@@ -1401,18 +1400,31 @@ bool PointCloudFile::getPointsFromWktGeometry(QString wktGeometry,
         mMpPtrGeometry=OGRGeometryFactory::createGeometry(wkbPolygon);
         validGeometry=true;
     }
-    if(!validGeometry)
+    wktGeometry=wktGeometry.toUpper();
+//    QByteArray byteArrayWktGeometry = wktGeometry.toUtf8();
+//    char *charsWktGeometry = byteArrayWktGeometry.data();
+//    if(!validGeometry)
+//    {
+//        strError=QObject::tr("PointCloudFile::getPointsFromWktGeometry");
+//        strError+=QObject::tr("\nNot valid geometry from WKT: %1").arg(wktGeometry);
+//        OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+//        mMpPtrGeometry=NULL;
+//        return(false);
+//    }
+//    if(OGRERR_NONE!=mMpPtrGeometry->importFromWkt(&charsWktGeometry))
+//    {
+//        strError=QObject::tr("PointCloudFile::getPointsFromWktGeometry");
+//        strError+=QObject::tr("\nError making geometry from WKT:\n%1").arg(wktGeometry);
+//        OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+//        mMpPtrGeometry=NULL;
+//        return(false);
+//    }
+    std::string stdStringWktGeometry=wktGeometry.toStdString();
+    const char* constCharWktGeometry = stdStringWktGeometry.c_str();
+    if(OGRERR_NONE!=mMpPtrGeometry->importFromWkt(&constCharWktGeometry))
     {
         strError=QObject::tr("PointCloudFile::getPointsFromWktGeometry");
-        strError+=QObject::tr("\nNot valid geometry from WKT: %1").arg(wktGeometry);
-        OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
-        mMpPtrGeometry=NULL;
-        return(false);
-    }
-    if(OGRERR_NONE!=mMpPtrGeometry->importFromWkt(&charsWktGeometry))
-    {
-        strError=QObject::tr("PointCloudFile::getPointsFromWktGeometry");
-        strError+=QObject::tr("\nError making geometry from WKT: %1").arg(wktGeometry);
+        strError+=QObject::tr("\nError making geometry from WKT:\n%1").arg(wktGeometry);
         OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
         mMpPtrGeometry=NULL;
         return(false);
@@ -2486,23 +2498,32 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
 {
     tilesTableName.clear();
     tilesOverlaps.clear();
-    QByteArray byteArrayWktGeometry = wktGeometry.toUtf8();
-    char *charsWktGeometry = byteArrayWktGeometry.data();
+//    QByteArray byteArrayWktGeometry = wktGeometry.toUtf8();
+//    char *charsWktGeometry = byteArrayWktGeometry.data();
 //    OGRGeometry* ptrGeometry;
     bool validGeometry=false;
     QString strAuxError;
-    if(wktGeometry.toLower().contains("polygon"))
+    wktGeometry=wktGeometry.toLower();
+    if(wktGeometry.toLower().contains("multipolygon"))
+    {
+        (*ptrGeometry)=OGRGeometryFactory::createGeometry(wkbMultiPolygon);
+        validGeometry=true;
+    }
+    else if(wktGeometry.toLower().contains("polygon"))
     {
         (*ptrGeometry)=OGRGeometryFactory::createGeometry(wkbPolygon);
         validGeometry=true;
     }
+    wktGeometry=wktGeometry.toUpper();
     if(!validGeometry)
     {
         strError=QObject::tr("PointCloudFile::getTilesTableNamesFromWktGeometry");
         strError+=QObject::tr("\nNot valid geometry from WKT: %1").arg(wktGeometry);
         return(false);
     }
-    if(OGRERR_NONE!=(*ptrGeometry)->importFromWkt(&charsWktGeometry))
+    std::string stdStringWktGeometry=wktGeometry.toStdString();
+    const char* constCharWktGeometry = stdStringWktGeometry.c_str();
+    if(OGRERR_NONE!=(*ptrGeometry)->importFromWkt(&constCharWktGeometry))
     {
         strError=QObject::tr("PointCloudFile::getTilesTableNamesFromWktGeometry");
         strError+=QObject::tr("\nError making geometry from WKT: %1").arg(wktGeometry);
@@ -2767,8 +2788,8 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
                                                   QString &strError)
 {
     tilesTableName.clear();
-    QByteArray byteArrayWktGeometry = wktGeometry.toUtf8();
-    char *charsWktGeometry = byteArrayWktGeometry.data();
+//    QByteArray byteArrayWktGeometry = wktGeometry.toUtf8();
+//    char *charsWktGeometry = byteArrayWktGeometry.data();
     if(mMpPtrGeometry!=NULL)
     {
         OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
@@ -2776,20 +2797,29 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
     }
     bool validGeometry=false;
     QString strAuxError;
-    if(wktGeometry.toLower().contains("polygon"))
+    wktGeometry=wktGeometry.toLower();
+    if(wktGeometry.toLower().contains("multipolygon"))
+    {
+        mMpPtrGeometry=OGRGeometryFactory::createGeometry(wkbMultiPolygon);
+        validGeometry=true;
+    }
+    else if(wktGeometry.toLower().contains("polygon"))
     {
         mMpPtrGeometry=OGRGeometryFactory::createGeometry(wkbPolygon);
         validGeometry=true;
     }
+    wktGeometry=wktGeometry.toUpper();
     if(!validGeometry)
     {
-        strError=QObject::tr("PointCloudFile::getTilesFromWktGeometry");
+        strError=QObject::tr("PointCloudFile::getTilesNamesFromWktGeometry");
         strError+=QObject::tr("\nNot valid geometry from WKT: %1").arg(wktGeometry);
         return(false);
     }
-    if(OGRERR_NONE!=mMpPtrGeometry->importFromWkt(&charsWktGeometry))
+    std::string stdStringWktGeometry=wktGeometry.toStdString();
+    const char* constCharWktGeometry = stdStringWktGeometry.c_str();
+    if(OGRERR_NONE!=mMpPtrGeometry->importFromWkt(&constCharWktGeometry))
     {
-        strError=QObject::tr("PointCloudFile::getTilesFromWktGeometry");
+        strError=QObject::tr("PointCloudFile::getTilesNamesFromWktGeometry");
         strError+=QObject::tr("\nError making geometry from WKT: %1").arg(wktGeometry);
         OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
         mMpPtrGeometry=NULL;
@@ -2808,7 +2838,7 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
                                                 geometryCrsDescription,
                                                 strAuxError))
                 {
-                    strError=QObject::tr("PointCloudFile::getTilesFromWktGeometry");
+                    strError=QObject::tr("PointCloudFile::getTilesNamesFromWktGeometry");
                     strError+=QObject::tr("\nInvalid CRS From EPSG code: %1 and PROJ4:\n%2")
                             .arg(QString::number(geometryCrsEpsgCode)).arg(geometryCrsProj4String);
                     OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
@@ -2821,7 +2851,7 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
                                            &mMpPtrGeometry,
                                            strAuxError))
             {
-                strError=QObject::tr("PointCloudFile::getTilesFromWktGeometry");
+                strError=QObject::tr("PointCloudFile::getTilesNamesFromWktGeometry");
                 strError+=QObject::tr("\nError in CRS operation:\n%1").arg(strAuxError);
                 OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
                 mMpPtrGeometry=NULL;
@@ -2836,7 +2866,7 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
                                         geometryCrsDescription,
                                         strAuxError))
         {
-            strError=QObject::tr("PointCloudFile::getTilesFromWktGeometry");
+            strError=QObject::tr("PointCloudFile::getTilesNamesFromWktGeometry");
             strError+=QObject::tr("\nInvalid CRS From PROJ4:\n%1").arg(geometryCrsProj4String);
             OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
             mMpPtrGeometry=NULL;
@@ -2847,7 +2877,7 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
                                        &mMpPtrGeometry,
                                        strAuxError))
         {
-            strError=QObject::tr("PointCloudFile::getTilesFromWktGeometry");
+            strError=QObject::tr("PointCloudFile::getTilesNamesFromWktGeometry");
             strError+=QObject::tr("\nError in CRS operation:\n%1").arg(strAuxError);
             OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
             mMpPtrGeometry=NULL;
@@ -2945,7 +2975,7 @@ bool PointCloudFile::getTilesNamesFromWktGeometry(QString wktGeometry,
         mPtrMpProgressDialog=NULL;
         if(!mStrErrorMpProgressDialog.isEmpty())
         {
-            strError=QObject::tr("PointCloudFile::getTilesFromWktGeometry");
+            strError=QObject::tr("PointCloudFile::getTilesNamesFromWktGeometry");
             strError+=QObject::tr("\nError adding tiles geometry");
             strError+=QObject::tr("\nError:\n%1").arg(mStrErrorMpProgressDialog);
             OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
