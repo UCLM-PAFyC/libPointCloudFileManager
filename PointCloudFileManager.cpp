@@ -22,7 +22,7 @@
 
 #include "PointCloudFile.h"
 #include "PointCloudFileManager.h"
-#include "ILicenseManager.h"
+#include "ControlROIs.h"
 
 #include "lasreader.hpp"
 #include "laswriter.hpp"
@@ -6018,10 +6018,10 @@ bool PointCloudFileManager::setGeoidFilesLastoolsPath(QString value,
     return(true);
 }
 
-bool PointCloudFileManager::setILicenseManager(ILicenseManager *ptrILicenseManager,
-                                               QString &strError)
+bool PointCloudFileManager::setControlROIs(ControlROIs *ptrControlROIs,
+                                           QString &strError)
 {
-    mPtrILicenseManager=ptrILicenseManager;
+    mPtrControlROIs=ptrControlROIs;
     return(true);
 }
 

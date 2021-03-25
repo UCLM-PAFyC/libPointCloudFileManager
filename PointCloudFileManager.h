@@ -15,7 +15,7 @@
 #include "libPointCloudFileManager_global.h"
 
 class ParametersManager;
-class ILicenseManager;
+class ControlROIs;
 
 namespace ProcessTools{
 class ProgressExternalProcessDialog;
@@ -39,7 +39,7 @@ public:
         mPtrInternalCommandsParameters=NULL;
         mPtrProgressExternalProcessDialog=NULL;
         mPtrMpProgressDialog=NULL;
-        mPtrILicenseManager=NULL;
+        mPtrControlROIs=NULL;
 //        mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_1);
         mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_5);
         mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_10);
@@ -170,8 +170,8 @@ public:
     void setCrsTools(libCRS::CRSTools* ptrCrsTools){mPtrCrsTools=ptrCrsTools;}
     bool setGeoidFilesLastoolsPath(QString value,
                                QString& strError);
-    bool setILicenseManager(ILicenseManager* ptrILicenseManager,
-                            QString& strError);
+    bool setControlROIs(ControlROIs* ptrILicenseManager,
+                        QString& strError);
     bool setLastoolsPath(QString path,
                          QString& strError);
     bool setMultiProcess(bool useMultiProcess,
@@ -235,7 +235,7 @@ private:
 
     void mpProcessInternalCommandVegetationGrowthEstimate(int nf);
 
-    ILicenseManager* mPtrILicenseManager;
+    ControlROIs* mPtrControlROIs;
     static PointCloudFileManager * mInstance;
     libCRS::CRSTools* mPtrCrsTools;
     QMap<QString,PCFile::PointCloudFile*> mPtrPcFiles;
