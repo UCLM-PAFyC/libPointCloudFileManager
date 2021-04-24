@@ -4365,8 +4365,8 @@ bool PointCloudFileManager::addPointCloudFiles(QString fileName,
                                                 strAuxError))
     {
         strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
-        strError+=QObject::tr("\nError adding point cloud files:\n%1\nError:\n%2")
-                .arg(pointCloudFileName).arg(strAuxError);
+        strError+=QObject::tr("\nError adding point cloud files:\n%1")
+                .arg(strAuxError);
         return(false);
     }
     return(true);

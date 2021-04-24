@@ -439,16 +439,18 @@ bool PointCloudFile::addPointCloudFile(QString inputFileName,
         if(z<POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE
                 ||z>POINTCLOUDFILE_HEIGHT_MAXIMUM_VALID_VALUE)
         {
-            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
-            strError+=QObject::tr("\nIn file:\n%1").arg(inputFileName);
-            strError+=QObject::tr("\nfor point x=%1, y=%2")
-                    .arg(QString::number(x,'f',3))
-                    .arg(QString::number(y,'f',3));
-            strError+=QObject::tr("\nz: %1 out of valid domain: [%2,%3]")
-                    .arg(QString::number(z,'f',3))
-                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE,'f',3))
-                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MAXIMUM_VALID_VALUE,'f',3));
-            return(false);
+            // ignoro los puntos con z por debajo de -200 o sobre 6353
+//            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+//            strError+=QObject::tr("\nIn file:\n%1").arg(inputFileName);
+//            strError+=QObject::tr("\nfor point x=%1, y=%2")
+//                    .arg(QString::number(x,'f',3))
+//                    .arg(QString::number(y,'f',3));
+//            strError+=QObject::tr("\nz: %1 out of valid domain: [%2,%3]")
+//                    .arg(QString::number(z,'f',3))
+//                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE,'f',3))
+//                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MAXIMUM_VALID_VALUE,'f',3));
+//            return(false);
+            continue;
         }
         double zt=z-POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE;
         quint8 z_pc=zt*1000.0-floor(zt*10.)*100.;
@@ -4143,7 +4145,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     {
         if(!QFile::remove(tilesPointsFileZipFileName))
         {
-            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
             strError+=QObject::tr("\nError removing existing file:\n%1")
                     .arg(tilesPointsFileZipFileName);
             mStrErrorMpProgressDialog=strError;
@@ -4158,7 +4160,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     {
         if(!removeDir(tilesPointsFileZipFilePath))
         {
-            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
             strError+=QObject::tr("\nError removing existing dir:\n%1")
                     .arg(tilesPointsFileZipFilePath);
             mStrErrorMpProgressDialog=strError;
@@ -4168,7 +4170,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     }
     if(!currentDir.mkpath(tilesPointsFileZipFilePath))
     {
-        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+        strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
         strError+=QObject::tr("\nError making dir:\n%1")
                 .arg(tilesPointsFileZipFilePath);
         mStrErrorMpProgressDialog=strError;
@@ -4181,7 +4183,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     {
         if(!QFile::remove(pointsClassFileName))
         {
-            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
             strError+=QObject::tr("\nError removing existing file:\n%1")
                     .arg(pointsClassFileName);
             mStrErrorMpProgressDialog=strError;
@@ -4225,7 +4227,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
         lasreadopener.set_file_name(charFileName);
         if (!lasreadopener.active())
         {
-            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
             strError+=QObject::tr("\nError opening file:\n%1").arg(inputFileName);
             mStrErrorMpProgressDialog=strError;
             emit(mPtrMpProgressDialog->canceled());
@@ -4318,7 +4320,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     lasreadopener.set_file_name(charFileName);
     if (!lasreadopener.active())
     {
-        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+        strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
         strError+=QObject::tr("\nError opening file:\n%1").arg(inputFileName);
         mStrErrorMpProgressDialog=strError;
         emit(mPtrMpProgressDialog->canceled());
@@ -4427,18 +4429,20 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
         if(z<POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE
                 ||z>POINTCLOUDFILE_HEIGHT_MAXIMUM_VALID_VALUE)
         {
-            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
-            strError+=QObject::tr("\nIn file:\n%1").arg(inputFileName);
-            strError+=QObject::tr("\nfor point x=%1, y=%2")
-                    .arg(QString::number(x,'f',3))
-                    .arg(QString::number(y,'f',3));
-            strError+=QObject::tr("\nz: %1 out of valid domain: [%2,%3]")
-                    .arg(QString::number(z,'f',3))
-                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE,'f',3))
-                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MAXIMUM_VALID_VALUE,'f',3));
-            mStrErrorMpProgressDialog=strError;
-            emit(mPtrMpProgressDialog->canceled());
-            return;
+            // ignoro puntos por debajo de -200 o sobre 6353
+//            strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
+//            strError+=QObject::tr("\nIn file:\n%1").arg(inputFileName);
+//            strError+=QObject::tr("\nfor point x=%1, y=%2")
+//                    .arg(QString::number(x,'f',3))
+//                    .arg(QString::number(y,'f',3));
+//            strError+=QObject::tr("\nz: %1 out of valid domain: [%2,%3]")
+//                    .arg(QString::number(z,'f',3))
+//                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE,'f',3))
+//                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MAXIMUM_VALID_VALUE,'f',3));
+//            mStrErrorMpProgressDialog=strError;
+//            emit(mPtrMpProgressDialog->canceled());
+//            return;
+            continue;
         }
         double zt=z-POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE;
         quint8 z_pc=zt*1000.0-floor(zt*10.)*100.;
@@ -4473,7 +4477,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
             QFile* ptrTilePointsFile=new QFile(tilePointsFileName);
             if(!ptrTilePointsFile->open(QIODevice::WriteOnly))
             {
-                strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+                strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
                 strError+=QObject::tr("\nError creating file:\n%1")
                         .arg(tilePointsFileName);
                 mStrErrorMpProgressDialog=strError;
@@ -4595,7 +4599,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     {
         if(!removeDir(tilesPointsFileZipFilePath))
         {
-            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
             strError+=QObject::tr("\nError removing directory:\n%1")
                     .arg(tilesPointsFileZipFilePath);
             mStrErrorMpProgressDialog=strError;
@@ -4690,7 +4694,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     if(!JlCompress::compressDir(tilesPointsFileZipFileName,
                                 tilesPointsFileZipFilePath))
     {
-        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+        strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
         strError+=QObject::tr("\nError compressing directory:\n%1")
                 .arg(tilesPointsFileZipFilePath);
         mStrErrorMpProgressDialog=strError;
@@ -4699,7 +4703,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     }
     if(!removeDir(tilesPointsFileZipFilePath))
     {
-        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+        strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
         strError+=QObject::tr("\nError removing directory:\n%1")
                 .arg(tilesPointsFileZipFilePath);
         mStrErrorMpProgressDialog=strError;
@@ -4710,7 +4714,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
 //    int qazErrorCode=ptrTilesPointsFileZip->getZipError();
 //    if(UNZ_OK!=qazErrorCode)
 //    {
-//        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+//        strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
 //        strError+=QObject::tr("\nError closing file:\n%1\nError:\n%2")
 //                .arg(tilesPointsFileZipFileName).arg(QString::number(qazErrorCode));
 //        return(false);
@@ -4789,7 +4793,7 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
     {
         if(!writeHeader(strAuxError))
         {
-            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError=QObject::tr("\PointCloudFile::mpAddPointCloudFile");
             strError+=QObject::tr("\nError writing header after add file:\n%1").arg(inputFileName);
             mStrErrorMpProgressDialog=strError;
             mMutex.unlock();
