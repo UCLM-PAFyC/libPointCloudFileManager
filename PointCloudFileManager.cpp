@@ -480,6 +480,10 @@ bool PointCloudFileManager::getLastoolsCommandsOutputDataFormat(QString &command
     {
         enableOutputFile=true;
     }
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY,Qt::CaseInsensitive)==0)
+    {
+        enableOutputFile=true;
+    }
     else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_E2OHC_PREPROCESSING,Qt::CaseInsensitive)==0)
     {
         enableOutputFile=true;
@@ -2748,6 +2752,1161 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             commandString+=thirdLasthinAdaptativeVerticalToleranceStr;
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_THIRD_LASTHING_ADAPTATIVE_MAXIMUM_DISTANCE;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+//            QString parameterTag=ptrParameter->getTag();
+//            commandString+=" ";
+//            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=thirdLasthinAdaptativeMaximunDistanceStr;
+
+            commandString+=" -v -o ";
+            commandString+=outputFile;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=secondLasmergeOutuputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        // Paso 14: remove temporal paths
+//        for(int np=0;np<pathToRemove.size();np++)
+//        {
+//            QString commandString="rd /s /q \"";
+//            commandString+=pathToRemove[np];
+//            commandString+="\"";
+//            lastoolsCommandStrings.push_back(commandString);
+//        }
+
+    }
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY,Qt::CaseInsensitive)==0)
+    {
+        int intValue;
+        bool okToInt;
+        QString parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_TEMPORAL_PATH;
+        Parameter* ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString temporalBasePath;
+        ptrParameter->getValue(temporalBasePath);
+        QDir auxDir=QDir::currentPath();
+        if(!auxDir.exists(temporalBasePath))
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nNot exists path: %1").arg(temporalBasePath);
+            return(false);
+        }
+        bool removeOnlyContent=true;
+        if(!removeDir(temporalBasePath,removeOnlyContent))
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nError removing contents in path: %1").arg(temporalBasePath);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_CORES;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString lastileCoresStr;
+        ptrParameter->getValue(lastileCoresStr);
+        okToInt=false;
+        intValue=lastileCoresStr.toInt(&okToInt);
+        if(!okToInt)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(lastileCoresStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_TILE_SIZE;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString lastileTileSizeStr;
+        ptrParameter->getValue(lastileTileSizeStr);
+        double dblValue;
+        bool okToDouble=false;
+        dblValue=lastileTileSizeStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lastileTileSizeStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_TILE_BUFFER;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString lastileBufferStr;
+        ptrParameter->getValue(lastileBufferStr);
+        okToDouble=false;
+        dblValue=lastileBufferStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lastileBufferStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_STEP;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString firstLasthinStepStr;
+        ptrParameter->getValue(firstLasthinStepStr);
+        okToDouble=false;
+        dblValue=firstLasthinStepStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(firstLasthinStepStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_PERCENTILE;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString firstLasthinPercentileStr;
+        ptrParameter->getValue(firstLasthinPercentileStr);
+        QStringList strPercentileValues=firstLasthinPercentileStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+        for(int i=0;i<strPercentileValues.size();i++)
+        {
+            QString strAuxValue=strPercentileValues.at(i);
+            okToDouble=false;
+            dblValue=strAuxValue.toDouble(&okToDouble);
+            if(!okToDouble)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                strError+=QObject::tr("\nValue: %1 is not a double").arg(strAuxValue);
+                return(false);
+            }
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_CLASSIFY_AS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString firstLasthinClassifyAsStr;
+        ptrParameter->getValue(firstLasthinClassifyAsStr);
+        okToInt=false;
+        intValue=firstLasthinClassifyAsStr.toInt(&okToInt);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(firstLasthinClassifyAsStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_CLASSIFY_AS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString lasnoiseClassifyAsStr;
+        ptrParameter->getValue(lasnoiseClassifyAsStr);
+        okToInt=false;
+        intValue=lasnoiseClassifyAsStr.toInt(&okToInt);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(lasnoiseClassifyAsStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_IGNORE_CLASS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString lasnoiseIgnoreClassStr;
+        ptrParameter->getValue(lasnoiseIgnoreClassStr);
+        okToInt=false;
+        intValue=lasnoiseIgnoreClassStr.toInt(&okToInt);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(lasnoiseIgnoreClassStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_ISOLATED;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString lasnoiseIsolatedStr;
+        ptrParameter->getValue(lasnoiseIsolatedStr);
+        okToDouble=false;
+        dblValue=lasnoiseIsolatedStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lasnoiseIsolatedStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_STEP_Z;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString lasnoiseStepZStr;
+        ptrParameter->getValue(lasnoiseStepZStr);
+        okToDouble=false;
+        dblValue=lasnoiseStepZStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lasnoiseStepZStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_STEP_XY;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString lasnoiseStepXYStr;
+        ptrParameter->getValue(lasnoiseStepXYStr);
+        okToDouble=false;
+        dblValue=lasnoiseStepXYStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lasnoiseStepXYStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASGROUND_IGNORE_CLASS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString firstLasgroundIgnoreClassStr;
+        ptrParameter->getValue(firstLasgroundIgnoreClassStr);
+        QStringList strFirstLasgroundIgnoreClassValues=firstLasgroundIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+        for(int i=0;i<strFirstLasgroundIgnoreClassValues.size();i++)
+        {
+            QString strAuxValue=strFirstLasgroundIgnoreClassValues.at(i);
+            okToInt=false;
+            intValue=strAuxValue.toInt(&okToInt);
+            if(!okToInt)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                strError+=QObject::tr("\nValue: %1 is not an integer").arg(strAuxValue);
+                return(false);
+            }
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASHEIGHT_CLASSIFY_BELOW;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString firstLasheightClassifyBelowStr;
+        ptrParameter->getValue(firstLasheightClassifyBelowStr);
+        QStringList strFirstLasheightBelowValues=firstLasheightClassifyBelowStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+        QString firstLasheightBelowHeightStr,firstLasheightBelowClassStr;
+        for(int i=0;i<strFirstLasheightBelowValues.size();i++)
+        {
+            QString strAuxValue=strFirstLasheightBelowValues.at(i);
+            if(i==0)
+            {
+                okToDouble=false;
+                dblValue=strAuxValue.toDouble(&okToDouble);
+                if(!okToDouble)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                    strError+=QObject::tr("\nValue: %1 is not a double").arg(strAuxValue);
+                    return(false);
+                }
+                firstLasheightBelowHeightStr=strAuxValue;
+            }
+            if(i==1)
+            {
+                okToDouble=false;
+                intValue=qRound(strAuxValue.toDouble(&okToDouble));
+                if(!okToDouble)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                    strError+=QObject::tr("\nValue: %1 is not a double").arg(strAuxValue);
+                    return(false);
+                }
+                firstLasheightBelowClassStr=QString::number(intValue);
+            }
+        }
+        firstLasheightClassifyBelowStr=firstLasheightBelowHeightStr+" "+firstLasheightBelowClassStr;
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASHEIGHT_CLASSIFY_ABOVE;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString firstLasheightClassifyAboveStr;
+        ptrParameter->getValue(firstLasheightClassifyAboveStr);
+        QStringList strFirstLasheightAboveValues=firstLasheightClassifyAboveStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+        QString firstLasheightAboveHeightStr,firstLasheightAboveClassStr;
+        for(int i=0;i<strFirstLasheightAboveValues.size();i++)
+        {
+            QString strAuxValue=strFirstLasheightAboveValues.at(i);
+            if(i==0)
+            {
+                okToDouble=false;
+                dblValue=strAuxValue.toDouble(&okToDouble);
+                if(!okToDouble)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                    strError+=QObject::tr("\nValue: %1 is not a double").arg(strAuxValue);
+                    return(false);
+                }
+                firstLasheightAboveHeightStr=strAuxValue;
+            }
+            if(i==1)
+            {
+                okToDouble=false;
+                intValue=qRound(strAuxValue.toDouble(&okToDouble));
+                if(!okToDouble)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                    strError+=QObject::tr("\nValue: %1 is not a double").arg(strAuxValue);
+                    return(false);
+                }
+                firstLasheightAboveClassStr=QString::number(intValue);
+            }
+        }
+        firstLasheightClassifyAboveStr=firstLasheightAboveHeightStr+" "+firstLasheightAboveClassStr;
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_STEP;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString secondLasthinStepStr;
+        ptrParameter->getValue(secondLasthinStepStr);
+        okToDouble=false;
+        dblValue=firstLasthinStepStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(secondLasthinStepStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_IGNORE_CLASS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString secondLasthinIgnoreClassStr;
+        ptrParameter->getValue(secondLasthinIgnoreClassStr);
+        QStringList strSecondLasthinIgnoreClassValues=secondLasthinIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+        for(int i=0;i<strSecondLasthinIgnoreClassValues.size();i++)
+        {
+            QString strAuxValue=strSecondLasthinIgnoreClassValues.at(i);
+            okToInt=false;
+            intValue=strAuxValue.toDouble(&okToInt);
+            if(!okToDouble)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                strError+=QObject::tr("\nValue: %1 is not an integer").arg(strAuxValue);
+                return(false);
+            }
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_CLASSIFY_AS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString secondLasthinClassifyAsStr;
+        ptrParameter->getValue(secondLasthinClassifyAsStr);
+        okToInt=false;
+        intValue=secondLasthinClassifyAsStr.toInt(&okToInt);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(secondLasthinClassifyAsStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASGROUND_IGNORE_CLASS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString secondLasgroundIgnoreClassStr;
+        ptrParameter->getValue(secondLasgroundIgnoreClassStr);
+        QStringList strSecondLasgroundIgnoreClassValues=secondLasgroundIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+        for(int i=0;i<strSecondLasgroundIgnoreClassValues.size();i++)
+        {
+            QString strAuxValue=strSecondLasgroundIgnoreClassValues.at(i);
+            okToInt=false;
+            intValue=strAuxValue.toDouble(&okToInt);
+            if(!okToDouble)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                strError+=QObject::tr("\nValue: %1 is not an integer").arg(strAuxValue);
+                return(false);
+            }
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASGROUND_BULGE;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString secondLasgroundBulgeStr;
+        ptrParameter->getValue(secondLasgroundBulgeStr);
+        okToDouble=false;
+        dblValue=secondLasgroundBulgeStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(secondLasgroundBulgeStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASHEIGHT_CLASSIFICATION;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString secondLasheightClassificationStr;
+        ptrParameter->getValue(secondLasheightClassificationStr);
+        okToInt=false;
+        intValue=secondLasheightClassificationStr.toInt(&okToInt);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(secondLasheightClassificationStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASHEIGHT_DROP_BELOW;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString secondLasheightDropBelowStr;
+        ptrParameter->getValue(secondLasheightDropBelowStr);
+        okToDouble=false;
+        dblValue=secondLasheightDropBelowStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(secondLasheightDropBelowStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LAS2LAS_KEEP_CLASS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString las2lasKeepClassStr;
+        ptrParameter->getValue(las2lasKeepClassStr);
+        okToInt=false;
+        intValue=las2lasKeepClassStr.toInt(&okToInt);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(las2lasKeepClassStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_IGNORE_CLASS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString thirdLasthinIgnoreClassStr;
+        ptrParameter->getValue(thirdLasthinIgnoreClassStr);
+        QStringList strThirdLasthinIgnoreClassValues=thirdLasthinIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+        for(int i=0;i<strThirdLasthinIgnoreClassValues.size();i++)
+        {
+            QString strAuxValue=strThirdLasthinIgnoreClassValues.at(i);
+            okToInt=false;
+            intValue=strAuxValue.toDouble(&okToInt);
+            if(!okToDouble)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+                strError+=QObject::tr("\nValue: %1 is not an integer").arg(strAuxValue);
+                return(false);
+            }
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_ADAPTATIVE_VERTICAL_TOLERANCE;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString thirdLasthinAdaptativeVerticalToleranceStr;
+        ptrParameter->getValue(thirdLasthinAdaptativeVerticalToleranceStr);
+        okToDouble=false;
+        dblValue=thirdLasthinAdaptativeVerticalToleranceStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(secondLasheightDropBelowStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_ADAPTATIVE_MAXIMUM_DISTANCE;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        QString thirdLasthinAdaptativeMaximunDistanceStr;
+        ptrParameter->getValue(thirdLasthinAdaptativeMaximunDistanceStr);
+        okToDouble=false;
+        dblValue=thirdLasthinAdaptativeMaximunDistanceStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(secondLasheightDropBelowStr);
+            return(false);
+        }
+
+
+        // Comprobar que no hay ficheros con nombres repetidos
+        QVector<QString> inputFileBaseNames;
+        for(int nf=0;nf<inputFiles.size();nf++)
+        {
+            QFileInfo fileInfo(inputFiles.at(nf));
+            QString completeBaseName=fileInfo.completeBaseName();
+            for(int nfa=0;nfa<inputFileBaseNames.size();nfa++)
+            {
+                if(inputFileBaseNames[nfa].compare(completeBaseName,Qt::CaseInsensitive)==0)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nRepeated file base name: %1")
+                            .arg(completeBaseName);
+                    return(false);
+                }
+            }
+            inputFileBaseNames.push_back(completeBaseName);
+        }
+        // Paso 0: Crear las carpetas de salidas
+        QVector<QString> auxiliaryPaths;
+        QString auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_TILES;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASTHIN;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LASNOISE;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASGROUND;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASHEIGHT;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASTHIN;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASGROUND;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASHEIGHT;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LAS2LAS;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LASMERGE;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        for(int np=0;np<auxiliaryPaths.size();np++)
+        {
+            QString auxiliaryPath=auxiliaryPaths.at(np);
+            if(!auxDir.mkpath(auxiliaryPath))
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError making path: %1").arg(auxiliaryPath);
+                return(false);
+            }
+        }
+        QVector<QString> pathToRemove;
+        // Paso 1: tile
+        QString tilesOutputPath;
+        {
+            tilesOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_TILES;
+            if(tilesOutputPath.contains(" "))
+            {
+                tilesOutputPath="\""+tilesOutputPath+"\"";
+            }
+            for(int nf=0;nf<inputFiles.size();nf++)
+            {
+                QString inputFile=inputFiles.at(nf);
+                if(inputFile.contains(" "))
+                {
+                    inputFile="\""+inputFile+"\"";
+                }
+
+                QString commandString=mLastoolsPath+"\\";
+                commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASTILE;
+                commandString+=" -i ";
+                commandString+=inputFile;//firstUnionOutputFileName;
+
+                commandString+=" ";
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_CORES;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                QString parameterTag=ptrParameter->getTag();
+                commandString+=parameterTag;
+                commandString+=" ";
+                commandString+=lastileCoresStr;
+
+                commandString+=" ";
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_TILE_BUFFER;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                parameterTag=ptrParameter->getTag();
+                commandString+=parameterTag;
+                commandString+=" ";
+                commandString+=lastileBufferStr;
+
+                commandString+=" ";
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_TILE_SIZE;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                parameterTag=ptrParameter->getTag();
+                commandString+=parameterTag;
+                commandString+=" ";
+                commandString+=lastileTileSizeStr;
+
+                commandString+=" -flag_as_withheld -v -olaz -odir ";
+                commandString+=tilesOutputPath;
+                lastoolsCommandStrings.push_back(commandString);
+            }
+        }
+//        pathToRemove.push_back(tilesOutputPath);
+        QString firstLasthinOutputPath;
+        // Paso 2: first lasthin
+        {
+            firstLasthinOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASTHIN;
+            if(firstLasthinOutputPath.contains(" "))
+            {
+                firstLasthinOutputPath="\""+firstLasthinOutputPath+"\"";
+            }
+            QString firstLasthinInputStr;
+            firstLasthinInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_TILES;
+            firstLasthinInputStr+="\\*.laz";
+            if(firstLasthinInputStr.contains(" "))
+            {
+                firstLasthinInputStr="\""+firstLasthinInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASTHIN;
+            commandString+=" -i ";
+            commandString+=firstLasthinInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_STEP;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=firstLasthinStepStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_PERCENTILE;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            firstLasthinPercentileStr=firstLasthinPercentileStr.replace(ENUM_CHARACTER_SEPARATOR," ");
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=firstLasthinPercentileStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_CLASSIFY_AS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=firstLasthinClassifyAsStr;
+
+            commandString+=" -v -olaz -odir ";
+            commandString+=firstLasthinOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=tilesOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(firstLasthinOutputPath);
+        QString lasnoiseOutputPath;
+        // Paso 3: lasnoise
+        {
+            lasnoiseOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LASNOISE;
+            if(lasnoiseOutputPath.contains(" "))
+            {
+                lasnoiseOutputPath="\""+lasnoiseOutputPath+"\"";
+            }
+            QString lasnoiseInputStr;
+            lasnoiseInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASTHIN;
+            lasnoiseInputStr+="\\*.laz";
+            if(lasnoiseInputStr.contains(" "))
+            {
+                lasnoiseInputStr="\""+lasnoiseInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASNOISE;
+            commandString+=" -i ";
+            commandString+=lasnoiseInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_IGNORE_CLASS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasnoiseIgnoreClassStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_STEP_XY;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            firstLasthinPercentileStr=firstLasthinPercentileStr.replace(ENUM_CHARACTER_SEPARATOR," ");
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasnoiseStepXYStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_STEP_Z;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasnoiseStepZStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_ISOLATED;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasnoiseIsolatedStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_CLASSIFY_AS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasnoiseClassifyAsStr;
+
+            commandString+=" -v -olaz -odir ";
+            commandString+=lasnoiseOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(lasnoiseOutputPath);
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=firstLasthinOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+//
+        QString firstLasgroundOutputPath;
+        // Paso 4: first lasground
+        {
+            firstLasgroundOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASGROUND;
+            if(firstLasgroundOutputPath.contains(" "))
+            {
+                firstLasgroundOutputPath="\""+firstLasgroundOutputPath+"\"";
+            }
+            QString firstLasgroundInputStr;
+            firstLasgroundInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LASNOISE;
+            firstLasgroundInputStr+="\\*.laz";
+            if(firstLasgroundInputStr.contains(" "))
+            {
+                firstLasgroundInputStr="\""+firstLasgroundInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASGROUND;
+            commandString+=" -i ";
+            commandString+=firstLasgroundInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASGROUND_IGNORE_CLASS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            firstLasgroundIgnoreClassStr=firstLasgroundIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=firstLasgroundIgnoreClassStr;
+
+            commandString+=" -town -ultra_fine -v -olaz -odir ";
+            commandString+=firstLasgroundOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(firstLasgroundOutputPath);
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=lasnoiseOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        QString firstLasheightOutputPath;
+        // Paso 5: first lasheight
+        {
+            firstLasheightOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASHEIGHT;
+            if(firstLasheightOutputPath.contains(" "))
+            {
+                firstLasheightOutputPath="\""+firstLasheightOutputPath+"\"";
+            }
+            QString firstLasheightInputStr;
+            firstLasheightInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASGROUND;
+            firstLasheightInputStr+="\\*.laz";
+            if(firstLasheightInputStr.contains(" "))
+            {
+                firstLasheightInputStr="\""+firstLasheightInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT;
+            commandString+=" -i ";
+            commandString+=firstLasheightInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASHEIGHT_CLASSIFY_BELOW;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            firstLasheightClassifyBelowStr=firstLasheightClassifyBelowStr.replace(ENUM_CHARACTER_SEPARATOR," ");
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=firstLasheightClassifyBelowStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASHEIGHT_CLASSIFY_ABOVE;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            firstLasheightClassifyAboveStr=firstLasheightClassifyAboveStr.replace(ENUM_CHARACTER_SEPARATOR," ");
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=firstLasheightClassifyAboveStr;
+
+            commandString+=" -v -olaz -odir ";
+            commandString+=firstLasheightOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(firstLasheightOutputPath);
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=firstLasgroundOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        QString secondLasthinOutputPath;
+        // Paso 6: second lasthin
+        {
+            secondLasthinOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASTHIN;
+            if(secondLasthinOutputPath.contains(" "))
+            {
+                secondLasthinOutputPath="\""+secondLasthinOutputPath+"\"";
+            }
+            QString secondLasthinInputStr;
+            secondLasthinInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_FIRST_LASHEIGHT;
+            secondLasthinInputStr+="\\*.laz";
+            if(secondLasthinInputStr.contains(" "))
+            {
+                secondLasthinInputStr="\""+secondLasthinInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASTHIN;
+            commandString+=" -i ";
+            commandString+=secondLasthinInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_STEP;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=secondLasthinStepStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_IGNORE_CLASS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            secondLasthinIgnoreClassStr=secondLasthinIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=secondLasthinIgnoreClassStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_CLASSIFY_AS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=secondLasthinClassifyAsStr;
+
+            commandString+=" -lowest -v -olaz -odir ";
+            commandString+=secondLasthinOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(secondLasthinOutputPath);
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=firstLasheightOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        QString secondLasgroundOutputPath;
+        // Paso 7: second lasground
+        {
+            secondLasgroundOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASGROUND;
+            if(secondLasgroundOutputPath.contains(" "))
+            {
+                secondLasgroundOutputPath="\""+secondLasgroundOutputPath+"\"";
+            }
+            QString secondLasgroundInputStr;
+            secondLasgroundInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASTHIN;
+            secondLasgroundInputStr+="\\*.laz";
+            if(secondLasgroundInputStr.contains(" "))
+            {
+                secondLasgroundInputStr="\""+secondLasgroundInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASGROUND;
+            commandString+=" -i ";
+            commandString+=secondLasgroundInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASGROUND_IGNORE_CLASS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            secondLasgroundIgnoreClassStr=secondLasgroundIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=secondLasgroundIgnoreClassStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASGROUND_BULGE;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=secondLasgroundBulgeStr;
+
+            commandString+=" -town -extra_fine -v -olaz -odir ";
+            commandString+=secondLasgroundOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(secondLasgroundOutputPath);
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=secondLasthinOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        QString secondLasheightOutputPath;
+        // Paso 8: second lasheight
+        {
+            secondLasheightOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASHEIGHT;
+            if(secondLasheightOutputPath.contains(" "))
+            {
+                secondLasheightOutputPath="\""+secondLasheightOutputPath+"\"";
+            }
+            QString secondLasheightInputStr;
+            secondLasheightInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASGROUND;
+            secondLasheightInputStr+="\\*.laz";
+            if(secondLasheightInputStr.contains(" "))
+            {
+                secondLasheightInputStr="\""+secondLasheightInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT;
+            commandString+=" -i ";
+            commandString+=secondLasheightInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASHEIGHT_CLASSIFICATION;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=secondLasheightClassificationStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASHEIGHT_DROP_BELOW;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=secondLasheightDropBelowStr;
+
+            commandString+=" -v -olaz -odir ";
+            commandString+=secondLasheightOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(secondLasheightOutputPath);
+        QString las2lasOutputPath;
+        // Paso 9: las2las
+        {
+            las2lasOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LAS2LAS;
+            if(las2lasOutputPath.contains(" "))
+            {
+                las2lasOutputPath="\""+las2lasOutputPath+"\"";
+            }
+            QString las2lasInputStr;
+            las2lasInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASGROUND;
+            las2lasInputStr+="\\*.laz";
+            if(las2lasInputStr.contains(" "))
+            {
+                las2lasInputStr="\""+las2lasInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LAS2LAS;
+            commandString+=" -i ";
+            commandString+=las2lasInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LAS2LAS_KEEP_CLASS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=las2lasKeepClassStr;
+
+            commandString+=" -v -olaz -odir ";
+            commandString+=las2lasOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(las2lasOutputPath);
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=secondLasgroundOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        // Paso 10: first lasmerge
+        {
+            QString firstLasmergeOutuputFilename=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LASMERGE;
+            firstLasmergeOutuputFilename+="\\";
+            firstLasmergeOutuputFilename+=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASMERGE_GROUND_FILENAME;
+            if(firstLasmergeOutuputFilename.contains(" "))
+            {
+                firstLasmergeOutuputFilename="\""+firstLasmergeOutuputFilename+"\"";
+            }
+            QString firstLasmergeInputStr;
+            firstLasmergeInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LAS2LAS;
+            firstLasmergeInputStr+="\\*.laz";
+            if(firstLasmergeInputStr.contains(" "))
+            {
+                firstLasmergeInputStr="\""+firstLasmergeInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASMERGE;
+            commandString+=" -i ";
+            commandString+=firstLasmergeInputStr;
+
+            commandString+=" -drop_withheld -v -o ";
+            commandString+=firstLasmergeOutuputFilename;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        // Paso 11: second lasmerge
+        QString secondLasmergeOutuputPath;
+        {
+            secondLasmergeOutuputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LASMERGE;
+            QString secondLasmergeOutuputFilename=secondLasmergeOutuputPath+"\\";
+            secondLasmergeOutuputFilename+=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASMERGE_OBJECTS_FILENAME;
+            if(secondLasmergeOutuputFilename.contains(" "))
+            {
+                secondLasmergeOutuputFilename="\""+secondLasmergeOutuputFilename+"\"";
+            }
+            QString secondLasmergeInputStr;
+            secondLasmergeInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_SECOND_LASHEIGHT;
+            secondLasmergeInputStr+="\\*.laz";
+            if(secondLasmergeInputStr.contains(" "))
+            {
+                secondLasmergeInputStr="\""+secondLasmergeInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASMERGE;
+            commandString+=" -i ";
+            commandString+=secondLasmergeInputStr;
+
+            commandString+=" -drop_withheld -v -o ";
+            commandString+=secondLasmergeOutuputFilename;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        // Paso 12: third lasmerge
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=secondLasheightOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=las2lasOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        QString thirdLasmergeOutuputFilename;
+        {
+            thirdLasmergeOutuputFilename=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LASMERGE;
+            thirdLasmergeOutuputFilename+="\\";
+            thirdLasmergeOutuputFilename+=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASMERGE_TEMP_FILENAME;
+            if(thirdLasmergeOutuputFilename.contains(" "))
+            {
+                thirdLasmergeOutuputFilename="\""+thirdLasmergeOutuputFilename+"\"";
+            }
+            QString thirdLasmergeInputStr;
+            thirdLasmergeInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_PATH_LASMERGE;
+            thirdLasmergeInputStr+="\\*.laz";
+            if(thirdLasmergeInputStr.contains(" "))
+            {
+                thirdLasmergeInputStr="\""+thirdLasmergeInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASMERGE;
+            commandString+=" -i ";
+            commandString+=thirdLasmergeInputStr;
+
+            commandString+=" -v -o ";
+            commandString+=thirdLasmergeOutuputFilename;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(las2lasOutputPath);
+        QString originalOutputFile=outputFile;
+        QFileInfo outputFileInfo(outputFile);
+        // Paso 13: third lasthin
+        {
+            if(outputFile.contains(" "))
+            {
+                outputFile="\""+outputFile+"\"";
+            }
+
+            QString thirdLasthinInputStr=thirdLasmergeOutuputFilename;
+//            thirdLasthinInputStr=temporalBasePath+"\\"+POINTCLOUDDB_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_PATH_LASMERGE;
+//            thirdLasthinInputStr+="\\*.laz";
+//            if(thirdLasthinInputStr.contains(" "))
+//            {
+//                thirdLasthinInputStr="\""+thirdLasthinInputStr+"\"";
+//            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASTHIN;
+            commandString+=" -i ";
+            commandString+=thirdLasthinInputStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_IGNORE_CLASS;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            thirdLasthinIgnoreClassStr=thirdLasthinIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
+            QString parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=thirdLasthinIgnoreClassStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_ADAPTATIVE_VERTICAL_TOLERANCE;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=thirdLasthinAdaptativeVerticalToleranceStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_ADAPTATIVE_MAXIMUM_DISTANCE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
 //            QString parameterTag=ptrParameter->getTag();
 //            commandString+=" ";
@@ -5870,8 +7029,9 @@ bool PointCloudFileManager::setBasePath(QString basePath,
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASTILE);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LAS2DEM);
-    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING);
-    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING);
+//    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING);
+//    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING);
+    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_E2OHC_PREPROCESSING);
     mInternalCommandsParametersFileName=mBasePath+"/"+POINTCLOUDFILE_INTERNALTOOLS_PARAMETERS_FILE_NAME;
     mInternalCommands.clear();
