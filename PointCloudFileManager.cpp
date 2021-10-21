@@ -484,6 +484,10 @@ bool PointCloudFileManager::getLastoolsCommandsOutputDataFormat(QString &command
     {
         enableOutputFile=true;
     }
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION,Qt::CaseInsensitive)==0)
+    {
+        enableOutputFile=true;
+    }
     else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_E2OHC_PREPROCESSING,Qt::CaseInsensitive)==0)
     {
         enableOutputFile=true;
@@ -3934,6 +3938,10 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 //        }
 
     }
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION,Qt::CaseInsensitive)==0)
+    {
+
+    }
     return(true);
 }
 
@@ -7032,6 +7040,7 @@ bool PointCloudFileManager::setBasePath(QString basePath,
 //    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING);
 //    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY);
+    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_E2OHC_PREPROCESSING);
     mInternalCommandsParametersFileName=mBasePath+"/"+POINTCLOUDFILE_INTERNALTOOLS_PARAMETERS_FILE_NAME;
     mInternalCommands.clear();
