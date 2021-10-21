@@ -844,6 +844,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
     {
         QString parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_TEMPORAL_PATH;
         Parameter* ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString temporalBasePath;
         ptrParameter->getValue(temporalBasePath);
         QDir auxDir=QDir::currentPath();
@@ -868,6 +876,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASCLIP_FIRST_SHAPEFILE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasClipFirstShapefile;
         ptrParameter->getValue(lasClipFirstShapefile);
         if(!QFile::exists(lasClipFirstShapefile))
@@ -881,6 +897,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASCLIP_SECOND_SHAPEFILE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasClipSecondShapefile;
         ptrParameter->getValue(lasClipSecondShapefile);
         if(!QFile::exists(lasClipSecondShapefile))
@@ -894,6 +918,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTILE_TILE_SIZE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileTileSizeStr;
         ptrParameter->getValue(lastileTileSizeStr);
         double dblValue;
@@ -910,6 +942,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTILE_TILE_BUFFER;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileBufferStr;
         ptrParameter->getValue(lastileBufferStr);
         okToDouble=false;
@@ -925,6 +965,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASGROUND_STEP;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasgroundStepStr;
         ptrParameter->getValue(lasgroundStepStr);
         okToDouble=false;
@@ -940,6 +988,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTHIN_AVT;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasthinAvtStr;
         ptrParameter->getValue(lasthinAvtStr);
         okToDouble=false;
@@ -955,6 +1011,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTHIN_AMD;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasthinAmdStr;
         ptrParameter->getValue(lasthinAmdStr);
         okToDouble=false;
@@ -970,6 +1034,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASGROUND_CORES;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasgroundCoresStr;
         ptrParameter->getValue(lasgroundCoresStr);
         bool okToInt=false;
@@ -985,6 +1057,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTILE_CORES;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileCoresStr;
         ptrParameter->getValue(lastileCoresStr);
         okToInt=false;
@@ -1032,6 +1112,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         */
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASCLIP_THIRD_SHAPEFILE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasClipThirdShapefile;
         ptrParameter->getValue(lasClipThirdShapefile);
         if(!QFile::exists(lasClipThirdShapefile))
@@ -1045,6 +1133,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTHIN_STEP_OUT_POWERLINE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasthinStepOutPowerlineStr;
         ptrParameter->getValue(lasthinStepOutPowerlineStr);
         okToDouble=false;
@@ -1060,6 +1156,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASNOISE_STEP;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseStepStr;
         ptrParameter->getValue(lasnoiseStepStr);
         okToDouble=false;
@@ -1075,6 +1179,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASNOISE_ISOLATED;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseIsolatedStr;
         ptrParameter->getValue(lasnoiseIsolatedStr);
         okToInt=false;
@@ -1139,6 +1251,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             firstClipOutputPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_PATH_FIRST_CLIP;
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASCLIP_FIRST_SHAPEFILE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             for(int nf=0;nf<inputFiles.size();nf++)
             {
@@ -1217,6 +1337,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             commandString+=" ";
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASNOISE_STEP;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=parameterTag;
             commandString+=" ";
@@ -1225,6 +1353,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             commandString+=" ";
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASNOISE_ISOLATED;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=parameterTag;
             commandString+=" ";
@@ -1253,6 +1389,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             commandString+=" ";
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTILE_CORES;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=parameterTag;
             commandString+=" ";
@@ -1261,6 +1405,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             commandString+=" ";
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTILE_TILE_BUFFER;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=parameterTag;
             commandString+=" ";
@@ -1269,6 +1421,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             commandString+=" ";
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTILE_TILE_SIZE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=parameterTag;
             commandString+=" ";
@@ -1300,6 +1460,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             commandString+=" ";
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASGROUND_CORES;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=parameterTag;
             commandString+=" ";
@@ -1308,6 +1476,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             commandString+=" ";
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASGROUND_STEP;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=parameterTag;
             commandString+=" ";
@@ -1329,6 +1505,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             QString strInput=groundOutputPath+"\\*.laz";
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASCLIP_SECOND_SHAPEFILE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             QString commandString=mLastoolsPath+"/";
             commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASCLIP;
@@ -1389,6 +1573,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTHIN_AVT;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterValue;
             ptrParameter->getValue(parameterValue);
             QString parameterTag=ptrParameter->getTag();
@@ -1399,6 +1591,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTHIN_AMD;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             ptrParameter->getValue(parameterValue);
 //            QString parameterTag=ptrParameter->getTag();
 //            commandString+=" ";
@@ -1425,6 +1625,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             }
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASCLIP_THIRD_SHAPEFILE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             QString commandString=mLastoolsPath+"/";
             commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASCLIP;
@@ -1458,6 +1666,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             }
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING_LASTHIN_STEP_OUT_POWERLINE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             QString commandString=mLastoolsPath+"/";
             commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASTHIN;
@@ -1634,6 +1850,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         bool okToInt;
         QString parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_TEMPORAL_PATH;
         Parameter* ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString temporalBasePath;
         ptrParameter->getValue(temporalBasePath);
         QDir auxDir=QDir::currentPath();
@@ -1658,6 +1882,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASTILE_CORES;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileCoresStr;
         ptrParameter->getValue(lastileCoresStr);
         okToInt=false;
@@ -1673,6 +1905,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASTILE_TILE_SIZE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileTileSizeStr;
         ptrParameter->getValue(lastileTileSizeStr);
         double dblValue;
@@ -1689,6 +1929,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASTILE_TILE_BUFFER;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileBufferStr;
         ptrParameter->getValue(lastileBufferStr);
         okToDouble=false;
@@ -1704,6 +1952,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASTHIN_STEP;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasthinStepStr;
         ptrParameter->getValue(firstLasthinStepStr);
         okToDouble=false;
@@ -1719,6 +1975,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASTHIN_PERCENTILE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasthinPercentileStr;
         ptrParameter->getValue(firstLasthinPercentileStr);
         QStringList strPercentileValues=firstLasthinPercentileStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -1739,6 +2003,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASTHIN_CLASSIFY_AS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasthinClassifyAsStr;
         ptrParameter->getValue(firstLasthinClassifyAsStr);
         okToInt=false;
@@ -1754,6 +2026,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_CLASSIFY_AS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseClassifyAsStr;
         ptrParameter->getValue(lasnoiseClassifyAsStr);
         okToInt=false;
@@ -1769,6 +2049,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseIgnoreClassStr;
         ptrParameter->getValue(lasnoiseIgnoreClassStr);
         okToInt=false;
@@ -1784,6 +2072,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_ISOLATED;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseIsolatedStr;
         ptrParameter->getValue(lasnoiseIsolatedStr);
         okToDouble=false;
@@ -1799,6 +2095,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_STEP_Z;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseStepZStr;
         ptrParameter->getValue(lasnoiseStepZStr);
         okToDouble=false;
@@ -1814,6 +2118,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_STEP_XY;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseStepXYStr;
         ptrParameter->getValue(lasnoiseStepXYStr);
         okToDouble=false;
@@ -1829,6 +2141,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASGROUND_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasgroundIgnoreClassStr;
         ptrParameter->getValue(firstLasgroundIgnoreClassStr);
         QStringList strFirstLasgroundIgnoreClassValues=firstLasgroundIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -1849,6 +2169,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASHEIGHT_CLASSIFY_BELOW;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasheightClassifyBelowStr;
         ptrParameter->getValue(firstLasheightClassifyBelowStr);
         QStringList strFirstLasheightBelowValues=firstLasheightClassifyBelowStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -1890,6 +2218,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         firstLasheightClassifyBelowStr=firstLasheightBelowHeightStr+" "+firstLasheightBelowClassStr;
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASHEIGHT_CLASSIFY_ABOVE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasheightClassifyAboveStr;
         ptrParameter->getValue(firstLasheightClassifyAboveStr);
         QStringList strFirstLasheightAboveValues=firstLasheightClassifyAboveStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -1931,6 +2267,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         firstLasheightClassifyAboveStr=firstLasheightAboveHeightStr+" "+firstLasheightAboveClassStr;
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASTHIN_STEP;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasthinStepStr;
         ptrParameter->getValue(secondLasthinStepStr);
         okToDouble=false;
@@ -1946,6 +2290,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASTHIN_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasthinIgnoreClassStr;
         ptrParameter->getValue(secondLasthinIgnoreClassStr);
         QStringList strSecondLasthinIgnoreClassValues=secondLasthinIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -1966,6 +2318,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASTHIN_CLASSIFY_AS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasthinClassifyAsStr;
         ptrParameter->getValue(secondLasthinClassifyAsStr);
         okToInt=false;
@@ -1981,6 +2341,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASGROUND_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasgroundIgnoreClassStr;
         ptrParameter->getValue(secondLasgroundIgnoreClassStr);
         QStringList strSecondLasgroundIgnoreClassValues=secondLasgroundIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -2001,6 +2369,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASGROUND_BULGE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasgroundBulgeStr;
         ptrParameter->getValue(secondLasgroundBulgeStr);
         okToDouble=false;
@@ -2016,6 +2392,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASHEIGHT_CLASSIFICATION;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasheightClassificationStr;
         ptrParameter->getValue(secondLasheightClassificationStr);
         okToInt=false;
@@ -2031,6 +2415,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASHEIGHT_DROP_BELOW;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasheightDropBelowStr;
         ptrParameter->getValue(secondLasheightDropBelowStr);
         okToDouble=false;
@@ -2046,6 +2438,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LAS2LAS_KEEP_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString las2lasKeepClassStr;
         ptrParameter->getValue(las2lasKeepClassStr);
         okToInt=false;
@@ -2061,6 +2461,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_THIRD_LASTHING_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString thirdLasthinIgnoreClassStr;
         ptrParameter->getValue(thirdLasthinIgnoreClassStr);
         QStringList strThirdLasthinIgnoreClassValues=thirdLasthinIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -2081,6 +2489,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_THIRD_LASTHING_ADAPTATIVE_VERTICAL_TOLERANCE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString thirdLasthinAdaptativeVerticalToleranceStr;
         ptrParameter->getValue(thirdLasthinAdaptativeVerticalToleranceStr);
         okToDouble=false;
@@ -2096,6 +2512,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_THIRD_LASTHING_ADAPTATIVE_MAXIMUM_DISTANCE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString thirdLasthinAdaptativeMaximunDistanceStr;
         ptrParameter->getValue(thirdLasthinAdaptativeMaximunDistanceStr);
         okToDouble=false;
@@ -2186,6 +2610,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
                 commandString+=" ";
                 parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASTILE_CORES;
                 ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
                 QString parameterTag=ptrParameter->getTag();
                 commandString+=parameterTag;
                 commandString+=" ";
@@ -2194,6 +2626,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
                 commandString+=" ";
                 parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASTILE_TILE_BUFFER;
                 ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
                 parameterTag=ptrParameter->getTag();
                 commandString+=parameterTag;
                 commandString+=" ";
@@ -2202,6 +2642,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
                 commandString+=" ";
                 parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASTILE_TILE_SIZE;
                 ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
                 parameterTag=ptrParameter->getTag();
                 commandString+=parameterTag;
                 commandString+=" ";
@@ -2236,6 +2684,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASTHIN_STEP;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2244,6 +2700,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASTHIN_PERCENTILE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasthinPercentileStr=firstLasthinPercentileStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -2253,6 +2717,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASTHIN_CLASSIFY_AS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2293,6 +2765,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2301,6 +2781,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_STEP_XY;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasthinPercentileStr=firstLasthinPercentileStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -2310,6 +2798,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_STEP_Z;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2318,6 +2814,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_ISOLATED;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2326,6 +2830,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_LASNOISE_CLASSIFY_AS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2367,6 +2879,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASGROUND_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasgroundIgnoreClassStr=firstLasgroundIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -2408,6 +2928,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASHEIGHT_CLASSIFY_BELOW;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasheightClassifyBelowStr=firstLasheightClassifyBelowStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -2417,6 +2945,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_FIRST_LASHEIGHT_CLASSIFY_ABOVE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasheightClassifyAboveStr=firstLasheightClassifyAboveStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -2458,6 +2994,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASTHIN_STEP;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2466,6 +3010,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASTHIN_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             secondLasthinIgnoreClassStr=secondLasthinIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -2475,6 +3027,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASTHIN_CLASSIFY_AS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2515,6 +3075,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASGROUND_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             secondLasgroundIgnoreClassStr=secondLasgroundIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -2524,6 +3092,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASGROUND_BULGE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2564,6 +3140,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASHEIGHT_CLASSIFICATION;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2572,6 +3156,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LASHEIGHT_DROP_BELOW;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2606,6 +3198,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_SECOND_LAS2LAS_KEEP_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2740,6 +3340,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_THIRD_LASTHING_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             thirdLasthinIgnoreClassStr=thirdLasthinIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -2749,6 +3357,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_SOLARPARK_PREPROCESSING_THIRD_LASTHING_ADAPTATIVE_VERTICAL_TOLERANCE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -2760,6 +3376,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 //            QString parameterTag=ptrParameter->getTag();
 //            commandString+=" ";
 //            commandString+=parameterTag;
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             commandString+=" ";
             commandString+=thirdLasthinAdaptativeMaximunDistanceStr;
 
@@ -2789,6 +3413,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         bool okToInt;
         QString parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_TEMPORAL_PATH;
         Parameter* ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString temporalBasePath;
         ptrParameter->getValue(temporalBasePath);
         QDir auxDir=QDir::currentPath();
@@ -2813,6 +3445,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_CORES;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileCoresStr;
         ptrParameter->getValue(lastileCoresStr);
         okToInt=false;
@@ -2828,6 +3468,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_TILE_SIZE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileTileSizeStr;
         ptrParameter->getValue(lastileTileSizeStr);
         double dblValue;
@@ -2844,6 +3492,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_TILE_BUFFER;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lastileBufferStr;
         ptrParameter->getValue(lastileBufferStr);
         okToDouble=false;
@@ -2859,6 +3515,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_STEP;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasthinStepStr;
         ptrParameter->getValue(firstLasthinStepStr);
         okToDouble=false;
@@ -2874,6 +3538,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_PERCENTILE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasthinPercentileStr;
         ptrParameter->getValue(firstLasthinPercentileStr);
         QStringList strPercentileValues=firstLasthinPercentileStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -2894,6 +3566,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_CLASSIFY_AS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasthinClassifyAsStr;
         ptrParameter->getValue(firstLasthinClassifyAsStr);
         okToInt=false;
@@ -2909,6 +3589,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_CLASSIFY_AS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseClassifyAsStr;
         ptrParameter->getValue(lasnoiseClassifyAsStr);
         okToInt=false;
@@ -2924,6 +3612,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseIgnoreClassStr;
         ptrParameter->getValue(lasnoiseIgnoreClassStr);
         okToInt=false;
@@ -2939,6 +3635,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_ISOLATED;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseIsolatedStr;
         ptrParameter->getValue(lasnoiseIsolatedStr);
         okToDouble=false;
@@ -2954,6 +3658,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_STEP_Z;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseStepZStr;
         ptrParameter->getValue(lasnoiseStepZStr);
         okToDouble=false;
@@ -2969,6 +3681,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_STEP_XY;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString lasnoiseStepXYStr;
         ptrParameter->getValue(lasnoiseStepXYStr);
         okToDouble=false;
@@ -2984,6 +3704,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASGROUND_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasgroundIgnoreClassStr;
         ptrParameter->getValue(firstLasgroundIgnoreClassStr);
         QStringList strFirstLasgroundIgnoreClassValues=firstLasgroundIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -3004,6 +3732,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASHEIGHT_CLASSIFY_BELOW;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasheightClassifyBelowStr;
         ptrParameter->getValue(firstLasheightClassifyBelowStr);
         QStringList strFirstLasheightBelowValues=firstLasheightClassifyBelowStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -3045,6 +3781,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         firstLasheightClassifyBelowStr=firstLasheightBelowHeightStr+" "+firstLasheightBelowClassStr;
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASHEIGHT_CLASSIFY_ABOVE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString firstLasheightClassifyAboveStr;
         ptrParameter->getValue(firstLasheightClassifyAboveStr);
         QStringList strFirstLasheightAboveValues=firstLasheightClassifyAboveStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -3086,6 +3830,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         firstLasheightClassifyAboveStr=firstLasheightAboveHeightStr+" "+firstLasheightAboveClassStr;
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_STEP;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasthinStepStr;
         ptrParameter->getValue(secondLasthinStepStr);
         okToDouble=false;
@@ -3101,6 +3853,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasthinIgnoreClassStr;
         ptrParameter->getValue(secondLasthinIgnoreClassStr);
         QStringList strSecondLasthinIgnoreClassValues=secondLasthinIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -3121,6 +3881,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_CLASSIFY_AS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasthinClassifyAsStr;
         ptrParameter->getValue(secondLasthinClassifyAsStr);
         okToInt=false;
@@ -3136,6 +3904,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASGROUND_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasgroundIgnoreClassStr;
         ptrParameter->getValue(secondLasgroundIgnoreClassStr);
         QStringList strSecondLasgroundIgnoreClassValues=secondLasgroundIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -3156,6 +3932,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASGROUND_BULGE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasgroundBulgeStr;
         ptrParameter->getValue(secondLasgroundBulgeStr);
         okToDouble=false;
@@ -3171,6 +3955,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASHEIGHT_CLASSIFICATION;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasheightClassificationStr;
         ptrParameter->getValue(secondLasheightClassificationStr);
         okToInt=false;
@@ -3186,6 +3978,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASHEIGHT_DROP_BELOW;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString secondLasheightDropBelowStr;
         ptrParameter->getValue(secondLasheightDropBelowStr);
         okToDouble=false;
@@ -3201,6 +4001,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LAS2LAS_KEEP_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString las2lasKeepClassStr;
         ptrParameter->getValue(las2lasKeepClassStr);
         okToInt=false;
@@ -3216,6 +4024,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_IGNORE_CLASS;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString thirdLasthinIgnoreClassStr;
         ptrParameter->getValue(thirdLasthinIgnoreClassStr);
         QStringList strThirdLasthinIgnoreClassValues=thirdLasthinIgnoreClassStr.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
@@ -3236,6 +4052,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_ADAPTATIVE_VERTICAL_TOLERANCE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString thirdLasthinAdaptativeVerticalToleranceStr;
         ptrParameter->getValue(thirdLasthinAdaptativeVerticalToleranceStr);
         okToDouble=false;
@@ -3251,6 +4075,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_ADAPTATIVE_MAXIMUM_DISTANCE;
         ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
         QString thirdLasthinAdaptativeMaximunDistanceStr;
         ptrParameter->getValue(thirdLasthinAdaptativeMaximunDistanceStr);
         okToDouble=false;
@@ -3341,6 +4173,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
                 commandString+=" ";
                 parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_CORES;
                 ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
                 QString parameterTag=ptrParameter->getTag();
                 commandString+=parameterTag;
                 commandString+=" ";
@@ -3349,6 +4189,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
                 commandString+=" ";
                 parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_TILE_BUFFER;
                 ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
                 parameterTag=ptrParameter->getTag();
                 commandString+=parameterTag;
                 commandString+=" ";
@@ -3357,6 +4205,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
                 commandString+=" ";
                 parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASTILE_TILE_SIZE;
                 ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
                 parameterTag=ptrParameter->getTag();
                 commandString+=parameterTag;
                 commandString+=" ";
@@ -3391,6 +4247,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_STEP;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3399,6 +4263,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_PERCENTILE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasthinPercentileStr=firstLasthinPercentileStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -3408,6 +4280,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASTHIN_CLASSIFY_AS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3448,6 +4328,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3456,6 +4344,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_STEP_XY;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasthinPercentileStr=firstLasthinPercentileStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -3465,6 +4361,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_STEP_Z;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3473,6 +4377,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_ISOLATED;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3481,6 +4393,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_LASNOISE_CLASSIFY_AS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3522,6 +4442,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASGROUND_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasgroundIgnoreClassStr=firstLasgroundIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -3563,6 +4491,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASHEIGHT_CLASSIFY_BELOW;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasheightClassifyBelowStr=firstLasheightClassifyBelowStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -3572,6 +4508,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_FIRST_LASHEIGHT_CLASSIFY_ABOVE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             firstLasheightClassifyAboveStr=firstLasheightClassifyAboveStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -3613,6 +4557,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_STEP;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3621,6 +4573,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             secondLasthinIgnoreClassStr=secondLasthinIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -3630,6 +4590,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASTHIN_CLASSIFY_AS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3670,6 +4638,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASGROUND_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             secondLasgroundIgnoreClassStr=secondLasgroundIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -3679,6 +4655,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASGROUND_BULGE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3719,6 +4703,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASHEIGHT_CLASSIFICATION;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3727,6 +4719,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LASHEIGHT_DROP_BELOW;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3761,6 +4761,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_SECOND_LAS2LAS_KEEP_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3895,6 +4903,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_IGNORE_CLASS;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             thirdLasthinIgnoreClassStr=thirdLasthinIgnoreClassStr.replace(ENUM_CHARACTER_SEPARATOR," ");
             QString parameterTag=ptrParameter->getTag();
             commandString+=" ";
@@ -3904,6 +4920,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 
             parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_GROUND_FROM_PHOTOGRAMMETRY_THIRD_LASTHING_ADAPTATIVE_VERTICAL_TOLERANCE;
             ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             parameterTag=ptrParameter->getTag();
             commandString+=" ";
             commandString+=parameterTag;
@@ -3915,6 +4939,14 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
 //            QString parameterTag=ptrParameter->getTag();
 //            commandString+=" ";
 //            commandString+=parameterTag;
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
             commandString+=" ";
             commandString+=thirdLasthinAdaptativeMaximunDistanceStr;
 
@@ -3940,7 +4972,606 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
     }
     else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION,Qt::CaseInsensitive)==0)
     {
+        int intValue;
+        bool okToInt;
+        QString parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_TEMPORAL_PATH;
+        Parameter* ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString temporalBasePath;
+        ptrParameter->getValue(temporalBasePath);
+        QDir auxDir=QDir::currentPath();
+        if(!auxDir.exists(temporalBasePath))
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nNot exists path: %1").arg(temporalBasePath);
+            return(false);
+        }
+        bool removeOnlyContent=true;
+        if(!removeDir(temporalBasePath,removeOnlyContent))
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nError removing contents in path: %1").arg(temporalBasePath);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASTILE_CORES;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString lastileCoresStr;
+        ptrParameter->getValue(lastileCoresStr);
+        okToInt=false;
+        intValue=lastileCoresStr.toInt(&okToInt);
+        if(!okToInt)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(lastileCoresStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASTILE_TILE_SIZE;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString lastileTileSizeStr;
+        ptrParameter->getValue(lastileTileSizeStr);
+        double dblValue;
+        bool okToDouble=false;
+        dblValue=lastileTileSizeStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lastileTileSizeStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASTILE_TILE_BUFFER;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString lastileBufferStr;
+        ptrParameter->getValue(lastileBufferStr);
+        okToDouble=false;
+        dblValue=lastileBufferStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lastileBufferStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_CORES;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString lasclassifyCoresStr;
+        ptrParameter->getValue(lasclassifyCoresStr);
+        okToInt=false;
+        intValue=lasclassifyCoresStr.toInt(&okToInt);
+        if(!okToInt)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not an integer").arg(lasclassifyCoresStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_STEP;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString lasclassifyStepStr;
+        ptrParameter->getValue(lasclassifyStepStr);
+        okToDouble=false;
+        dblValue=lasclassifyStepStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lasclassifyStepStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_PLANAR;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString lasclassifyPlanarStr;
+        ptrParameter->getValue(lasclassifyPlanarStr);
+        okToDouble=false;
+        dblValue=lasclassifyPlanarStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lasclassifyPlanarStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_RUGED;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString lasclassifyRugedStr;
+        ptrParameter->getValue(lasclassifyRugedStr);
+        okToDouble=false;
+        dblValue=lasclassifyRugedStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lasclassifyRugedStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_GROUNDOFFSET;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        QString lasclassifyGroundOffsetStr;
+        ptrParameter->getValue(lasclassifyGroundOffsetStr);
+        okToDouble=false;
+        dblValue=lasclassifyGroundOffsetStr.toDouble(&okToDouble);
+        if(!okToDouble)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nFor parameter: %1").arg(parameterCode);
+            strError+=QObject::tr("\nValue: %1 is not a double").arg(lasclassifyGroundOffsetStr);
+            return(false);
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_SMALLBUILDINGS;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        bool smallBuildings=false;
+        if(ptrParameter->isEnabled())
+        {
+            smallBuildings=true;
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_SMALLTREES;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        bool smallTrees=false;
+        if(ptrParameter->isEnabled())
+        {
+            smallTrees=true;
+        }
+        parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_KEEPOVERHANG;
+        ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+        if(ptrParameter==NULL)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+            return(false);
+        }
+        bool keepOverhang=false;
+        if(ptrParameter->isEnabled())
+        {
+            keepOverhang=true;
+        }
 
+        // Comprobar que no hay ficheros con nombres repetidos
+        QVector<QString> inputFileBaseNames;
+        for(int nf=0;nf<inputFiles.size();nf++)
+        {
+            QFileInfo fileInfo(inputFiles.at(nf));
+            QString completeBaseName=fileInfo.completeBaseName();
+            for(int nfa=0;nfa<inputFileBaseNames.size();nfa++)
+            {
+                if(inputFileBaseNames[nfa].compare(completeBaseName,Qt::CaseInsensitive)==0)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nRepeated file base name: %1")
+                            .arg(completeBaseName);
+                    return(false);
+                }
+            }
+            inputFileBaseNames.push_back(completeBaseName);
+        }
+        // Paso 0: Crear las carpetas de salidas
+        QVector<QString> auxiliaryPaths;
+        QString auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASTILES;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASHEIGHT;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        auxiliaryPath=temporalBasePath+"/"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASCLASSIFY;
+        auxiliaryPaths.push_back(auxiliaryPath);
+        for(int np=0;np<auxiliaryPaths.size();np++)
+        {
+            QString auxiliaryPath=auxiliaryPaths.at(np);
+            if(!auxDir.mkpath(auxiliaryPath))
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError making path: %1").arg(auxiliaryPath);
+                return(false);
+            }
+        }
+        QVector<QString> pathToRemove;
+        // Paso 1: tile
+        QString tilesOutputPath;
+        {
+            tilesOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASTILES;
+            if(tilesOutputPath.contains(" "))
+            {
+                tilesOutputPath="\""+tilesOutputPath+"\"";
+            }
+            for(int nf=0;nf<inputFiles.size();nf++)
+            {
+                QString inputFile=inputFiles.at(nf);
+                if(inputFile.contains(" "))
+                {
+                    inputFile="\""+inputFile+"\"";
+                }
+
+                QString commandString=mLastoolsPath+"\\";
+                commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASTILE;
+                commandString+=" -i ";
+                commandString+=inputFile;//firstUnionOutputFileName;
+
+                commandString+=" ";
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASTILE_CORES;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
+                QString parameterTag=ptrParameter->getTag();
+                commandString+=parameterTag;
+                commandString+=" ";
+                commandString+=lastileCoresStr;
+
+                commandString+=" ";
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASTILE_TILE_BUFFER;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
+                parameterTag=ptrParameter->getTag();
+                commandString+=parameterTag;
+                commandString+=" ";
+                commandString+=lastileBufferStr;
+
+                commandString+=" ";
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASTILE_TILE_SIZE;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
+                parameterTag=ptrParameter->getTag();
+                commandString+=parameterTag;
+                commandString+=" ";
+                commandString+=lastileTileSizeStr;
+
+                commandString+=" -flag_as_withheld -v -olaz -odir ";
+                commandString+=tilesOutputPath;
+                lastoolsCommandStrings.push_back(commandString);
+            }
+        }
+//        pathToRemove.push_back(tilesOutputPath);
+        QString lasheightOutputPath;
+        // Paso 2: lasheight
+        {
+            lasheightOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASHEIGHT;
+            if(lasheightOutputPath.contains(" "))
+            {
+                lasheightOutputPath="\""+lasheightOutputPath+"\"";
+            }
+            QString lasheightInputStr;
+            lasheightInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASTILES;
+            lasheightInputStr+="\\*.laz";
+            if(lasheightInputStr.contains(" "))
+            {
+                lasheightInputStr="\""+lasheightInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT;
+            commandString+=" -i ";
+            commandString+=lasheightInputStr;
+            commandString+=" -v -olaz -odir ";
+            commandString+=lasheightOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=tilesOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(firstLasthinOutputPath);
+        QString lasclassifyOutputPath;
+        // Paso 3: lasclassify
+        {
+            lasclassifyOutputPath=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASCLASSIFY;
+            if(lasclassifyOutputPath.contains(" "))
+            {
+                lasclassifyOutputPath="\""+lasclassifyOutputPath+"\"";
+            }
+            QString lasclassifyInputStr;
+            lasclassifyInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASHEIGHT;
+            lasclassifyInputStr+="\\*.laz";
+            if(lasclassifyInputStr.contains(" "))
+            {
+                lasclassifyInputStr="\""+lasclassifyInputStr+"\"";
+            }
+
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASNOISE;
+            commandString+=" -i ";
+            commandString+=lasclassifyInputStr;
+            QString parameterTag;
+            if(smallBuildings)
+            {
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_SMALLBUILDINGS;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
+                parameterTag=ptrParameter->getTag();
+                commandString+=" ";
+                commandString+=parameterTag;
+            }
+            if(smallTrees)
+            {
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_SMALLTREES;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
+                parameterTag=ptrParameter->getTag();
+                commandString+=" ";
+                commandString+=parameterTag;
+            }
+            if(keepOverhang)
+            {
+                parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_KEEPOVERHANG;
+                ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+                if(ptrParameter==NULL)
+                {
+                    strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                    strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                            .arg(command);
+                    strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                    return(false);
+                }
+                parameterTag=ptrParameter->getTag();
+                commandString+=" ";
+                commandString+=parameterTag;
+            }
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_CORES;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasclassifyCoresStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_GROUNDOFFSET;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasclassifyGroundOffsetStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_STEP;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasclassifyStepStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_PLANAR;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasclassifyPlanarStr;
+
+            parameterCode=POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_LASCLASSIFY_RUGED;
+            ptrParameter=mPtrLastoolsCommandsParameters->getParameter(parameterCode);
+            if(ptrParameter==NULL)
+            {
+                strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                        .arg(command);
+                strError+=QObject::tr("\nNot exists parameter: %1").arg(parameterCode);
+                return(false);
+            }
+            parameterTag=ptrParameter->getTag();
+            commandString+=" ";
+            commandString+=parameterTag;
+            commandString+=" ";
+            commandString+=lasclassifyRugedStr;
+
+            commandString+=" -v -olaz -odir ";
+            commandString+=lasclassifyOutputPath;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        //        pathToRemove.push_back(lasnoiseOutputPath);
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=lasheightOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        // Paso 4: lasmerge
+        QString originalOutputFile=outputFile;
+        {
+            QFileInfo outputFileInfo(outputFile);
+            {
+                if(outputFile.contains(" "))
+                {
+                    outputFile="\""+outputFile+"\"";
+                }
+            }
+            QString lasmergeInputStr;
+            lasmergeInputStr=temporalBasePath+"\\"+POINTCLOUDFILE_LASTOOLS_COMMAND_BUILDING_HIGHVEGETATION_PATH_LASCLASSIFY;
+            lasmergeInputStr+="\\*.laz";
+            if(lasmergeInputStr.contains(" "))
+            {
+                lasmergeInputStr="\""+lasmergeInputStr+"\"";
+            }
+            QString commandString=mLastoolsPath+"\\";
+            commandString+=POINTCLOUDFILE_LASTOOLS_COMMAND_LASMERGE;
+            commandString+=" -i ";
+            commandString+=lasmergeInputStr;
+
+            commandString+=" -v -o ";
+            commandString+=outputFile;
+            lastoolsCommandStrings.push_back(commandString);
+        }
+        {
+            QString commandString="rd /s /q \"";
+            commandString+=lasclassifyOutputPath;
+            commandString+="\"";
+            lastoolsCommandStrings.push_back(commandString);
+        }
     }
     return(true);
 }
