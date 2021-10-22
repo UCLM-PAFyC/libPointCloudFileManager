@@ -799,13 +799,36 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
+            QString strValue;
+            ptrParameter->getValue(strValue);
+            strValue=strValue.trimmed();
             if(type.compare(PARAMETER_TYPE_STRING,Qt::CaseInsensitive)==0
                     ||type.compare(PARAMETER_TYPE_STRING_EN,Qt::CaseInsensitive)==0)
             {
-                QString strValue;
-                ptrParameter->getValue(strValue);
-                strValue=strValue.trimmed();
                 if(strValue.isEmpty()) continue;
+                if(code.compare(POINTCLOUDFILE_INTERNALTOOLS_COMMAND_LAS2DEM_CLASSES,Qt::CaseInsensitive)==0)
+                {
+                    QStringList strValues=strValue.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+                    QString newStrValue;
+                    for(int i=0;i<strValues.size();i++)
+                    {
+                        QString strAuxValue=strValues.at(i);
+                        bool okToInt=false;
+                        int intValue=strAuxValue.toInt(&okToInt);
+                        if(!okToInt)
+                        {
+                            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+                            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                                    .arg(command);
+                            strError+=QObject::tr("\nFor parameter: %1").arg(code);
+                            strError+=QObject::tr("\nValue: %1 is not an integer").arg(strAuxValue);
+                            return(false);
+                        }
+                        if(i>0) newStrValue+=" ";
+                        newStrValue+=QString::number(intValue);
+                    }
+                    strValue=newStrValue;
+                }
             }
             parametersString+=" ";
             parametersString+=tag;
@@ -814,15 +837,33 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             {
                 continue;
             }
-            QString strValue;
-            ptrParameter->getValue(strValue);
-            parametersString+=" ";
             if(type.compare(PARAMETER_TYPE_DOUBLE,Qt::CaseInsensitive)==0
                     ||type.compare(PARAMETER_TYPE_DOUBLE_EN,Qt::CaseInsensitive)==0)
             {
                 int precision=ptrParameter->getPrintPrecision();
                 strValue=QString::number(strValue.toDouble(),'f',precision);
             }
+//            if(type.compare(PARAMETER_TYPE_VECTOR_INTEGER,Qt::CaseInsensitive)==0
+//                    ||type.compare(PARAMETER_TYPE_VECTOR_INTEGER_EN,Qt::CaseInsensitive)==0)
+//            {
+//                QStringList strValues=strValue.split(ENUM_CHARACTER_SEPARATOR,QString::SkipEmptyParts);
+//                for(int i=0;i<strValues.size();i++)
+//                {
+//                    QString strAuxValue=strValues.at(i);
+//                    bool okToInt=false;
+//                    int intValue=strAuxValue.toInt(&okToInt);
+//                    if(!okToInt)
+//                    {
+//                        strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+//                        strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+//                                .arg(command);
+//                        strError+=QObject::tr("\nFor parameter: %1").arg(code);
+//                        strError+=QObject::tr("\nValue: %1 is not an integer").arg(strAuxValue);
+//                        return(false);
+//                    }
+//                }
+//                strValue=strValue.replace(ENUM_CHARACTER_SEPARATOR," ");
+//            }
             parametersString+=" ";
             parametersString+=strValue;
         }
