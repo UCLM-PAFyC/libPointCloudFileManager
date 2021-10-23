@@ -80,6 +80,8 @@ public:
                                   bool tilesFullGeometry,
                                   QString& strError);
     QString getProjectType(){return(mProjectType);};
+    bool getReachedMaximumNumberOfPoints(bool& reachedMaximumNumberOfPoints,
+                                         QString& strError);
     bool getROIsWktGeometry(QMap<QString, QString> &values,
                             QString& strError);
     bool getTilesNamesFromWktGeometry(QString wktGeometry,
@@ -237,6 +239,8 @@ private:
     int mNumberOfFilesToProcess;
     QMap<QString,int> mNumberOfPointsToProcessByFileName;
     bool mUpdateHeader;
+    int mMaximumNumberOfPoints; // POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
+    int mNumberOfPoints;
 };
 }
 #endif // POINTCLOUDFILE_H

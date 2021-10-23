@@ -5760,6 +5760,26 @@ bool PointCloudFileManager::getProjectTypes(QVector<QString> &projectTypes,
     return(true);
 }
 
+bool PointCloudFileManager::getReachedMaximumNumberOfPoints(QString pcfPath,
+                                                            bool &reachedMaximumNumberOfPoints,
+                                                            QString &strError)
+{
+    reachedMaximumNumberOfPoints=false;
+    if(mPtrPcFiles.contains(pcfPath))
+    {
+        QString strAuxError;
+        if(!mPtrPcFiles[pcfPath]->getReachedMaximumNumberOfPoints(reachedMaximumNumberOfPoints,
+                                                                  strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::getReachedMaximumNumberOfPoints");
+            strError+=QObject::tr("\nError recovering reached maximun number of points for project file:\n%1\nError:\n%2")
+                    .arg(pcfPath).arg(strAuxError);
+            return(false);
+        }
+    }
+    return(true);
+}
+
 bool PointCloudFileManager::getROIsWktGeometry(QString pcfPath,
                                                QMap<QString, QString> &values,
                                                QString &strError)
@@ -7429,7 +7449,11 @@ bool PointCloudFileManager::addROI(QString fileName,
     if(geometryTypeShapefile!=wkbPolygon
             &&geometryTypeShapefile!=wkbMultiPolygon
             &&geometryTypeShapefile!=wkbPolygon25D
-            &&geometryTypeShapefile!=wkbMultiPolygon25D)
+            &&geometryTypeShapefile!=wkbMultiPolygon25D
+            &&geometryTypeShapefile!=wkbPolygonZM
+            &&geometryTypeShapefile!=wkbMultiPolygonZM
+            &&geometryTypeShapefile!=wkbPolygonM
+            &&geometryTypeShapefile!=wkbMultiPolygonM)
     {
         strError=QObject::tr("PointCloudFileManager::addROI");
         strError+=QObject::tr("\nError reading file: %1").arg(fileName);

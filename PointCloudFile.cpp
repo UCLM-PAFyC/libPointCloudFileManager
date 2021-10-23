@@ -58,6 +58,8 @@ PointCloudFile::PointCloudFile(libCRS::CRSTools* ptrCrsTools,
 //    mUseMultiProcess=useMultiProcess;
     mPtrMpProgressDialog=NULL;
     mMpPtrGeometry=NULL;
+    mNumberOfPoints=0;
+    mMaximumNumberOfPoints=mPtrPCFManager->getMaximumNumberOfPoints();
 }
 
 PointCloudFile::~PointCloudFile()
@@ -87,6 +89,11 @@ bool PointCloudFile::addPointCloudFile(QString inputFileName,
                                        bool updateHeader,
                                        QString &strError)
 {
+    if(mMaximumNumberOfPoints!=POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
+            &&mNumberOfPoints>mMaximumNumberOfPoints)
+    {
+        return(true);
+    }
     if(pointCloudCrsEpsgCode!=mSRID)
     {
         strError=QObject::tr("PointCloudFile::addPointCloudFile");
@@ -596,6 +603,12 @@ bool PointCloudFile::addPointCloudFile(QString inputFileName,
         tilesPointsClass[tileX][tileY].push_back(pointClass);
         tilesNumberOfPoints[tileX][tileY]=tilesNumberOfPoints[tileX][tileY]+1;
         tilesNop[tileX][tileY]=tilesNop[tileX][tileY]+1;
+        mNumberOfPoints++;
+        if(mMaximumNumberOfPoints!=POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
+                &&mNumberOfPoints>mMaximumNumberOfPoints)
+        {
+            break;
+        }
     }
     if(numberOfSteps>1
             &&ptrWidget!=NULL)
@@ -2054,6 +2067,18 @@ bool PointCloudFile::getPointsFromWktGeometry(QString wktGeometry,
             }
             iterX++;
         }
+    }
+    return(true);
+}
+
+bool PointCloudFile::getReachedMaximumNumberOfPoints(bool &reachedMaximumNumberOfPoints,
+                                                     QString &strError)
+{
+    reachedMaximumNumberOfPoints=false;
+    if(mMaximumNumberOfPoints!=POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
+            &&mNumberOfPoints>mMaximumNumberOfPoints)
+    {
+        reachedMaximumNumberOfPoints=true;
     }
     return(true);
 }
@@ -3610,6 +3635,19 @@ bool PointCloudFile::readHeader(QString &strError)
     headerIn>>mTilesOverlapsWithROIs;
     headerIn>>mTilesByFileIndex;
 
+    mNumberOfPoints=0;
+    QMap<int,QMap<int,int> >::const_iterator iterTileXNumberOfPoints=mTilesNumberOfPoints.begin();
+    while(iterTileXNumberOfPoints!=mTilesNumberOfPoints.end())
+    {
+        QMap<int,int>::const_iterator iterTileYNumberOfPoints=iterTileXNumberOfPoints.value().begin();
+        while(iterTileYNumberOfPoints!=iterTileXNumberOfPoints.value().end())
+        {
+            mNumberOfPoints+=iterTileYNumberOfPoints.value();
+            iterTileYNumberOfPoints++;
+        }
+        iterTileXNumberOfPoints++;
+    }
+
     quint16 numberOfROIs=0;
     headerIn>>numberOfROIs;
     if(numberOfROIs>0)
@@ -4130,6 +4168,11 @@ bool PointCloudFile::writeHeader(QString &strError)
 
 void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
 {
+    if(mMaximumNumberOfPoints!=POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
+            &&mNumberOfPoints>mMaximumNumberOfPoints)
+    {
+        return;
+    }
     QString strError,strAuxError;
     QMap<int,QMap<int,int> > tilesNumberOfPoints; // nuevos para este fichero
     double minX=1000000000.0;
@@ -4584,14 +4627,17 @@ void PointCloudFile::mpAddPointCloudFile(QString inputFileName)
         double minX=floor(x);
         double minY=floor(y);
         double minZ=floor(z);
+        tilesPointsClass[tileX][tileY].push_back(pointClass);
+        tilesNumberOfPoints[tileX][tileY]=tilesNumberOfPoints[tileX][tileY]+1;
+        tilesNop[tileX][tileY]=tilesNop[tileX][tileY]+1;
         mMutex.lock();
         if(minX<mMinimumFc) mMinimumFc=minX;
         if(minY<mMinimumSc) mMinimumSc=minY;
         if(minZ<mMinimumTc) mMinimumTc=minZ;
+        mNumberOfPoints++;
+        if(mMaximumNumberOfPoints!=POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
+                &&mNumberOfPoints>mMaximumNumberOfPoints) break;
         mMutex.unlock();
-        tilesPointsClass[tileX][tileY].push_back(pointClass);
-        tilesNumberOfPoints[tileX][tileY]=tilesNumberOfPoints[tileX][tileY]+1;
-        tilesNop[tileX][tileY]=tilesNop[tileX][tileY]+1;
     }
     lasreader->close();
     delete lasreader;

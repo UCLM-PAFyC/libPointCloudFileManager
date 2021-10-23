@@ -49,6 +49,7 @@ public:
 //        mGridSizes.push_back(POINTCLOUDFILE_PROJECT_GRID_SIZE_200);
         mMaxGridSize=mGridSizes[mGridSizes.size()-1];
         mUseMultiProcess=false;
+        mMaximumNumberOfPoints=POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS;
         setProjectTypes();
     };
     static inline PointCloudFileManager * getInstance(void )
@@ -121,6 +122,9 @@ public:
                                   QString& strError);
     bool getProjectTypes(QVector<QString>& projectTypes,
                          QString& strError);
+    bool getReachedMaximumNumberOfPoints(QString pcfPath,
+                                         bool& reachedMaximumNumberOfPoints,
+                                         QString& strError);
     bool getROIsWktGeometry(QString pcfPath,
                             QMap<QString, QString> &values,
                             QString& strError);
@@ -195,6 +199,9 @@ public:
 //                      QMap<int, QMap<int, QVector<quint8> > > &pointClassByTile,
                       QMap<quint8,bool>& lockedClasses,
                       QString& strError);
+    int getMaximumNumberOfPoints(){return(mMaximumNumberOfPoints);};
+    void setMaximumNumberOfPoints(int maximumNumberOfPoints){mMaximumNumberOfPoints=maximumNumberOfPoints;};
+
 private slots:
     void on_ProgressExternalProcessDialog_closed();
 
@@ -273,6 +280,8 @@ private:
     int mPICVGESpatialResolution;
     QMap<int,QVector<double> > mPICVGEBoundingBoxesByFilePos;
     QMap<int,QMap<quint16,QMap<quint16,quint16> > > mPICVGEMaxHeightsByTileXYByFilePos;
+
+    int mMaximumNumberOfPoints; // POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
 };
 }
 #endif // LIBPOINTCLOUDFILEMANAGER_H
