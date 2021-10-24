@@ -476,6 +476,10 @@ bool PointCloudFileManager::getLastoolsCommandsOutputDataFormat(QString &command
     {
         enableOutputFile=true;
     }
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LASMERGE,Qt::CaseInsensitive)==0)
+    {
+        enableOutputFile=true;
+    }
     else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING,Qt::CaseInsensitive)==0)
     {
         enableOutputFile=true;
@@ -588,6 +592,7 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         for(int np=0;np<ptrParameters.size();np++)
         {
             Parameter* ptrParameter=ptrParameters[np];
+            if(!ptrParameter->isEnabled()) continue;
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
@@ -655,6 +660,7 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         for(int np=0;np<ptrParameters.size();np++)
         {
             Parameter* ptrParameter=ptrParameters[np];
+            if(!ptrParameter->isEnabled()) continue;
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
@@ -722,6 +728,7 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         for(int np=0;np<ptrParameters.size();np++)
         {
             Parameter* ptrParameter=ptrParameters[np];
+            if(!ptrParameter->isEnabled()) continue;
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
@@ -796,6 +803,7 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         for(int np=0;np<ptrParameters.size();np++)
         {
             Parameter* ptrParameter=ptrParameters[np];
+            if(!ptrParameter->isEnabled()) continue;
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
@@ -867,10 +875,6 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
             parametersString+=" ";
             parametersString+=strValue;
         }
-        if(outputFile.contains(" "))
-        {
-            outputFile="\""+outputFile+"\"";
-        }
         QString inputFile=inputFiles.at(0);
         if(inputFile.contains(" "))
         {
@@ -917,6 +921,7 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         for(int np=0;np<ptrParameters.size();np++)
         {
             Parameter* ptrParameter=ptrParameters[np];
+            if(!ptrParameter->isEnabled()) continue;
             QString code=ptrParameter->getCode();
             QString tag=ptrParameter->getTag();
             QString type=ptrParameter->getType();
@@ -953,6 +958,77 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         QString commandString=mLastoolsPath+"/";
         commandString+=command;
+        commandString+=strInputFiles;
+        commandString+=parametersString;
+        commandString+=" -o ";
+        commandString+=outputFile;
+        lastoolsCommandStrings.push_back(commandString);
+    }
+    else if(command.compare(POINTCLOUDFILE_LASTOOLS_COMMAND_LASMERGE,Qt::CaseInsensitive)==0)
+    {
+        if(inputFiles.size()==1)
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nOnly one file input is invalid for this command: %1")
+                    .arg(command);
+            return(false);
+        }
+        QString strInputFiles;
+        for(int nf=0;nf<inputFiles.size();nf++)
+        {
+            QString inputFile=inputFiles.at(nf);
+            if(inputFile.contains(" "))
+            {
+                inputFile="\""+inputFile+"\"";
+            }
+            strInputFiles+=" -i ";
+            strInputFiles+=inputFile;
+        }
+        QVector<Parameter *> ptrParameters;
+        bool onlyEnabled=true;
+        if(!mPtrLastoolsCommandsParameters->getParametersByCommand(command,
+                                                                   ptrParameters,
+                                                                   onlyEnabled))
+        {
+            strError=QObject::tr("PointCloudFileManager::getLastoolsCommandStrings");
+            strError+=QObject::tr("\nError getting parameters for lastools command: %1")
+                    .arg(command);
+            return(false);
+        }
+        QString parametersString;
+        for(int np=0;np<ptrParameters.size();np++)
+        {
+            Parameter* ptrParameter=ptrParameters[np];
+            if(!ptrParameter->isEnabled()) continue;
+            QString code=ptrParameter->getCode();
+            QString tag=ptrParameter->getTag();
+            QString type=ptrParameter->getType();
+            QString strValue;
+            ptrParameter->getValue(strValue);
+            strValue=strValue.trimmed();
+            parametersString+=" ";
+            parametersString+=tag;
+            if(type.compare(PARAMETER_TYPE_EMPTY_STRING,Qt::CaseInsensitive)==0
+                    ||type.compare(PARAMETER_TYPE_EMPTY_STRING_EN,Qt::CaseInsensitive)==0)
+            {
+                continue;
+            }
+            if(type.compare(PARAMETER_TYPE_DOUBLE,Qt::CaseInsensitive)==0
+                    ||type.compare(PARAMETER_TYPE_DOUBLE_EN,Qt::CaseInsensitive)==0)
+            {
+                int precision=ptrParameter->getPrintPrecision();
+                strValue=QString::number(strValue.toDouble(),'f',precision);
+            }
+            parametersString+=" ";
+            parametersString+=strValue;
+        }
+        if(outputFile.contains(" "))
+        {
+            outputFile="\""+outputFile+"\"";
+        }
+        QString commandString=mLastoolsPath+"/";
+        commandString+=command;
+        commandString+=" -i ";
         commandString+=strInputFiles;
         commandString+=parametersString;
         commandString+=" -o ";
@@ -8813,6 +8889,7 @@ bool PointCloudFileManager::setBasePath(QString basePath,
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASBOUNDARY);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASCLIP);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASHEIGHT);
+    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASMERGE);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LASTILE);
     mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_LAS2DEM);
 //    mLastoolsCommands.push_back(POINTCLOUDFILE_LASTOOLS_COMMAND_POWERLINE_PREPROCESSING);
