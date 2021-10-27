@@ -799,6 +799,17 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
                     .arg(command);
             return(false);
         }
+//        QString strInputFiles;
+//        for(int nf=0;nf<inputFiles.size();nf++)
+//        {
+//            QString inputFile=inputFiles.at(nf);
+//            if(inputFile.contains(" "))
+//            {
+//                inputFile="\""+inputFile+"\"";
+//            }
+//            strInputFiles+=" -i ";
+//            strInputFiles+=inputFile;
+//        }
         QString parametersString;
         for(int np=0;np<ptrParameters.size();np++)
         {
@@ -888,6 +899,7 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         commandString+=command;
         commandString+=" -i ";
         commandString+=inputFile;
+//        commandString+=strInputFiles;
         commandString+=parametersString;
         commandString+=" -o ";
         commandString+=outputFile;
@@ -1028,7 +1040,6 @@ bool PointCloudFileManager::getLastoolsCommandStrings(QString &command,
         }
         QString commandString=mLastoolsPath+"/";
         commandString+=command;
-        commandString+=" -i ";
         commandString+=strInputFiles;
         commandString+=parametersString;
         commandString+=" -o ";
