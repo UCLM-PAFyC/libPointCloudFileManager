@@ -28,7 +28,7 @@
 #include "PointCloudFileManager.h"
 #include "PointCloudFile.h"
 
-using namespace PCFile;
+using namespace PCFile;//
 
 PointCloudFile::PointCloudFile(libCRS::CRSTools* ptrCrsTools,
                                PointCloudFileManager* ptrPCFManager,
