@@ -27,13 +27,16 @@ TEMPLATE = lib
 
 DEFINES += LIBPOINTCLOUDFILEMANAGER_LIBRARY
 
-DESTDIR_RELEASE= ./../../../build/release
-DESTDIR_DEBUG= ./../../../build/debug
+#DESTDIR_RELEASE= ./../../../build/release
+#DESTDIR_DEBUG= ./../../../build/debug
+DESTDIR_RELEASE= ./../../../build_osgeo4w/release
+DESTDIR_DEBUG= ./../../../build_osgeo4w/debug
 #OSGEO4W_PATH="C:\Program Files\QGIS 2.18"
-OSGEO4W_PATH="C:\Program Files\QGIS 3.4"
+#OSGEO4W_PATH="C:\Program Files\QGIS 3.4"
+OSGEO4W_PATH="E:\dev\OSGeo4Wltr"
 LASTOOLS_PATH = ./../../../depends/LASTools2019
 QUAZIPLIB_PATH= ./../../../depends/libQuaZip
-QT_3RDPARTY= C:/Qt/Qt5.6.3/5.6.3/Src/qtbase/src/3rdparty
+#QT_3RDPARTY= C:/Qt/Qt5.6.3/5.6.3/Src/qtbase/src/3rdparty
 
 SOURCES += \
     PointCloudFileManager.cpp \
@@ -47,7 +50,7 @@ HEADERS += \
     PointCloudFile.h \
     Point.h
 
-INCLUDEPATH += $$QT_3RDPARTY/zlib
+#INCLUDEPATH += $$QT_3RDPARTY/zlib
 INCLUDEPATH += . $$QUAZIPLIB_PATH/include
 
 INCLUDEPATH += . ../libProcessTools
@@ -88,7 +91,8 @@ LIBS += -llibLicenseManager
 INCLUDEPATH += . $$OSGEO4W_PATH/include
 LIBS += -L$$OSGEO4W_PATH\bin
 #LIBS += $$OSGEO4W_PATH\lib\gsl.lib
-LIBS += $$OSGEO4W_PATH\lib\proj_i.lib
+#LIBS += $$OSGEO4W_PATH\lib\proj_i.lib
+LIBS += $$OSGEO4W_PATH\lib\proj.lib
 LIBS += $$OSGEO4W_PATH\lib\gdal_i.lib
 LIBS += $$OSGEO4W_PATH\lib\geos_c.lib
 

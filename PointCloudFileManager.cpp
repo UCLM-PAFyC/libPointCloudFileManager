@@ -14,7 +14,7 @@
 #include "ParametersManager.h"
 #include "ParametersManagerDialog.h"
 #include "CRSTools.h"
-#include "CrsToolsImpl.h"
+//#include "CrsToolsImpl.h"
 #include "../libIGDAL/Shapefile.h"
 #include <ogrsf_frmts.h>
 
@@ -5951,10 +5951,10 @@ bool PointCloudFileManager::initializeCrsTools(QString& strError)
         return(false);
     }
     mPtrCrsTools=libCRS::CRSTools::getInstance();
-    bool checkDate=false;
-    QString trsFilePath=mBasePath;
+//    QString trsFilePath=mBasePath;
     QString strAuxError;
-    if(!mPtrCrsTools->initialize(trsFilePath,strAuxError,checkDate))
+    QSettings* ptrSettings=NULL;
+    if(!mPtrCrsTools->initialize(ptrSettings,strAuxError))
     {
         strError=QObject::tr("PointCloudFileManager::initializeCrsTools");
         strError+=QObject::tr("\nError opening CrsTools:\n%1").arg(strAuxError);
