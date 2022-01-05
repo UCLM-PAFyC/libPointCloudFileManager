@@ -35,7 +35,8 @@ DESTDIR_DEBUG= ./../../../build_osgeo4w/debug
 #OSGEO4W_PATH="C:\Program Files\QGIS 3.4"
 OSGEO4W_PATH="E:\dev\OSGeo4Wltr"
 LASTOOLS_PATH = ./../../../depends/LASTools2019
-QUAZIPLIB_PATH= ./../../../depends/libQuaZip
+#QUAZIPLIB_PATH= ./../../../depends/libQuaZip
+QUAZIPLIB_PATH= ./../../../depends/libQuaZip-1.2
 #QT_3RDPARTY= C:/Qt/Qt5.6.3/5.6.3/Src/qtbase/src/3rdparty
 
 SOURCES += \
@@ -68,15 +69,17 @@ debug{
     LIBS += -L$$DESTDIR_DEBUG
     LIBS += -L$$LASTOOLS_PATH/lib64D
     LIBS += -llaslib
+#    LIBS += $$QUAZIPLIB_PATH\lib\quazipd.lib
+    LIBS += $$QUAZIPLIB_PATH\lib\quazip1-qt5d.lib
 #    LIBS += -L$$QUAZIPLIB_PATH/lib
 #    LIBS += -lquazipd
-    LIBS += $$QUAZIPLIB_PATH\lib\quazipd.lib
 }else{
     DESTDIR = $$DESTDIR_RELEASE
     LIBS += -L$$DESTDIR_RELEASE
     LIBS += -L$$LASTOOLS_PATH/lib64
     LIBS += -llaslib
-    LIBS += $$QUAZIPLIB_PATH\lib\quazip.lib
+#    LIBS += $$QUAZIPLIB_PATH\lib\quazip.lib
+    LIBS += $$QUAZIPLIB_PATH\lib\quazip1-qt5.lib
 #    LIBS += -L$$QUAZIPLIB_PATH/lib
 #    LIBS += -lquazip
 }
