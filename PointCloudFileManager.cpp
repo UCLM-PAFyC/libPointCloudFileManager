@@ -27,7 +27,7 @@
 #include "lasreader.hpp"
 #include "laswriter.hpp"
 
-using namespace PCFile;
+using namespace PCFile;//
 
 PointCloudFileManager * PointCloudFileManager::mInstance = 0;
 
