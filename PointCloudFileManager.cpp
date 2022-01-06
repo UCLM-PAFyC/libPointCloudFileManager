@@ -5929,6 +5929,17 @@ bool PointCloudFileManager::getTilesWktGeometry(QString pcfPath,
     return(mPtrPcFiles[pcfPath]->getTilesWktGeometry(values,strError));
 }
 
+bool PointCloudFileManager::getVerticalCRSs(int epsgCode,
+                                            QVector<int> &verticalCRSs,
+                                            QString &strError)
+{
+    verticalCRSs.clear();
+    strError.clear();
+    mPtrCrsTools->getVerticalCrsEpsgCodesFromCrsEpsgCode(epsgCode,
+                                                         verticalCRSs);
+    return(true);
+}
+
 bool PointCloudFileManager::initializeCrsTools(QString& strError)
 {
     if(mPtrCrsTools!=NULL)

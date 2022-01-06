@@ -137,6 +137,9 @@ public:
     bool getTilesWktGeometry(QString pcfPath,
                              QMap<QString, QString> &values,
                              QString& strError);
+    bool getVerticalCRSs(int epsgCode,
+                         QVector<int>& verticalCRSs,
+                         QString& strError);
     bool initializeCrsTools(QString &strError);
     bool openPointCloudFile(QString pcPath,
                             QString& strError);
