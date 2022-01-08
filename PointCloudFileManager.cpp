@@ -133,6 +133,149 @@ bool PointCloudFileManager::createPointCloudFile(QString pcfPath,
                                                  QString projectType,
                                                  double gridSize,
                                                  int crsEpsgCode,
+                                                 int verticalCrsEpsgCode,
+                                                 QVector<QString> &roisShapefiles,
+                                                 QString &strError)
+{
+    QString strAuxError;
+    if(mPtrCrsTools==NULL)
+    {
+        strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+        strError+=QObject::tr("\nCrsTools is NULL");
+        return(false);
+    }
+    QVector<QString> noEmptyRoiShapefiles;
+    for(int nRoi=0;nRoi<roisShapefiles.size();nRoi++)
+    {
+        if(!roisShapefiles.at(nRoi).trimmed().isEmpty())
+        {
+            if(!QFile::exists(roisShapefiles.at(nRoi)))
+            {
+                strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+                strError+=QObject::tr("\nNot exists ROI shapefile:\n%1").arg(roisShapefiles.at(nRoi));
+                return(false);
+            }
+            noEmptyRoiShapefiles.push_back(roisShapefiles.at(nRoi).trimmed());
+        }
+    }
+    roisShapefiles.clear();
+    roisShapefiles=noEmptyRoiShapefiles;
+    noEmptyRoiShapefiles.clear();
+    if(!setProjectsParametersManager(projectType,strAuxError))
+    {
+        strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+        strError+=QObject::tr("\nError setting parameters for project type: %1\nError:\n%2")
+                .arg(projectType).arg(strAuxError);
+        return(false);
+    }
+    QString projectParametersString;
+    if(!getProjectParametersString(projectType,
+                                   projectParametersString,
+                                   strAuxError))
+    {
+        strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+        strError+=QObject::tr("\nError recovering parameters string for project type: %1\nError:\n%2")
+                .arg(projectType).arg(strAuxError);
+        return(false);
+    }
+//    QDir auxDir=QDir::currentPath();
+//    if(auxDir.exists(pcfPath))
+//    {
+//        strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+//        strError+=QObject::tr("\nExists path:\n%1\nremove it before")
+//                .arg(pcfPath);
+//        return(false);
+//    }
+    QString prjFileName=mBasePath+POINTCLOUDFILE_TEMPORAL_PROJECT_FILE;
+    if(QFile::exists(prjFileName))
+    {
+        if(!QFile::remove(prjFileName))
+        {
+            strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+            strError+=QObject::tr("\nError existing temporal project file:\n%1")
+                    .arg(prjFileName);
+            return(false);
+        }
+    }
+    QFile file(prjFileName);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+        strError+=QObject::tr("\nError opening temporal project file:\n%1")
+                .arg(prjFileName);
+        return(false);
+    }
+    QTextStream strOut(&file);
+
+    int numberOfProcesses=1;
+    numberOfProcesses+=roisShapefiles.size();
+
+    strOut<<"Point Cloud File Management Project\n";
+    strOut<<"- Number of processes ......................................# ";
+    strOut<<QString::number(numberOfProcesses);
+    strOut<<"\n";
+    strOut<<"- Process (CREATE_PCF,ADD_POINTCLOUD,ADD_ROI,WRITE_PCFS) ...# ";
+    strOut<<POINTCLOUDFILE_PROCESS_CREATE_POINT_CLOUD_FILE_TAG;
+    strOut<<"\n";
+    strOut<<"  - PoinCloudFileManager path ..............................# \"";
+    strOut<<pcfPath;
+    strOut<<"\"\n";
+    strOut<<"  - Database CRS (libCRS/EPSG/proj4/wkt) ...................# ";
+    strOut<<QString::number(crsEpsgCode);//"WGS84;32633;ELLIPSOID_HEIGHTS";
+    strOut<<"\n";
+    strOut<<"    Height type (EPSG,ORTHOMETRIC_HEIGHT,ELLIPSOID_HEIGHT) .# ";
+    strOut<<QString::number(verticalCrsEpsgCode);//"WGS84;32633;ELLIPSOID_HEIGHTS";
+//    if(altitudeIsMsl)
+//    {
+//        strOut<<CRSTOOLS_XMLFILE_TAG_ORTHOMETRIC_HEIGHT;
+//    }
+//    else
+//    {
+//        strOut<<CRSTOOLS_XMLFILE_TAG_ELLIPSOID_HEIGHT;
+//    }
+    strOut<<"\n";
+    strOut<<"  - Grid size ..............................................# ";
+    strOut<<QString::number(gridSize,'f',POINTCLOUDFILE_GRID_SIZE_FIELD_PRECISION);
+    strOut<<"\n";
+    strOut<<"  - Project Type (Generic,PowerLine,SolarPark) .............# ";
+    strOut<<projectType;
+    strOut<<"\n";
+    strOut<<"  - Project parameters (par1@v@value1@p@par2@v@value2...) ..# ";
+    strOut<<projectParametersString;//"Company@v@UCLM@p@Author@v@David Hernandez Lopez";
+    strOut<<"\n";
+    for(int nRoi=0;nRoi<roisShapefiles.size();nRoi++)
+    {
+        QString roisShapefile=roisShapefiles.at(nRoi);
+        strOut<<"- Process (CREATE_PCF,ADD_POINTCLOUD,ADD_ROI,WRITE_PCFS) ...# ";
+        strOut<<POINTCLOUDFILE_PROCESS_ADD_ROI_TAG;
+        strOut<<"\n";
+        strOut<<"  - PoinCloudFileManager path ..............................# \"";
+        strOut<<pcfPath;
+        strOut<<"\"\n";
+        strOut<<"  - ROI File ...............................................# \"";
+        strOut<<roisShapefile;
+        strOut<<"\"\n";
+        strOut<<"    Field id (None for all features ) ......................# None";
+        strOut<<"\n";
+        strOut<<"      Field id values (separed by ; ignored si None) .......# ";
+        strOut<<"\n";
+    }
+    file.close();
+    if(!processProjectFile(prjFileName,
+                           strAuxError))
+    {
+        strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+        strError+=QObject::tr("\nError calling setFromProjectFile for project file:\n%1\nError:\n%2")
+                .arg(prjFileName).arg(strAuxError);
+        return(false);
+    }
+    return(true);
+}
+
+bool PointCloudFileManager::createPointCloudFile(QString pcfPath,
+                                                 QString projectType,
+                                                 double gridSize,
+                                                 int crsEpsgCode,
                                                  bool altitudeIsMsl,
                                                  QVector<QString> &roisShapefiles,
                                                  QString &strError)
@@ -7737,7 +7880,7 @@ bool PointCloudFileManager::createPointCloudFile(QString fileName,
                                                  QString &strError)
 {
     QString pcPath,dbCrsDescription,dbCrsProj4String;
-    int dbCrsEpsgCode;
+    int crsEpsgCode;
     double gridSize;
 
     int intValue,nline=0;
@@ -7795,7 +7938,7 @@ bool PointCloudFileManager::createPointCloudFile(QString fileName,
     okToInt=false;
     strValue=strList.at(1).trimmed();
     int epsgCode=strValue.toInt(&okToInt);
-    dbCrsEpsgCode=-1;
+    crsEpsgCode=-1;
     // epsg code
     if(okToInt)
     {
@@ -7809,7 +7952,7 @@ bool PointCloudFileManager::createPointCloudFile(QString fileName,
             strError+=QObject::tr("\nInvalid CRS From EPSG code: %1").arg(QString::number(epsgCode));
             return(false);
         }
-        dbCrsEpsgCode=epsgCode;
+        crsEpsgCode=epsgCode;
     }
     else
     {
@@ -7853,9 +7996,9 @@ bool PointCloudFileManager::createPointCloudFile(QString fileName,
                 .arg(dbCrsDescription).arg(strAuxError);
         return(false);
     }
-    if(dbCrsEpsgCode==-1)
+    if(crsEpsgCode==-1)
     {
-        if(!mPtrCrsTools->getCrsEpsgCode(dbCrsDescription,dbCrsEpsgCode,strAuxError))
+        if(!mPtrCrsTools->getCrsEpsgCode(dbCrsDescription,crsEpsgCode,strAuxError))
         {
             strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
             strError+=QObject::tr("\nError reading file: %1").arg(fileName);
@@ -7880,17 +8023,23 @@ bool PointCloudFileManager::createPointCloudFile(QString fileName,
         return(false);
     }
     strValue=strList.at(1).trimmed();
-    if(strValue.compare(CRSTOOLS_XMLFILE_TAG_ORTHOMETRIC_HEIGHT,Qt::CaseInsensitive)!=0
-            &&strValue.compare(CRSTOOLS_XMLFILE_TAG_ELLIPSOID_HEIGHT,Qt::CaseInsensitive)!=0)
+    int verticalCrsEpsgCode=strValue.toInt(&okToInt);
+    // epsg code
+    QString heightType;
+    if(!okToInt)
     {
-        strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
-        strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-        strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-        strError+=QObject::tr("\nInvalide height type: %1, must be %2 or %3")
-                .arg(strValue).arg(CRSTOOLS_XMLFILE_TAG_ORTHOMETRIC_HEIGHT).arg(CRSTOOLS_XMLFILE_TAG_ORTHOMETRIC_HEIGHT);
-        return(false);
+        if(strValue.compare(CRSTOOLS_XMLFILE_TAG_ORTHOMETRIC_HEIGHT,Qt::CaseInsensitive)!=0
+                &&strValue.compare(CRSTOOLS_XMLFILE_TAG_ELLIPSOID_HEIGHT,Qt::CaseInsensitive)!=0)
+        {
+            strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nInvalide height type: %1, must be %2 or %3")
+                    .arg(strValue).arg(CRSTOOLS_XMLFILE_TAG_ORTHOMETRIC_HEIGHT).arg(CRSTOOLS_XMLFILE_TAG_ORTHOMETRIC_HEIGHT);
+            return(false);
+        }
+        heightType=strValue;
     }
-    QString heightType=strValue;
 
     // Reading grid size
     nline++;
@@ -7988,19 +8137,40 @@ bool PointCloudFileManager::createPointCloudFile(QString fileName,
 
     PointCloudFile* ptrPcFile=new PointCloudFile(mPtrCrsTools,
                                                  this);
-    if(!ptrPcFile->create(pcPath,
-                          dbCrsDescription,dbCrsProj4String,dbCrsEpsgCode,heightType,
-                          gridSize,
-                          projectType,
-                          projectParametersString,
-                          strAuxError))
+    if(heightType.isEmpty())
     {
-        strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
-        strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-        strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-        strError+=QObject::tr("\nError creating object:\n: %1")
-                .arg(strAuxError);
-        return(false);
+        if(!ptrPcFile->create(pcPath,
+                              crsEpsgCode,
+                              verticalCrsEpsgCode,
+                              gridSize,
+                              projectType,
+                              projectParametersString,
+                              strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nError creating object:\n: %1")
+                    .arg(strAuxError);
+            return(false);
+        }
+    }
+    else
+    {
+        if(!ptrPcFile->create(pcPath,
+                              dbCrsDescription,dbCrsProj4String,crsEpsgCode,heightType,
+                              gridSize,
+                              projectType,
+                              projectParametersString,
+                              strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::createPointCloudFile");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nError creating object:\n: %1")
+                    .arg(strAuxError);
+            return(false);
+        }
     }
     if(!ptrPcFile->setTempPath(mTempPath,strAuxError))
     {

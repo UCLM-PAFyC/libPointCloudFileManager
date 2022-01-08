@@ -1117,6 +1117,131 @@ bool PointCloudFile::addROIs(QMap<QString, OGRGeometry *> ptrROIsGeometryByRoiId
     return(true);
 }
 
+bool PointCloudFile::create(QString path,
+                            int crsEpsgCode,
+                            int verticalCrsEpsgCode,
+                            double gridSize,
+                            QString projectType,
+                            QString projectParametersString,
+                            QString &strError)
+{
+    QDir currentDir=QDir::currentPath();
+    if(currentDir.exists(path)
+            &&QDir(path).entryInfoList(QDir::NoDotAndDotDot|QDir::AllEntries).count() != 0)
+    {
+        strError=QObject::tr("PointCloudFile::create");
+        strError+=QObject::tr("\nYou must select an empty path:\n%1").arg(path);
+        return(false);
+    }
+    if(!currentDir.mkpath(path))
+    {
+        strError=QObject::tr("PointCloudFile::create");
+        strError+=QObject::tr("\nError making path:\n%1").arg(path);
+        return(false);
+    }
+    mPath=path;
+    mSRID=crsEpsgCode;
+    QString crsId=CRS_EPSG_AUTHORITY;
+    crsId+=":";
+    crsId+=QString::number(crsEpsgCode);
+    if(verticalCrsEpsgCode!=-1)
+    {
+        crsId+="+";
+        crsId+=QString::number(verticalCrsEpsgCode);
+    }
+    QString strAuxError;
+    if(!mPtrCrsTools->isValidCrs(crsId,strAuxError))
+    {
+        strError=QObject::tr("PointCloudFile::create");
+        strError+=QObject::tr("\nInvalid CRS: %1\nError:\n%2").arg(crsId).arg(strAuxError);
+        return(false);
+    }
+    mCrsDescription=crsId;
+    if(verticalCrsEpsgCode!=-1)
+    {
+        QString crsWkt;
+        if(!mPtrCrsTools->getWkt(crsId,crsWkt,strAuxError))
+        {
+            strError=QObject::tr("PointCloudFile::create");
+            strError+=QObject::tr("\nGetting WKT for CRS: %1\nError:\n%2").arg(crsId).arg(strAuxError);
+            return(false);
+        }
+        mCrsProj4String=crsWkt;
+    }
+    else
+    {
+        QString crsProj4String;
+        if(!mPtrCrsTools->getProj4String(crsId,crsProj4String,strAuxError))
+        {
+            strError=QObject::tr("PointCloudFile::create");
+            strError+=QObject::tr("\nGetting proj4 string for CRS: %1\nError:\n%2").arg(crsId).arg(strAuxError);
+            return(false);
+        }
+        mCrsProj4String=crsProj4String;
+    }
+    mHeightType=QString::number(verticalCrsEpsgCode);
+    mGridSize=gridSize;
+    mProjectType=projectType;
+    mParameterValueByCode.clear();
+    QStringList projectParametersList=projectParametersString.split(POINTCLOUDFILE_PROJECT_PARAMETERS_FILE_PARAMETERS_STRING_SEPARATOR);
+    for(int np=0;np<projectParametersList.size();np++)
+    {
+        QString projectParameterString=projectParametersList.at(np);
+        QStringList projectParameterList=projectParameterString.split(POINTCLOUDFILE_PROJECT_PARAMETERS_FILE_PARAMETER_VALUE_STRING_SEPARATOR);
+        if(projectParameterList.size()!=2)
+        {
+            strError=QObject::tr("PointCloudFile::create");
+            strError+=QObject::tr("\nInvalid parameters string:\n%1")
+                    .arg(projectParameterString);
+            return(false);
+        }
+        QString parameterCode=projectParameterList.at(0).trimmed();
+        QString parameterValue=projectParameterList.at(1).trimmed().toLower();
+        mParameterValueByCode[parameterCode]=parameterValue;
+        if(parameterCode.compare(POINTCLOUDFILE_PARAMETER_COLOR_BYTES,Qt::CaseInsensitive)==0)
+        {
+            bool okToInt=false;
+            int intValue=parameterValue.toInt(&okToInt);
+            if(!okToInt)
+            {
+                strError=QObject::tr("PointCloudFile::create");
+                strError+=QObject::tr("\nParameter %1 value is not an integer: %2")
+                        .arg(parameterCode).arg(parameterValue);
+                return(false);
+            }
+            mNumberOfColorBytes=intValue;
+            continue;
+        }
+        QMap<QString,bool>::const_iterator iterStoredFields=mStoredFields.begin();
+        while(iterStoredFields!=mStoredFields.end())
+        {
+            QString storeField=iterStoredFields.key();
+            if(parameterCode.compare(storeField,Qt::CaseInsensitive)==0)
+            {
+                if(parameterValue.compare("false",Qt::CaseInsensitive)==0
+                    ||parameterValue.compare("falso",Qt::CaseInsensitive)==0)
+                {
+                    mStoredFields[storeField]=false;
+                }
+                else if(parameterValue.compare("true",Qt::CaseInsensitive)==0
+                        ||parameterValue.compare("verdadero",Qt::CaseInsensitive)==0)
+                {
+                    mStoredFields[storeField]=true;
+                }
+                break;
+            }
+            iterStoredFields++;
+        }
+    }
+    if(!writeHeader(strAuxError))
+    {
+        strError=QObject::tr("PointCloudFile::create");
+        strError+=QObject::tr("\nError:\n%1").arg(strAuxError);
+        return(false);
+    }
+    return(true);
+}
+
 bool PointCloudFile::addTilesFromBoundingBox(int minX,
                                              int minY,
                                              int maxX,

@@ -66,6 +66,13 @@ public:
                               QString projectType,
                               double gridSize,
                               int crsEpsgCode,
+                              int verticalCrsEpsgCode,
+                              QVector<QString> &roisShapefiles,
+                              QString& strError);
+    bool createPointCloudFile(QString pcfPath,
+                              QString projectType,
+                              double gridSize,
+                              int crsEpsgCode,
                               bool altitudeIsMsl,
                               QVector<QString> &roisShapefiles,
                               QString& strError);

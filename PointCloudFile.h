@@ -54,6 +54,13 @@ public:
     bool addROIs(QMap<QString,OGRGeometry*> ptrROIsGeometryByRoiId,
                  QString& strError);
     bool create(QString path,
+                int crsEpsgCode,
+                int verticalCrsEpsgCode,
+                double gridSize,
+                QString projectType,
+                QString projectParametersString,
+                QString& strError);
+    bool create(QString path,
                 QString dbCrsDescription,
                 QString dbCrsProj4String,
                 int dbCrsEpsgCode,
@@ -170,9 +177,9 @@ private:
     qint32 mLastDateJd;
     qint32 mReferenceDateJd;
     qint32 mSRID;
-    QString mHeightType;
+    QString mHeightType; // puede ser el codigo epsg de un crs vertical
     QString mCrsDescription;
-    QString mCrsProj4String;
+    QString mCrsProj4String; // si hay crs vertical es wkt y no proj4
     qreal mGridSize;
     qreal mMaximumDensity; // ptos/m2
     QString mProjectType;
