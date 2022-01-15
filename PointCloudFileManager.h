@@ -117,6 +117,15 @@ public:
                            double &maximumDensity,
                            QString& strError);
     bool getMultiProcess(){return(mUseMultiProcess);};
+    bool getNeighbors(QString pcfPath,
+                      QVector<double> point, // 2d o 3d
+                      int pointCrsEpsgCode,
+                      QString pointCrsProj4String,
+                      double searchRadius2d, // <=0 se usa 100 por la distancia para densidad media
+                      int numberOfNeighbors, // <=0 se devuelven todos
+                      QVector<PCFile::Point>& points, // ordenado de cercano a lejano
+                      QVector<double>& distances, // ordenado de cercano a lejano
+                      QString& strError);
     bool getPointsFromWktGeometry(QString pcfPath,
                                   QString wktGeometry,
                                   int geometryCrsEpsgCode,

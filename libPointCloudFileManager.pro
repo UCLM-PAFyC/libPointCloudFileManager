@@ -54,6 +54,7 @@ HEADERS += \
 #INCLUDEPATH += $$QT_3RDPARTY/zlib
 INCLUDEPATH += . $$QUAZIPLIB_PATH/include
 
+INCLUDEPATH += . ../libICGAL
 INCLUDEPATH += . ../libProcessTools
 INCLUDEPATH += . ../libCRS
 INCLUDEPATH += . ../libIGDAL
@@ -84,6 +85,7 @@ debug{
 #    LIBS += -lquazip
 }
 
+LIBS += -llibICGAL
 LIBS += -llibCRS
 LIBS += -llibIGDAL
 LIBS += -llibParameters

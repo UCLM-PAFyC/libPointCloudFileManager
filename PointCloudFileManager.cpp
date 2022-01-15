@@ -5948,6 +5948,19 @@ bool PointCloudFileManager::getMaximumDensity(QString pcfPath,
     return(true);
 }
 
+bool PointCloudFileManager::getNeighbors(QString pcfPath,
+                                         QVector<double> point,
+                                         int pointCrsEpsgCode,
+                                         QString pointCrsProj4String,
+                                         double searchRadius2d,
+                                         int numberOfNeighbors,
+                                         QVector<Point> &points, QVector<double> &distances,
+                                         QString &strError)
+{
+
+    return(true);
+}
+
 bool PointCloudFileManager::getPointsFromWktGeometry(QString pcfPath,
                                                      QString wktGeometry,
                                                      int geometryCrsEpsgCode,
