@@ -77,6 +77,14 @@ public:
     double getGridSize(){return(mGridSize);};
     QString getHeightType(){return(mHeightType);};
     double getMaximumDensity(){return(mMaximumDensity);};
+    bool getNeighbors(QVector<double> point, // 2d o 3d
+                      int pointCrsEpsgCode,
+                      QString pointCrsProj4String,
+                      double searchRadius2d, // <=0 se usa 100 por la distancia para densidad media
+                      int numberOfNeighbors, // <=0 se devuelven todos
+                      QVector<PCFile::Point>& points, // ordenado de cercano a lejano
+                      QVector<double>& distances, // ordenado de cercano a lejano
+                      QString& strError);
     bool getPointsFromWktGeometry(QString wktGeometry,
                                   int geometryCrsEpsgCode,
                                   QString geometryCrsProj4String,

@@ -28,6 +28,8 @@
 #include "PointCloudFileManager.h"
 #include "PointCloudFile.h"
 
+#include "NeighborsSearch.h"
+
 using namespace PCFile;
 
 PointCloudFile::PointCloudFile(libCRS::CRSTools* ptrCrsTools,
@@ -1496,6 +1498,145 @@ bool PointCloudFile::create(QString path,
     if(!writeHeader(strAuxError))
     {
         strError=QObject::tr("PointCloudFile::create");
+        strError+=QObject::tr("\nError:\n%1").arg(strAuxError);
+        return(false);
+    }
+    return(true);
+}
+
+bool PointCloudFile::getNeighbors(QVector<double> point,
+                                  int pointCrsEpsgCode,
+                                  QString pointCrsProj4String,
+                                  double searchRadius2d,
+                                  int numberOfNeighbors,
+                                  QVector<Point> &points,
+                                  QVector<double> &distances,
+                                  QString &strError)
+{
+    QString functionName="CRSTools::PointCloudFile::getNeighbors";
+    QString strAuxError;
+    points.clear();
+    distances.clear();
+    if(point.size()<2||point.size()>3)
+    {
+        strError=functionName;
+        strError+=QObject::tr("\nPoint must be two or three coordinates");
+        return(false);
+    }
+    bool useAltitude=false;
+    if(point.size()==3) useAltitude=true;
+
+    if(searchRadius2d<=0)
+    {
+        searchRadius2d=1.0/sqrt(mMaximumDensity)*POINTCLOUDFILE_SEARCHRADIUS_SQRT_MAXIMUM_DENSITY_FACTOR;
+    }
+    // supongo que el CRS del punto es proyectado
+    // creo un polygon de la zona
+    double nwFc,nwSc,neFc,neSc,seFc,seSc,swFc,swSc;
+    nwFc=point[0]-searchRadius2d;
+    nwSc=point[1]+searchRadius2d;
+    neFc=point[0]+searchRadius2d;
+    neSc=point[1]+searchRadius2d;
+    seFc=point[0]+searchRadius2d;
+    seSc=point[1]-searchRadius2d;
+    swFc=point[0]-searchRadius2d;
+    swSc=point[1]-searchRadius2d;
+    QString wktGeometry="POLYGON((";
+    wktGeometry+=QString::number(nwFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(nwSc,'f',4);
+    wktGeometry+=",";
+    wktGeometry+=QString::number(neFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(neSc,'f',4);
+    wktGeometry+=",";
+    wktGeometry+=QString::number(seFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(seSc,'f',4);
+    wktGeometry+=",";
+    wktGeometry+=QString::number(swFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(swSc,'f',4);
+    wktGeometry+=",";
+    wktGeometry+=QString::number(nwFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(nwSc,'f',4);
+    wktGeometry+="))";
+    QMap<int, QMap<int, QString> > tilesTableName;
+    QMap<int, QMap<int, QMap<int, QVector<Point> > > > pointsByTileByFileId;
+    QMap<int, QMap<QString, bool> > existsFieldsByFileId;
+    QVector<QString> ignoreTilesTableName;
+    bool tilesFullGeometry=true;
+    if(!getPointsFromWktGeometry(wktGeometry,pointCrsEpsgCode,pointCrsProj4String,
+                                 tilesTableName,pointsByTileByFileId,existsFieldsByFileId,
+                                 ignoreTilesTableName,tilesFullGeometry,strAuxError))
+    {
+        strError=functionName;
+        strError+=QObject::tr("\nError:\n%1").arg(strAuxError);
+        return(false);
+    }
+    QVector<int> fileIdByPosition;
+    QMap<int,QMap<int,QVector<int> > > positionByIxByIy;
+    QMap<int,QMap<int,QVector<double> > > altitudesByIxByIy;
+    QVector<QVector<double> > pointByPosition;
+    QMap<int, QMap<int, QMap<int, QVector<Point> > > >::ConstIterator iterPointsByFileId=pointsByTileByFileId.begin(); //[fileId][tileX][tileY]
+    int cont=-1;
+    while(iterPointsByFileId!=pointsByTileByFileId.end())
+    {
+        int fileId=iterPointsByFileId.key();
+        QMap<int, QMap<int, QVector<Point> > >::const_iterator iterPointsByTileX=iterPointsByFileId.value().begin();
+        while(iterPointsByTileX!=iterPointsByFileId.value().end())
+        {
+            int tileX=iterPointsByTileX.key();
+            QMap<int, QVector<Point> >::const_iterator iterPointsByTileY=iterPointsByTileX.value().begin();
+            while(iterPointsByTileY!=iterPointsByTileX.value().end())
+            {
+                int tileY=iterPointsByTileY.key();
+                QVector<Point> vPoints=iterPointsByTileY.value();
+                for(int np=0;np<vPoints.size();np++)
+                {
+                    QVector<double> vPoint(2);
+                    int ix=vPoints[np].getIx();
+                    double fc=tileX+ix/1000.;
+                    int iy=vPoints[np].getIy();
+                    double sc=tileY+iy/1000.;
+                    vPoint[0]=fc;
+                    vPoint[1]=sc;
+                    if(!positionByIxByIy.contains(ix))
+                    {
+                        QVector<int> auxInt;
+                        QVector<double> auxDbl;
+                        positionByIxByIy[ix][iy]=auxInt;
+                        altitudesByIxByIy[ix][iy]=auxDbl;
+                    }
+                    cont++;
+                    double altitude=vPoints[np].getZ();
+                    positionByIxByIy[ix][iy].push_back(cont);
+                    altitudesByIxByIy[ix][iy].push_back(altitude);
+                    if(useAltitude)
+                    {
+                        vPoint.push_back(altitude);
+                    }
+                    pointByPosition.push_back(vPoint);
+                }
+                iterPointsByTileY++;
+            }
+            iterPointsByTileX++;
+        }
+        iterPointsByFileId++;
+    }
+    int k=numberOfNeighbors;
+    if(k<=0) k=pointByPosition.size();
+    QVector<QVector<double> > neighbors;
+    ICGAL::NeighborsSearch* ptrNeighborsSearh=new ICGAL::NeighborsSearch(mPtrCrsTools);
+    if(!ptrNeighborsSearh->getNeighbors(k,
+                                        point,
+                                        pointByPosition,
+                                        mCrsDescription,
+                                        neighbors,
+                                        strAuxError))
+    {
+        strError=functionName;
         strError+=QObject::tr("\nError:\n%1").arg(strAuxError);
         return(false);
     }

@@ -5954,10 +5954,30 @@ bool PointCloudFileManager::getNeighbors(QString pcfPath,
                                          QString pointCrsProj4String,
                                          double searchRadius2d,
                                          int numberOfNeighbors,
-                                         QVector<Point> &points, QVector<double> &distances,
+                                         QVector<Point> &points,
+                                         QVector<double> &distances,
                                          QString &strError)
 {
-
+    QString strAuxError;
+    if(!mPtrPcFiles.contains(pcfPath))
+    {
+        if(!openPointCloudFile(pcfPath,
+                               strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::getNeighbors");
+            strError+=QObject::tr("\nError openning spatialite:\n%1\nError:\n%2")
+                    .arg(pcfPath).arg(strAuxError);
+            return(false);
+        }
+    }
+    return(mPtrPcFiles[pcfPath]->getNeighbors(point,
+                                              pointCrsEpsgCode,
+                                              pointCrsProj4String,
+                                              searchRadius2d,
+                                              numberOfNeighbors,
+                                              points,
+                                              distances,
+                                              strError));
     return(true);
 }
 
@@ -5978,7 +5998,7 @@ bool PointCloudFileManager::getPointsFromWktGeometry(QString pcfPath,
         if(!openPointCloudFile(pcfPath,
                                strAuxError))
         {
-            strError=QObject::tr("PointCloudFileManager::getROIsWktGeometry");
+            strError=QObject::tr("PointCloudFileManager::getPointsFromWktGeometry");
             strError+=QObject::tr("\nError openning spatialite:\n%1\nError:\n%2")
                     .arg(pcfPath).arg(strAuxError);
             return(false);

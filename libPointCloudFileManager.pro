@@ -38,6 +38,8 @@ LASTOOLS_PATH = ./../../../depends/LASTools2019
 #QUAZIPLIB_PATH= ./../../../depends/libQuaZip
 QUAZIPLIB_PATH= ./../../../depends/libQuaZip-1.2
 #QT_3RDPARTY= C:/Qt/Qt5.6.3/5.6.3/Src/qtbase/src/3rdparty
+CGAL_PATH= ./../../../depends/CGAL-5.3.1
+BOOST_PATH= ./../../../depends/boost_1_76_0_vs2014_x64
 
 SOURCES += \
     PointCloudFileManager.cpp \
@@ -50,6 +52,12 @@ HEADERS += \
     PointCloudFileDefinitions.h \
     PointCloudFile.h \
     Point.h
+
+INCLUDEPATH += \
+#        $$CGAL_PATH\install\include \
+        $$CGAL_PATH\include \
+        $$BOOST_PATH \
+        $$CGAL_PATH/auxiliary/gmp/include
 
 #INCLUDEPATH += $$QT_3RDPARTY/zlib
 INCLUDEPATH += . $$QUAZIPLIB_PATH/include
