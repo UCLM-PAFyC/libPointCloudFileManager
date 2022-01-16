@@ -1511,12 +1511,16 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
                                   int numberOfNeighbors,
                                   QVector<Point> &points,
                                   QVector<double> &distances,
+                                  QVector<int> &fileIdPoints,
+                                  QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
                                   QString &strError)
 {
     QString functionName="CRSTools::PointCloudFile::getNeighbors";
     QString strAuxError;
     points.clear();
     distances.clear();
+    fileIdPoints.clear();
+    existsFieldsByFileId.clear();
     if(point.size()<2||point.size()>3)
     {
         strError=functionName;
@@ -1564,9 +1568,8 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
     wktGeometry+="))";
     QMap<int, QMap<int, QString> > tilesTableName;
     QMap<int, QMap<int, QMap<int, QVector<Point> > > > pointsByTileByFileId;
-    QMap<int, QMap<QString, bool> > existsFieldsByFileId;
     QVector<QString> ignoreTilesTableName;
-    bool tilesFullGeometry=true;
+    bool tilesFullGeometry=false;
     if(!getPointsFromWktGeometry(wktGeometry,pointCrsEpsgCode,pointCrsProj4String,
                                  tilesTableName,pointsByTileByFileId,existsFieldsByFileId,
                                  ignoreTilesTableName,tilesFullGeometry,strAuxError))
@@ -1576,11 +1579,9 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
         return(false);
     }
     QVector<int> fileIdByPosition;
-    QMap<int,QMap<int,QVector<int> > > positionByIxByIy;
-    QMap<int,QMap<int,QVector<double> > > altitudesByIxByIy;
-    QVector<QVector<double> > pointByPosition;
+    QVector<QVector<double> > pointCoordinatesByPosition;
+    QVector<Point> initialPoints;
     QMap<int, QMap<int, QMap<int, QVector<Point> > > >::ConstIterator iterPointsByFileId=pointsByTileByFileId.begin(); //[fileId][tileX][tileY]
-    int cont=-1;
     while(iterPointsByFileId!=pointsByTileByFileId.end())
     {
         int fileId=iterPointsByFileId.key();
@@ -1602,22 +1603,14 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
                     double sc=tileY+iy/1000.;
                     vPoint[0]=fc;
                     vPoint[1]=sc;
-                    if(!positionByIxByIy.contains(ix))
-                    {
-                        QVector<int> auxInt;
-                        QVector<double> auxDbl;
-                        positionByIxByIy[ix][iy]=auxInt;
-                        altitudesByIxByIy[ix][iy]=auxDbl;
-                    }
-                    cont++;
                     double altitude=vPoints[np].getZ();
-                    positionByIxByIy[ix][iy].push_back(cont);
-                    altitudesByIxByIy[ix][iy].push_back(altitude);
                     if(useAltitude)
                     {
                         vPoint.push_back(altitude);
                     }
-                    pointByPosition.push_back(vPoint);
+                    pointCoordinatesByPosition.push_back(vPoint);
+                    initialPoints.push_back(vPoints[np]);
+                    fileIdByPosition.push_back(fileId);
                 }
                 iterPointsByTileY++;
             }
@@ -1626,12 +1619,12 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
         iterPointsByFileId++;
     }
     int k=numberOfNeighbors;
-    if(k<=0) k=pointByPosition.size();
+    if(k<=0) k=pointCoordinatesByPosition.size();
     QVector<QVector<double> > neighbors;
     ICGAL::NeighborsSearch* ptrNeighborsSearh=new ICGAL::NeighborsSearch(mPtrCrsTools);
     if(!ptrNeighborsSearh->getNeighbors(k,
                                         point,
-                                        pointByPosition,
+                                        pointCoordinatesByPosition,
                                         mCrsDescription,
                                         neighbors,
                                         strAuxError))
@@ -1639,6 +1632,53 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
         strError=functionName;
         strError+=QObject::tr("\nError:\n%1").arg(strAuxError);
         return(false);
+    }
+    for(int nn=0;nn<neighbors.size();nn++)
+    {
+        double fc=neighbors[nn][0];
+        double sc=neighbors[nn][1];
+        double distance,tc;
+        if(!useAltitude)
+        {
+            distance=neighbors[nn][2];
+        }
+        else
+        {
+            tc=neighbors[nn][2];
+            distance=neighbors[nn][3];
+        }
+        int posFind=-1;
+        for(int nip=0;nip<pointCoordinatesByPosition.size();nip++)
+        {
+            double ipFc=pointCoordinatesByPosition[nip][0];
+            double ipSc=pointCoordinatesByPosition[nip][1];
+            double dis=10000000.;
+            if(useAltitude)
+            {
+                dis=sqrt(pow(fc-ipFc,2.0)+pow(sc-ipSc,2.0));
+            }
+            else
+            {
+                double ipTc=pointCoordinatesByPosition[nip][2];
+                dis=sqrt(pow(fc-ipFc,2.0)+pow(sc-ipSc,2.0)+pow(tc-ipTc,2.0));
+            }
+            if(dis<0.001)
+            {
+                posFind=nip;
+                break;
+            }
+        }
+        if(posFind==-1) continue;
+        int fileId=fileIdByPosition[posFind];
+        Point pto=initialPoints[posFind];
+        fileIdByPosition.remove(posFind);
+        initialPoints.remove(posFind);
+        pointCoordinatesByPosition.remove(posFind);
+        if(!existsFieldsByFileId.contains(fileId)) continue;
+        points.push_back(pto);
+        distances.push_back(distance);
+        fileIdPoints.push_back(fileId);
+//        QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
     }
     return(true);
 }

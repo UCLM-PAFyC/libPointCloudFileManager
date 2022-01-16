@@ -125,6 +125,8 @@ public:
                       int numberOfNeighbors, // <=0 se devuelven todos
                       QVector<PCFile::Point>& points, // ordenado de cercano a lejano
                       QVector<double>& distances, // ordenado de cercano a lejano
+                      QVector<int> &fileIdPoints,
+                      QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
                       QString& strError);
     bool getPointsFromWktGeometry(QString pcfPath,
                                   QString wktGeometry,

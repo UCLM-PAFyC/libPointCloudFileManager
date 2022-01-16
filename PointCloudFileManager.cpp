@@ -5956,6 +5956,8 @@ bool PointCloudFileManager::getNeighbors(QString pcfPath,
                                          int numberOfNeighbors,
                                          QVector<Point> &points,
                                          QVector<double> &distances,
+                                         QVector<int> &fileIdPoints,
+                                         QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
                                          QString &strError)
 {
     QString strAuxError;
@@ -5977,6 +5979,8 @@ bool PointCloudFileManager::getNeighbors(QString pcfPath,
                                               numberOfNeighbors,
                                               points,
                                               distances,
+                                              fileIdPoints,
+                                              existsFieldsByFileId,
                                               strError));
     return(true);
 }
