@@ -1529,7 +1529,90 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
     }
     bool useAltitude=false;
     if(point.size()==3) useAltitude=true;
-
+    if(pointCrsEpsgCode!=-1)
+    {
+        if(pointCrsEpsgCode!=mSRID)
+        {
+            QString pointCrsDescription;
+            if(!mPtrCrsTools->appendUserCrs(pointCrsEpsgCode,
+                                            pointCrsDescription,
+                                            strAuxError))
+            {
+                if(!mPtrCrsTools->appendUserCrs(pointCrsProj4String,//proj4
+                                                pointCrsDescription,
+                                                strAuxError))
+                {
+                    strError=functionName;
+                    strError+=QObject::tr("\nInvalid CRS From EPSG code: %1 and PROJ4:\n%2")
+                            .arg(QString::number(pointCrsEpsgCode)).arg(pointCrsProj4String);
+                    OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+                    mMpPtrGeometry=NULL;
+                    return(false);
+                }
+            }
+            QVector<QVector<double> > auxPoints;
+            auxPoints.push_back(point);
+            if(!mPtrCrsTools->crsOperation(pointCrsDescription,
+                                           mCrsDescription,
+                                           auxPoints,
+                                           strAuxError))
+            {
+                strError=functionName;
+                strError+=QObject::tr("\nError in CRS operation:\n%1").arg(strAuxError);
+                OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+                mMpPtrGeometry=NULL;
+                return(false);
+            }
+            double fc=auxPoints[0][0];
+            double sc=auxPoints[0][1];
+            point[0]=fc;
+            point[1]=sc;
+            if(useAltitude)
+            {
+                double tc=auxPoints[0][1];
+                point[2]=tc;
+            }
+        }
+    }
+    else
+    {
+        QString pointCrsDescription;
+        if(!mPtrCrsTools->appendUserCrs(pointCrsProj4String,//proj4
+                                        pointCrsDescription,
+                                        strAuxError))
+        {
+            strError=functionName;
+            strError+=QObject::tr("\nInvalid CRS From PROJ4:\n%1").arg(pointCrsProj4String);
+            OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+            mMpPtrGeometry=NULL;
+            return(false);
+        }
+        QVector<QVector<double> > auxPoints;
+        auxPoints.push_back(point);
+        if(!mPtrCrsTools->crsOperation(pointCrsDescription,
+                                       mCrsDescription,
+                                       auxPoints,
+                                       strAuxError))
+        {
+            strError=functionName;
+            strError+=QObject::tr("\nError in CRS operation:\n%1").arg(strAuxError);
+            OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+            mMpPtrGeometry=NULL;
+            return(false);
+        }
+        double fc=auxPoints[0][0];
+        double sc=auxPoints[0][1];
+        point[0]=fc;
+        point[1]=sc;
+        if(useAltitude)
+        {
+            double tc=auxPoints[0][1];
+            point[2]=tc;
+        }
+    }
+    pointCrsEpsgCode=mSRID;
+    pointCrsProj4String=mCrsProj4String;
+    QString pointCrsDescription=mCrsDescription;
     if(searchRadius2d<=0)
     {
         searchRadius2d=1.0/sqrt(mMaximumDensity)*POINTCLOUDFILE_SEARCHRADIUS_SQRT_MAXIMUM_DENSITY_FACTOR;
@@ -1653,7 +1736,7 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
             double ipFc=pointCoordinatesByPosition[nip][0];
             double ipSc=pointCoordinatesByPosition[nip][1];
             double dis=10000000.;
-            if(useAltitude)
+            if(!useAltitude)
             {
                 dis=sqrt(pow(fc-ipFc,2.0)+pow(sc-ipSc,2.0));
             }
@@ -1662,7 +1745,7 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
                 double ipTc=pointCoordinatesByPosition[nip][2];
                 dis=sqrt(pow(fc-ipFc,2.0)+pow(sc-ipSc,2.0)+pow(tc-ipTc,2.0));
             }
-            if(dis<0.001)
+            if(dis<0.0001)
             {
                 posFind=nip;
                 break;
@@ -3108,8 +3191,10 @@ bool PointCloudFile::getTilesNamesFromGeometry(QMap<int, QMap<int, QString> > &t
                  iterTilesX++;
             }
         }
-        mMpTilesTableName.clear();
-        mTilesOverlaps.clear();
+//        mMpTilesTableName.clear();
+//        mTilesOverlaps.clear();
+        mTilesXToProcess.clear();
+        mTilesYToProcess.clear();
     }
     return(true);
 }
