@@ -124,6 +124,8 @@ public:
                       double searchRadius2d, // <=0 se usa 100 por la distancia para densidad media
                       int numberOfNeighbors, // <=0 se devuelven todos
                       QVector<PCFile::Point>& points, // ordenado de cercano a lejano
+                      QVector<int> &tilesX,
+                      QVector<int> &tilesY,
                       QVector<double>& distances, // ordenado de cercano a lejano
                       QVector<int> &fileIdPoints,
                       QMap<int, QMap<QString, bool> > &existsFieldsByFileId,

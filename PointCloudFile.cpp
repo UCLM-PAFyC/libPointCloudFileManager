@@ -1510,6 +1510,8 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
                                   double searchRadius2d,
                                   int numberOfNeighbors,
                                   QVector<Point> &points,
+                                  QVector<int> &tilesX,
+                                  QVector<int> &tilesY,
                                   QVector<double> &distances,
                                   QVector<int> &fileIdPoints,
                                   QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
@@ -1518,6 +1520,8 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
     QString functionName="CRSTools::PointCloudFile::getNeighbors";
     QString strAuxError;
     points.clear();
+    tilesX.clear();
+    tilesY.clear();
     distances.clear();
     fileIdPoints.clear();
     existsFieldsByFileId.clear();
@@ -1664,6 +1668,8 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
     QVector<int> fileIdByPosition;
     QVector<QVector<double> > pointCoordinatesByPosition;
     QVector<Point> initialPoints;
+    QVector<int> initialTilesX;
+    QVector<int> initialTilesY;
     QMap<int, QMap<int, QMap<int, QVector<Point> > > >::ConstIterator iterPointsByFileId=pointsByTileByFileId.begin(); //[fileId][tileX][tileY]
     while(iterPointsByFileId!=pointsByTileByFileId.end())
     {
@@ -1692,6 +1698,8 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
                         vPoint.push_back(altitude);
                     }
                     pointCoordinatesByPosition.push_back(vPoint);
+                    initialTilesX.push_back(tileX);
+                    initialTilesY.push_back(tileY);
                     initialPoints.push_back(vPoints[np]);
                     fileIdByPosition.push_back(fileId);
                 }
@@ -1754,11 +1762,17 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
         if(posFind==-1) continue;
         int fileId=fileIdByPosition[posFind];
         Point pto=initialPoints[posFind];
+        int tileX=initialTilesX[posFind];
+        int tileY=initialTilesY[posFind];
         fileIdByPosition.remove(posFind);
         initialPoints.remove(posFind);
+        initialTilesX.remove(posFind);
+        initialTilesY.remove(posFind);
         pointCoordinatesByPosition.remove(posFind);
         if(!existsFieldsByFileId.contains(fileId)) continue;
         points.push_back(pto);
+        tilesX.push_back(tileX);
+        tilesY.push_back(tileY);
         distances.push_back(distance);
         fileIdPoints.push_back(fileId);
 //        QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
