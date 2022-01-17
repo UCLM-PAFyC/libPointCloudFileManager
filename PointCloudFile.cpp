@@ -2802,8 +2802,10 @@ bool PointCloudFile::getTilesNamesFromGeometry(QMap<int, QMap<int, QString> > &t
                  iterTilesX++;
             }
         }
-        mMpTilesTableName.clear();
-        mTilesOverlaps.clear();
+//        mMpTilesTableName.clear();
+//        mTilesOverlaps.clear();
+        mTilesXToProcess.clear();
+        mTilesYToProcess.clear();
     }
     return(true);
 }
