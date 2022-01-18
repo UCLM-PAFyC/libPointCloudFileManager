@@ -6925,7 +6925,7 @@ void PointCloudFileManager::on_ProgressExternalProcessDialog_closed()
     QMessageBox::information(new QWidget(),title,msg);
     return;
 }
-
+/*
 bool PointCloudFileManager::addPointCloudFile(QString fileName,
                                               QTextStream &in,
                                               QString &strError)
@@ -6996,33 +6996,31 @@ bool PointCloudFileManager::addPointCloudFile(QString fileName,
         return(false);
     }
 
-    /*
-    // DEPURACION
-    QString wktGeometry="POLYGON((481525.12825687526 4301653.6647398835,481702.64052925183 4301653.6647398835,481702.64052925183 4301542.959537572,481525.12825687526 4301542.959537572,481525.12825687526 4301653.6647398835))";
-    int geometryCrsEpsgCode=25830;
-    QString geometryCrsProj4="+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
-    wktGeometry="POLYGON((-3.212947443852194 38.86366822705954,-3.210898444917243 38.86366822705954,-3.210898444917243 38.86239037264084,-3.212947443852194 38.86239037264084,-3.212947443852194 38.86366822705954))";
-    geometryCrsEpsgCode=4326;
-    geometryCrsProj4="+proj=longlat +datum=WGS84 +no_defs";
-    QVector<QString> tilesTableNames;
-    if(!getTilesTableNamesFromWktGeometry(dbFileName,
-                                          wktGeometry,
-                                          geometryCrsEpsgCode,
-                                          geometryCrsProj4,
-                                          tilesTableNames,
-                                          strAuxError))
-    {
-        strError=QObject::tr("PointCloudFileManager::addPointCloudFile");
-        strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-        strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-        strError+=QObject::tr("\nError adding CRS from PROJ4:\n%1\nfrom file:\n%2\nError:\n%3")
-                .arg(dbCrsProj4String).arg(dbFileName).arg(strAuxError);
-        return(false);
-    }
-    int yo=1;
-    yo++;
-    // DEPURACION
-    */
+//    // DEPURACION
+//    QString wktGeometry="POLYGON((481525.12825687526 4301653.6647398835,481702.64052925183 4301653.6647398835,481702.64052925183 4301542.959537572,481525.12825687526 4301542.959537572,481525.12825687526 4301653.6647398835))";
+//    int geometryCrsEpsgCode=25830;
+//    QString geometryCrsProj4="+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+//    wktGeometry="POLYGON((-3.212947443852194 38.86366822705954,-3.210898444917243 38.86366822705954,-3.210898444917243 38.86239037264084,-3.212947443852194 38.86239037264084,-3.212947443852194 38.86366822705954))";
+//    geometryCrsEpsgCode=4326;
+//    geometryCrsProj4="+proj=longlat +datum=WGS84 +no_defs";
+//    QVector<QString> tilesTableNames;
+//    if(!getTilesTableNamesFromWktGeometry(dbFileName,
+//                                          wktGeometry,
+//                                          geometryCrsEpsgCode,
+//                                          geometryCrsProj4,
+//                                          tilesTableNames,
+//                                          strAuxError))
+//    {
+//        strError=QObject::tr("PointCloudFileManager::addPointCloudFile");
+//        strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+//        strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+//        strError+=QObject::tr("\nError adding CRS from PROJ4:\n%1\nfrom file:\n%2\nError:\n%3")
+//                .arg(dbCrsProj4String).arg(dbFileName).arg(strAuxError);
+//        return(false);
+//    }
+//    int yo=1;
+//    yo++;
+//    // DEPURACION
 
 
 //    dbCrsProj4String=mPtrPcSpDbs[dbFileName]->getCrsProj4String();
@@ -7166,6 +7164,7 @@ bool PointCloudFileManager::addPointCloudFile(QString fileName,
     }
     return(true);
 }
+*/
 
 bool PointCloudFileManager::addPointCloudFiles(QString fileName,
                                                QTextStream &in,
@@ -8355,25 +8354,25 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
                 return(false);
             }
         }
-        else if(processType.compare(POINTCLOUDFILE_PROCESS_ADD_POINT_CLOUD_FILE_TAG)==0)
-        {
-            if(!addPointCloudFile(fileName,in,strAuxError))
-            {
-                strError=QObject::tr("PointCloudFileManager::processProjectFile");
-                strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-                strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-                strError+=QObject::tr("\nError adding point cloud file:\n%1").arg(strAuxError);
-                fileInput.close();
-                if(ptrWidget!=NULL)
-                {
-                    ptrProgress->setValue(numberOfProcesses);
-                    qApp->processEvents();
-                    ptrProgress->close();
-                    delete(ptrProgress);
-                }
-                return(false);
-            }
-        }
+//        else if(processType.compare(POINTCLOUDFILE_PROCESS_ADD_POINT_CLOUD_FILE_TAG)==0)
+//        {
+//            if(!addPointCloudFile(fileName,in,strAuxError))
+//            {
+//                strError=QObject::tr("PointCloudFileManager::processProjectFile");
+//                strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+//                strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+//                strError+=QObject::tr("\nError adding point cloud file:\n%1").arg(strAuxError);
+//                fileInput.close();
+//                if(ptrWidget!=NULL)
+//                {
+//                    ptrProgress->setValue(numberOfProcesses);
+//                    qApp->processEvents();
+//                    ptrProgress->close();
+//                    delete(ptrProgress);
+//                }
+//                return(false);
+//            }
+//        }
         else if(processType.compare(POINTCLOUDFILE_PROCESS_ADD_POINT_CLOUD_FILES_TAG)==0)
         {
             if(!addPointCloudFiles(fileName,in,strAuxError))

@@ -219,9 +219,9 @@ private slots:
     void on_ProgressExternalProcessDialog_closed();
 
 private:
-    bool addPointCloudFile(QString fileName,
-                           QTextStream& in,
-                           QString& strError);
+//    bool addPointCloudFile(QString fileName,
+//                           QTextStream& in,
+//                           QString& strError);
     bool addPointCloudFiles(QString fileName,
                             QTextStream& in,
                             QString& strError);
