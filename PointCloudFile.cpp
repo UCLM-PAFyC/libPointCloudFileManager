@@ -28,6 +28,8 @@
 #include "PointCloudFileManager.h"
 #include "PointCloudFile.h"
 
+#include "NeighborsSearch.h"
+
 using namespace PCFile;//
 
 PointCloudFile::PointCloudFile(libCRS::CRSTools* ptrCrsTools,
@@ -1373,6 +1375,282 @@ bool PointCloudFile::create(QString path,
         strError=QObject::tr("PointCloudFile::create");
         strError+=QObject::tr("\nError:\n%1").arg(strAuxError);
         return(false);
+    }
+    return(true);
+}
+
+bool PointCloudFile::getNeighbors(QVector<double> point,
+                                  int pointCrsEpsgCode,
+                                  QString pointCrsProj4String,
+                                  double searchRadius2d,
+                                  int numberOfNeighbors,
+                                  QVector<Point> &points,
+                                  QVector<int> &tilesX,
+                                  QVector<int> &tilesY,
+                                  QVector<double> &distances,
+                                  QVector<int> &fileIdPoints,
+                                  QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
+                                  QString &strError)
+{
+    QString functionName="CRSTools::PointCloudFile::getNeighbors";
+    QString strAuxError;
+    points.clear();
+    tilesX.clear();
+    tilesY.clear();
+    distances.clear();
+    fileIdPoints.clear();
+    existsFieldsByFileId.clear();
+    if(point.size()<2||point.size()>3)
+    {
+        strError=functionName;
+        strError+=QObject::tr("\nPoint must be two or three coordinates");
+        return(false);
+    }
+    bool useAltitude=false;
+    if(point.size()==3) useAltitude=true;
+    if(pointCrsEpsgCode!=-1)
+    {
+        if(pointCrsEpsgCode!=mSRID)
+        {
+            QString pointCrsDescription;
+            if(!mPtrCrsTools->appendUserCrs(pointCrsEpsgCode,
+                                            pointCrsDescription,
+                                            strAuxError))
+            {
+                if(!mPtrCrsTools->appendUserCrs(pointCrsProj4String,//proj4
+                                                pointCrsDescription,
+                                                strAuxError))
+                {
+                    strError=functionName;
+                    strError+=QObject::tr("\nInvalid CRS From EPSG code: %1 and PROJ4:\n%2")
+                            .arg(QString::number(pointCrsEpsgCode)).arg(pointCrsProj4String);
+                    OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+                    mMpPtrGeometry=NULL;
+                    return(false);
+                }
+            }
+            QVector<QVector<double> > auxPoints;
+            auxPoints.push_back(point);
+            if(!mPtrCrsTools->crsOperation(pointCrsDescription,
+                                           mCrsDescription,
+                                           auxPoints,
+                                           strAuxError))
+            {
+                strError=functionName;
+                strError+=QObject::tr("\nError in CRS operation:\n%1").arg(strAuxError);
+                OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+                mMpPtrGeometry=NULL;
+                return(false);
+            }
+            double fc=auxPoints[0][0];
+            double sc=auxPoints[0][1];
+            point[0]=fc;
+            point[1]=sc;
+            if(useAltitude)
+            {
+                double tc=auxPoints[0][1];
+                point[2]=tc;
+            }
+        }
+    }
+    else
+    {
+        QString pointCrsDescription;
+        if(!mPtrCrsTools->appendUserCrs(pointCrsProj4String,//proj4
+                                        pointCrsDescription,
+                                        strAuxError))
+        {
+            strError=functionName;
+            strError+=QObject::tr("\nInvalid CRS From PROJ4:\n%1").arg(pointCrsProj4String);
+            OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+            mMpPtrGeometry=NULL;
+            return(false);
+        }
+        QVector<QVector<double> > auxPoints;
+        auxPoints.push_back(point);
+        if(!mPtrCrsTools->crsOperation(pointCrsDescription,
+                                       mCrsDescription,
+                                       auxPoints,
+                                       strAuxError))
+        {
+            strError=functionName;
+            strError+=QObject::tr("\nError in CRS operation:\n%1").arg(strAuxError);
+            OGRGeometryFactory::destroyGeometry(mMpPtrGeometry);
+            mMpPtrGeometry=NULL;
+            return(false);
+        }
+        double fc=auxPoints[0][0];
+        double sc=auxPoints[0][1];
+        point[0]=fc;
+        point[1]=sc;
+        if(useAltitude)
+        {
+            double tc=auxPoints[0][1];
+            point[2]=tc;
+        }
+    }
+    pointCrsEpsgCode=mSRID;
+    pointCrsProj4String=mCrsProj4String;
+    QString pointCrsDescription=mCrsDescription;
+    if(searchRadius2d<=0)
+    {
+        searchRadius2d=1.0/sqrt(mMaximumDensity)*POINTCLOUDFILE_SEARCHRADIUS_SQRT_MAXIMUM_DENSITY_FACTOR;
+    }
+    // supongo que el CRS del punto es proyectado
+    // creo un polygon de la zona
+    double nwFc,nwSc,neFc,neSc,seFc,seSc,swFc,swSc;
+    nwFc=point[0]-searchRadius2d;
+    nwSc=point[1]+searchRadius2d;
+    neFc=point[0]+searchRadius2d;
+    neSc=point[1]+searchRadius2d;
+    seFc=point[0]+searchRadius2d;
+    seSc=point[1]-searchRadius2d;
+    swFc=point[0]-searchRadius2d;
+    swSc=point[1]-searchRadius2d;
+    QString wktGeometry="POLYGON((";
+    wktGeometry+=QString::number(nwFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(nwSc,'f',4);
+    wktGeometry+=",";
+    wktGeometry+=QString::number(neFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(neSc,'f',4);
+    wktGeometry+=",";
+    wktGeometry+=QString::number(seFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(seSc,'f',4);
+    wktGeometry+=",";
+    wktGeometry+=QString::number(swFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(swSc,'f',4);
+    wktGeometry+=",";
+    wktGeometry+=QString::number(nwFc,'f',4);
+    wktGeometry+=" ";
+    wktGeometry+=QString::number(nwSc,'f',4);
+    wktGeometry+="))";
+    QMap<int, QMap<int, QString> > tilesTableName;
+    QMap<int, QMap<int, QMap<int, QVector<Point> > > > pointsByTileByFileId;
+    QVector<QString> ignoreTilesTableName;
+    bool tilesFullGeometry=false;
+    if(!getPointsFromWktGeometry(wktGeometry,pointCrsEpsgCode,pointCrsProj4String,
+                                 tilesTableName,pointsByTileByFileId,existsFieldsByFileId,
+                                 ignoreTilesTableName,tilesFullGeometry,strAuxError))
+    {
+        strError=functionName;
+        strError+=QObject::tr("\nError:\n%1").arg(strAuxError);
+        return(false);
+    }
+    QVector<int> fileIdByPosition;
+    QVector<QVector<double> > pointCoordinatesByPosition;
+    QVector<Point> initialPoints;
+    QVector<int> initialTilesX;
+    QVector<int> initialTilesY;
+    QMap<int, QMap<int, QMap<int, QVector<Point> > > >::ConstIterator iterPointsByFileId=pointsByTileByFileId.begin(); //[fileId][tileX][tileY]
+    while(iterPointsByFileId!=pointsByTileByFileId.end())
+    {
+        int fileId=iterPointsByFileId.key();
+        QMap<int, QMap<int, QVector<Point> > >::const_iterator iterPointsByTileX=iterPointsByFileId.value().begin();
+        while(iterPointsByTileX!=iterPointsByFileId.value().end())
+        {
+            int tileX=iterPointsByTileX.key();
+            QMap<int, QVector<Point> >::const_iterator iterPointsByTileY=iterPointsByTileX.value().begin();
+            while(iterPointsByTileY!=iterPointsByTileX.value().end())
+            {
+                int tileY=iterPointsByTileY.key();
+                QVector<Point> vPoints=iterPointsByTileY.value();
+                for(int np=0;np<vPoints.size();np++)
+                {
+                    QVector<double> vPoint(2);
+                    int ix=vPoints[np].getIx();
+                    double fc=tileX+ix/1000.;
+                    int iy=vPoints[np].getIy();
+                    double sc=tileY+iy/1000.;
+                    vPoint[0]=fc;
+                    vPoint[1]=sc;
+                    double altitude=vPoints[np].getZ();
+                    if(useAltitude)
+                    {
+                        vPoint.push_back(altitude);
+                    }
+                    pointCoordinatesByPosition.push_back(vPoint);
+                    initialTilesX.push_back(tileX);
+                    initialTilesY.push_back(tileY);
+                    initialPoints.push_back(vPoints[np]);
+                    fileIdByPosition.push_back(fileId);
+                }
+                iterPointsByTileY++;
+            }
+            iterPointsByTileX++;
+        }
+        iterPointsByFileId++;
+    }
+    int k=numberOfNeighbors;
+    if(k<=0) k=pointCoordinatesByPosition.size();
+    QVector<QVector<double> > neighbors;
+    ICGAL::NeighborsSearch* ptrNeighborsSearh=new ICGAL::NeighborsSearch(mPtrCrsTools);
+    if(!ptrNeighborsSearh->getNeighbors(k,
+                                        point,
+                                        pointCoordinatesByPosition,
+                                        mCrsDescription,
+                                        neighbors,
+                                        strAuxError))
+    {
+        strError=functionName;
+        strError+=QObject::tr("\nError:\n%1").arg(strAuxError);
+        return(false);
+    }
+    for(int nn=0;nn<neighbors.size();nn++)
+    {
+        double fc=neighbors[nn][0];
+        double sc=neighbors[nn][1];
+        double distance,tc;
+        if(!useAltitude)
+        {
+            distance=neighbors[nn][2];
+        }
+        else
+        {
+            tc=neighbors[nn][2];
+            distance=neighbors[nn][3];
+        }
+        int posFind=-1;
+        for(int nip=0;nip<pointCoordinatesByPosition.size();nip++)
+        {
+            double ipFc=pointCoordinatesByPosition[nip][0];
+            double ipSc=pointCoordinatesByPosition[nip][1];
+            double dis=10000000.;
+            if(!useAltitude)
+            {
+                dis=sqrt(pow(fc-ipFc,2.0)+pow(sc-ipSc,2.0));
+            }
+            else
+            {
+                double ipTc=pointCoordinatesByPosition[nip][2];
+                dis=sqrt(pow(fc-ipFc,2.0)+pow(sc-ipSc,2.0)+pow(tc-ipTc,2.0));
+            }
+            if(dis<0.0001)
+            {
+                posFind=nip;
+                break;
+            }
+        }
+        if(posFind==-1) continue;
+        int fileId=fileIdByPosition[posFind];
+        Point pto=initialPoints[posFind];
+        int tileX=initialTilesX[posFind];
+        int tileY=initialTilesY[posFind];
+        fileIdByPosition.remove(posFind);
+        initialPoints.remove(posFind);
+        initialTilesX.remove(posFind);
+        initialTilesY.remove(posFind);
+        pointCoordinatesByPosition.remove(posFind);
+        if(!existsFieldsByFileId.contains(fileId)) continue;
+        points.push_back(pto);
+        tilesX.push_back(tileX);
+        tilesY.push_back(tileY);
+        distances.push_back(distance);
+        fileIdPoints.push_back(fileId);
+//        QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
     }
     return(true);
 }

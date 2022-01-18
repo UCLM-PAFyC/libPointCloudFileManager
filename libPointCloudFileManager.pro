@@ -26,6 +26,14 @@ TARGET = libPointCloudFileManager
 TEMPLATE = lib
 
 DEFINES += LIBPOINTCLOUDFILEMANAGER_LIBRARY
+DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += CGAL_HEADER_ONLY=1
+DEFINES += WIN32
+DEFINES += _WINDOWS
+DEFINES += _SCL_SECURE_NO_DEPRECATE
+DEFINES += _SCL_SECURE_NO_WARNINGS
+DEFINES += BOOST_ALL_DYN_LINK=1
+DEFINES += CMAKE_INTDIR="Debug"
 
 DESTDIR_RELEASE= ./../../../build/release
 DESTDIR_DEBUG= ./../../../build/debug
@@ -34,6 +42,8 @@ OSGEO4W_PATH="C:\Program Files\QGIS 3.4"
 LASTOOLS_PATH = ./../../../depends/LASTools2019
 QUAZIPLIB_PATH= ./../../../depends/libQuaZip
 QT_3RDPARTY= C:/Qt/Qt5.6.3/5.6.3/Src/qtbase/src/3rdparty
+CGAL_PATH= ./../../../depends/CGAL-5.0-beta1
+BOOST_PATH= ./../../../depends/boost_1_68_0_vs2014_x64
 
 SOURCES += \
     PointCloudFileManager.cpp \
@@ -47,9 +57,15 @@ HEADERS += \
     PointCloudFile.h \
     Point.h
 
+INCLUDEPATH += \
+        $$CGAL_PATH\install\include \
+        $$BOOST_PATH \
+        $$CGAL_PATH/auxiliary/gmp/include
+
 INCLUDEPATH += $$QT_3RDPARTY/zlib
 INCLUDEPATH += . $$QUAZIPLIB_PATH/include
 
+INCLUDEPATH += . ../libICGAL
 INCLUDEPATH += . ../libProcessTools
 INCLUDEPATH += . ../libCRS
 INCLUDEPATH += . ../libIGDAL
@@ -84,6 +100,7 @@ LIBS += -llibParameters
 LIBS += -llibProcessTools
 LIBS += -llibLicenseManager
 #LIBS += -llibProcessTools
+LIBS += -llibICGAL
 
 INCLUDEPATH += . $$OSGEO4W_PATH/include
 LIBS += -L$$OSGEO4W_PATH\bin

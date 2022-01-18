@@ -5805,6 +5805,47 @@ bool PointCloudFileManager::getMaximumDensity(QString pcfPath,
     return(true);
 }
 
+bool PointCloudFileManager::getNeighbors(QString pcfPath,
+                                         QVector<double> point,
+                                         int pointCrsEpsgCode,
+                                         QString pointCrsProj4String,
+                                         double searchRadius2d,
+                                         int numberOfNeighbors,
+                                         QVector<Point> &points,
+                                         QVector<int> &tilesX,
+                                         QVector<int> &tilesY,
+                                         QVector<double> &distances,
+                                         QVector<int> &fileIdPoints,
+                                         QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
+                                         QString &strError)
+{
+    QString strAuxError;
+    if(!mPtrPcFiles.contains(pcfPath))
+    {
+        if(!openPointCloudFile(pcfPath,
+                               strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::getNeighbors");
+            strError+=QObject::tr("\nError openning spatialite:\n%1\nError:\n%2")
+                    .arg(pcfPath).arg(strAuxError);
+            return(false);
+        }
+    }
+    return(mPtrPcFiles[pcfPath]->getNeighbors(point,
+                                              pointCrsEpsgCode,
+                                              pointCrsProj4String,
+                                              searchRadius2d,
+                                              numberOfNeighbors,
+                                              points,
+                                              tilesX,
+                                              tilesY,
+                                              distances,
+                                              fileIdPoints,
+                                              existsFieldsByFileId,
+                                              strError));
+    return(true);
+}
+
 bool PointCloudFileManager::getPointsFromWktGeometry(QString pcfPath,
                                                      QString wktGeometry,
                                                      int geometryCrsEpsgCode,
