@@ -59,6 +59,11 @@ public:
     };
     bool addPointCloudFilesToPointCloudFile(QString pcfPath,
                                             int crsEpsgCode,
+                                            int verticalCrsEpsgCode,
+                                            QVector<QString> &pointCloudFiles,
+                                            QString& strError);
+    bool addPointCloudFilesToPointCloudFile(QString pcfPath,
+                                            int crsEpsgCode,
                                             bool altitudeIsMsl,
                                             QVector<QString> &pointCloudFiles,
                                             QString& strError);
@@ -84,9 +89,13 @@ public:
     bool getColorNumberOfBytes(QString pcfPath,
                                int& numberOfBytes,
                                QString& strError);
-    bool getProjectCrsEpsgCode(QString dbFileName,
+    bool getProjectCrsEpsgCode(QString pcfPath,
                                int& crsEpsgCode,
                                QString& strError);
+    bool getProjectCrsEpsgCodes(QString pcfPath,
+                                int& crsEpsgCode,
+                                int& verticalCrsEpsgCode,
+                                QString& strError);
     bool getGridSizes(QVector<int> &gridSizes,
                       QString& strError);
     bool getInternalCommands(QVector<QString>& internalCommands,
@@ -229,9 +238,9 @@ private slots:
     void on_ProgressExternalProcessDialog_closed();
 
 private:
-    bool addPointCloudFile(QString fileName,
-                           QTextStream& in,
-                           QString& strError);
+//    bool addPointCloudFile(QString fileName,
+//                           QTextStream& in,
+//                           QString& strError);
     bool addPointCloudFiles(QString fileName,
                             QTextStream& in,
                             QString& strError);

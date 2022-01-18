@@ -51,6 +51,93 @@ bool PointCloudFileManager::checkInitialize(QString &strError)
 
 bool PointCloudFileManager::addPointCloudFilesToPointCloudFile(QString pcfPath,
                                                                int crsEpsgCode,
+                                                               int verticalCrsEpsgCode,
+                                                               QVector<QString> &pointCloudFiles,
+                                                               QString &strError)
+{
+    QString strAuxError;
+    if(mPtrCrsTools==NULL)
+    {
+        strError=QObject::tr("PointCloudFileManager::addPointCloudFilesToPointCloudFile");
+        strError+=QObject::tr("\nCrsTools is NULL");
+        return(false);
+    }
+    for(int nf=0;nf<pointCloudFiles.size();nf++)
+    {
+        if(!QFile::exists(pointCloudFiles.at(nf)))
+        {
+            strError=QObject::tr("PointCloudFileManager::addPointCloudFilesToPointCloudFile");
+            strError+=QObject::tr("\nNot exists Point Cloud File:\n%1").arg(pointCloudFiles.at(nf));
+            return(false);
+        }
+    }
+    QString prjFileName=mBasePath+POINTCLOUDFILE_TEMPORAL_PROJECT_FILE;
+    if(QFile::exists(prjFileName))
+    {
+        if(!QFile::remove(prjFileName))
+        {
+            strError=QObject::tr("PointCloudFileManager::addPointCloudFilesToPointCloudFile");
+            strError+=QObject::tr("\nError existing temporal project file:\n%1")
+                    .arg(prjFileName);
+            return(false);
+        }
+    }
+    QFile file(prjFileName);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        strError=QObject::tr("PointCloudFileManager::addPointCloudFilesToPointCloudFile");
+        strError+=QObject::tr("\nError opening temporal project file:\n%1")
+                .arg(prjFileName);
+        return(false);
+    }
+    QTextStream strOut(&file);
+
+    int numberOfProcesses=1;
+    strOut<<"Point Cloud File Management Project\n";
+    strOut<<"- Number of processes ......................................# ";
+    strOut<<QString::number(numberOfProcesses);
+    strOut<<"\n";
+    strOut<<"- Process (CREATE_PCFM,ADD_PCFILE,ADD_ROI,WRITE_PCFS) ......# ";
+//        strOut<<POINTCLOUDDB_PROCESS_ADD_POINTCLOUD_TAG;
+    strOut<<POINTCLOUDFILE_PROCESS_ADD_POINT_CLOUD_FILES_TAG;
+    strOut<<"\n";
+    strOut<<"  - PoinCloudFileManager path ..............................# \"";
+    strOut<<pcfPath;
+    strOut<<"\"\n";
+    strOut<<"  - CRS (libCRS/EPSG/proj4/wkt) ............................# ";
+    QString strCrsEpsgCode=QString::number(crsEpsgCode);
+    if(verticalCrsEpsgCode>0)
+    {
+        strCrsEpsgCode+="+";
+        strCrsEpsgCode+=QString::number(verticalCrsEpsgCode);
+    }
+//    strOut<<QString::number(crsEpsgCode);//"WGS84;32633;ELLIPSOID_HEIGHTS";
+    strOut<<strCrsEpsgCode;
+    strOut<<"\n";
+    strOut<<"  - Number of files ........................................# ";
+    strOut<<QString::number(pointCloudFiles.size());
+    strOut<<"\n";
+    for(int nf=0;nf<pointCloudFiles.size();nf++)
+    {
+        QString pointCloudFile=pointCloudFiles.at(nf);
+        strOut<<"  - File ...................................................# \"";
+        strOut<<pointCloudFile;
+        strOut<<"\"\n";
+    }
+    file.close();
+    if(!processProjectFile(prjFileName,
+                           strAuxError))
+    {
+        strError=QObject::tr("PointCloudFileManager::addPointCloudFilesToPointCloudFile");
+        strError+=QObject::tr("\nError calling setFromProjectFile for project file:\n%1\nError:\n%2")
+                .arg(prjFileName).arg(strAuxError);
+        return(false);
+    }
+    return(true);
+}
+
+bool PointCloudFileManager::addPointCloudFilesToPointCloudFile(QString pcfPath,
+                                                               int crsEpsgCode,
                                                                bool altitudeIsMsl,
                                                                QVector<QString> &pointCloudFiles,
                                                                QString &strError)
@@ -514,6 +601,28 @@ bool PointCloudFileManager::getProjectCrsEpsgCode(QString pcfPath,
         }
     }
     crsEpsgCode=mPtrPcFiles[pcfPath]->getCrsEpsgCode();
+    return(true);
+}
+
+bool PointCloudFileManager::getProjectCrsEpsgCodes(QString pcfPath,
+                                                   int &crsEpsgCode,
+                                                   int &verticalCrsEpsgCode,
+                                                   QString &strError)
+{
+    QString strAuxError;
+    if(!mPtrPcFiles.contains(pcfPath))
+    {
+        if(!openPointCloudFile(pcfPath,
+                               strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::getProjectCrsEpsgCodes");
+            strError+=QObject::tr("\nError openning spatialite:\n%1\nError:\n%2")
+                    .arg(pcfPath).arg(strAuxError);
+            return(false);
+        }
+    }
+    crsEpsgCode=mPtrPcFiles[pcfPath]->getCrsEpsgCode();
+    verticalCrsEpsgCode=mPtrPcFiles[pcfPath]->getVerticalCrsEpsgCode();
     return(true);
 }
 
@@ -7079,7 +7188,7 @@ void PointCloudFileManager::on_ProgressExternalProcessDialog_closed()
     QMessageBox::information(new QWidget(),title,msg);
     return;
 }
-
+/*
 bool PointCloudFileManager::addPointCloudFile(QString fileName,
                                               QTextStream &in,
                                               QString &strError)
@@ -7150,33 +7259,31 @@ bool PointCloudFileManager::addPointCloudFile(QString fileName,
         return(false);
     }
 
-    /*
-    // DEPURACION
-    QString wktGeometry="POLYGON((481525.12825687526 4301653.6647398835,481702.64052925183 4301653.6647398835,481702.64052925183 4301542.959537572,481525.12825687526 4301542.959537572,481525.12825687526 4301653.6647398835))";
-    int geometryCrsEpsgCode=25830;
-    QString geometryCrsProj4="+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
-    wktGeometry="POLYGON((-3.212947443852194 38.86366822705954,-3.210898444917243 38.86366822705954,-3.210898444917243 38.86239037264084,-3.212947443852194 38.86239037264084,-3.212947443852194 38.86366822705954))";
-    geometryCrsEpsgCode=4326;
-    geometryCrsProj4="+proj=longlat +datum=WGS84 +no_defs";
-    QVector<QString> tilesTableNames;
-    if(!getTilesTableNamesFromWktGeometry(dbFileName,
-                                          wktGeometry,
-                                          geometryCrsEpsgCode,
-                                          geometryCrsProj4,
-                                          tilesTableNames,
-                                          strAuxError))
-    {
-        strError=QObject::tr("PointCloudFileManager::addPointCloudFile");
-        strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-        strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-        strError+=QObject::tr("\nError adding CRS from PROJ4:\n%1\nfrom file:\n%2\nError:\n%3")
-                .arg(dbCrsProj4String).arg(dbFileName).arg(strAuxError);
-        return(false);
-    }
-    int yo=1;
-    yo++;
-    // DEPURACION
-    */
+//    // DEPURACION
+//    QString wktGeometry="POLYGON((481525.12825687526 4301653.6647398835,481702.64052925183 4301653.6647398835,481702.64052925183 4301542.959537572,481525.12825687526 4301542.959537572,481525.12825687526 4301653.6647398835))";
+//    int geometryCrsEpsgCode=25830;
+//    QString geometryCrsProj4="+proj=utm +zone=30 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs";
+//    wktGeometry="POLYGON((-3.212947443852194 38.86366822705954,-3.210898444917243 38.86366822705954,-3.210898444917243 38.86239037264084,-3.212947443852194 38.86239037264084,-3.212947443852194 38.86366822705954))";
+//    geometryCrsEpsgCode=4326;
+//    geometryCrsProj4="+proj=longlat +datum=WGS84 +no_defs";
+//    QVector<QString> tilesTableNames;
+//    if(!getTilesTableNamesFromWktGeometry(dbFileName,
+//                                          wktGeometry,
+//                                          geometryCrsEpsgCode,
+//                                          geometryCrsProj4,
+//                                          tilesTableNames,
+//                                          strAuxError))
+//    {
+//        strError=QObject::tr("PointCloudFileManager::addPointCloudFile");
+//        strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+//        strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+//        strError+=QObject::tr("\nError adding CRS from PROJ4:\n%1\nfrom file:\n%2\nError:\n%3")
+//                .arg(dbCrsProj4String).arg(dbFileName).arg(strAuxError);
+//        return(false);
+//    }
+//    int yo=1;
+//    yo++;
+//    // DEPURACION
 
 
 //    dbCrsProj4String=mPtrPcSpDbs[dbFileName]->getCrsProj4String();
@@ -7320,6 +7427,7 @@ bool PointCloudFileManager::addPointCloudFile(QString fileName,
     }
     return(true);
 }
+*/
 
 bool PointCloudFileManager::addPointCloudFiles(QString fileName,
                                                QTextStream &in,
@@ -7446,47 +7554,83 @@ bool PointCloudFileManager::addPointCloudFiles(QString fileName,
         strError+=QObject::tr("\nThere are not two fields separated by %1").arg(POINTCLOUDFILE_PROJECT_STRING_SEPARATOR);
         return(false);
     }
-    okToInt=false;
-    strValue=strList.at(1).trimmed();
-    int epsgCode=strValue.toInt(&okToInt);
     pointCloudCrsEpsgCode=-1;
-    // epsg code
-    if(okToInt)
+    int pointCloudVerticalCrsEpsgCode=-1;
+    strValue=strList.at(1).trimmed();
+    QStringList strEpsgCodes=strValue.split("+");
+    if(strEpsgCodes.size()==2)
     {
-        if(!mPtrCrsTools->appendUserCrs(epsgCode,
-                                        pointCloudCrsDescription,
-                                        strAuxError))
+        okToInt=false;
+        QString strValueCrs=strEpsgCodes[0].trimmed();
+        int epsgCode=strValueCrs.toInt(&okToInt);
+        if(okToInt)
         {
-            strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
-            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-            strError+=QObject::tr("\nInvalid CRS From EPSG code: %1").arg(QString::number(epsgCode));
-            return(false);
+            pointCloudCrsEpsgCode=epsgCode;
+            okToInt=false;
+            QString strValueVerticalCrs=strEpsgCodes[1].trimmed();
+            int verticalEpsgCode=strValueVerticalCrs.toInt(&okToInt);
+            if(okToInt)
+            {
+                pointCloudVerticalCrsEpsgCode=verticalEpsgCode;
+                QString crsId=CRS_EPSG_AUTHORITY;
+                crsId+=":";
+                crsId+=QString::number(pointCloudCrsEpsgCode);
+                crsId+="+";
+                crsId+=QString::number(pointCloudVerticalCrsEpsgCode);
+//                if(!mPtrCrsTools->isValidCrs(crsId,strAuxError))
+//                {
+//                    strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
+//                    strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+//                    strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+//                    strError+=QObject::tr("\nInvalid CRS: %1\nError:\n%2").arg(crsId).arg(strAuxError);
+//                    return(false);
+//                }
+                pointCloudCrsDescription=crsId;
+            }
         }
-        pointCloudCrsEpsgCode=epsgCode;
     }
-    else
+    if(pointCloudCrsEpsgCode==-1)
     {
-        // libCRS string
-        if(!mPtrCrsTools->isValidCrs(strValue,strAuxError))
+        okToInt=false;
+        int epsgCode=strValue.toInt(&okToInt);
+        if(okToInt)
         {
-            // proj4
-            if(!mPtrCrsTools->appendUserCrs(strValue,
+            if(!mPtrCrsTools->appendUserCrs(epsgCode,
                                             pointCloudCrsDescription,
                                             strAuxError))
             {
-                // wkt
-                if(!mPtrCrsTools->appendUserCrsFromWkt(strValue,
-                                               pointCloudCrsDescription,
-                                               strAuxError))
-                {
-                    int yo=1;
-                }
+                strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
+                strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+                strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+                strError+=QObject::tr("\nInvalid CRS From EPSG code: %1").arg(QString::number(epsgCode));
+                return(false);
             }
+            pointCloudCrsEpsgCode=epsgCode;
         }
+        // epsg code
         else
         {
-            pointCloudCrsDescription=strValue;
+            // libCRS string
+            if(!mPtrCrsTools->isValidCrs(strValue,strAuxError))
+            {
+                // proj4
+                if(!mPtrCrsTools->appendUserCrs(strValue,
+                                                pointCloudCrsDescription,
+                                                strAuxError))
+                {
+                    // wkt
+                    if(!mPtrCrsTools->appendUserCrsFromWkt(strValue,
+                                                   pointCloudCrsDescription,
+                                                   strAuxError))
+                    {
+                        int yo=1;
+                    }
+                }
+            }
+            else
+            {
+                pointCloudCrsDescription=strValue;
+            }
         }
     }
     if(!mPtrCrsTools->isValidCrs(pointCloudCrsDescription,strAuxError))
@@ -7498,14 +7642,17 @@ bool PointCloudFileManager::addPointCloudFiles(QString fileName,
                 .arg(strValue).arg(strAuxError);
         return(false);
     }
-    if(!mPtrCrsTools->getProj4String(pointCloudCrsDescription,pointCloudCrsProj4String,strAuxError))
+    if(pointCloudVerticalCrsEpsgCode==-1)
     {
-        strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
-        strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-        strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-        strError+=QObject::tr("\nError recovering PROJ4 string from CRS: %1\nError:\n%2")
-                .arg(dbCrsDescription).arg(strAuxError);
-        return(false);
+        if(!mPtrCrsTools->getProj4String(pointCloudCrsDescription,pointCloudCrsProj4String,strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
+            strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+            strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+            strError+=QObject::tr("\nError recovering PROJ4 string from CRS: %1\nError:\n%2")
+                    .arg(dbCrsDescription).arg(strAuxError);
+            return(false);
+        }
     }
     if(pointCloudCrsEpsgCode==-1)
     {
@@ -7579,17 +7726,35 @@ bool PointCloudFileManager::addPointCloudFiles(QString fileName,
     }
 
     bool updateHeader=true;
-    if(!mPtrPcFiles[pcPath]->addPointCloudFiles(pointCloudFileNames,
-                                                pointCloudCrsDescription,
-                                                pointCloudCrsProj4String,
-                                                pointCloudCrsEpsgCode,
-                                                updateHeader,
-                                                strAuxError))
+    if(pointCloudVerticalCrsEpsgCode==-1)
     {
-        strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
-        strError+=QObject::tr("\nError adding point cloud files:\n%1")
-                .arg(strAuxError);
-        return(false);
+        if(!mPtrPcFiles[pcPath]->addPointCloudFiles(pointCloudFileNames,
+                                                    pointCloudCrsDescription,
+                                                    pointCloudCrsProj4String,
+                                                    pointCloudCrsEpsgCode,
+                                                    updateHeader,
+                                                    strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
+            strError+=QObject::tr("\nError adding point cloud files:\n%1")
+                    .arg(strAuxError);
+            return(false);
+        }
+    }
+    else
+    {
+        if(!mPtrPcFiles[pcPath]->addPointCloudFiles(pointCloudFileNames,
+                                                    pointCloudCrsDescription,
+                                                    pointCloudCrsProj4String,
+                                                    pointCloudCrsEpsgCode,
+                                                    updateHeader,
+                                                    strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::addPointCloudFiles");
+            strError+=QObject::tr("\nError adding point cloud files:\n%1")
+                    .arg(strAuxError);
+            return(false);
+        }
     }
     return(true);
 }
@@ -8536,25 +8701,25 @@ bool PointCloudFileManager::processProjectFile(QString &fileName,
                 return(false);
             }
         }
-        else if(processType.compare(POINTCLOUDFILE_PROCESS_ADD_POINT_CLOUD_FILE_TAG)==0)
-        {
-            if(!addPointCloudFile(fileName,in,strAuxError))
-            {
-                strError=QObject::tr("PointCloudFileManager::processProjectFile");
-                strError+=QObject::tr("\nError reading file: %1").arg(fileName);
-                strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
-                strError+=QObject::tr("\nError adding point cloud file:\n%1").arg(strAuxError);
-                fileInput.close();
-                if(ptrWidget!=NULL)
-                {
-                    ptrProgress->setValue(numberOfProcesses);
-                    qApp->processEvents();
-                    ptrProgress->close();
-                    delete(ptrProgress);
-                }
-                return(false);
-            }
-        }
+//        else if(processType.compare(POINTCLOUDFILE_PROCESS_ADD_POINT_CLOUD_FILE_TAG)==0)
+//        {
+//            if(!addPointCloudFile(fileName,in,strAuxError))
+//            {
+//                strError=QObject::tr("PointCloudFileManager::processProjectFile");
+//                strError+=QObject::tr("\nError reading file: %1").arg(fileName);
+//                strError+=QObject::tr("\nError reading line: %1").arg(QString::number(nline));
+//                strError+=QObject::tr("\nError adding point cloud file:\n%1").arg(strAuxError);
+//                fileInput.close();
+//                if(ptrWidget!=NULL)
+//                {
+//                    ptrProgress->setValue(numberOfProcesses);
+//                    qApp->processEvents();
+//                    ptrProgress->close();
+//                    delete(ptrProgress);
+//                }
+//                return(false);
+//            }
+//        }
         else if(processType.compare(POINTCLOUDFILE_PROCESS_ADD_POINT_CLOUD_FILES_TAG)==0)
         {
             if(!addPointCloudFiles(fileName,in,strAuxError))

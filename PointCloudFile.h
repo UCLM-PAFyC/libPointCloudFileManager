@@ -41,10 +41,22 @@ public:
     ~PointCloudFile();
     bool addPointCloudFile(QString inputFileName,
                            QString pointCloudCrsDescription,
+                           int pointCloudCrsEpsgCode,
+                           int pointCloudVerticalCrsEpsgCode,
+                           bool updateHeader,
+                           QString& strError);
+    bool addPointCloudFile(QString inputFileName,
+                           QString pointCloudCrsDescription,
                            QString pointCloudCrsProj4String,
                            int pointCloudCrsEpsgCode,
                            bool updateHeader,
                            QString& strError);
+    bool addPointCloudFiles(QVector<QString>& inputFileNames,
+                            QString pointCloudCrsDescription,
+                            int pointCloudCrsEpsgCode,
+                            int pointCloudVerticalCrsEpsgCode,
+                            bool updateHeader,
+                            QString& strError);
     bool addPointCloudFiles(QVector<QString>& inputFileNames,
                             QString pointCloudCrsDescription,
                             QString pointCloudCrsProj4String,
@@ -72,6 +84,7 @@ public:
     int getColorNumberOfBytes(){return(mNumberOfColorBytes);};
     QString getCrsDescription(){return(mCrsDescription);};
     int getCrsEpsgCode(){return(mSRID);};
+    int getVerticalCrsEpsgCode(){return(mVerticalCrsEpsgCode);};
     QString getCrsProj4String(){return(mCrsProj4String);};
     QString getPath(){return(mPath);};
     double getGridSize(){return(mGridSize);};
@@ -190,8 +203,9 @@ private:
     qint32 mReferenceDateJd;
     qint32 mSRID;
     QString mHeightType; // puede ser el codigo epsg de un crs vertical
-    QString mCrsDescription;
+    QString mCrsDescription; // si es compuesto EPSG:25830+5782
     QString mCrsProj4String; // si hay crs vertical es wkt y no proj4
+    int mVerticalCrsEpsgCode; // -1 o el codigo si es compuesto, persiste en mHeightType
     qreal mGridSize;
     qreal mMaximumDensity; // ptos/m2
     QString mProjectType;

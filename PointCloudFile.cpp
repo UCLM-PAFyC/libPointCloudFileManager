@@ -62,6 +62,7 @@ PointCloudFile::PointCloudFile(libCRS::CRSTools* ptrCrsTools,
     mMpPtrGeometry=NULL;
     mNumberOfPoints=0;
     mMaximumNumberOfPoints=mPtrPCFManager->getMaximumNumberOfPoints();
+    mVerticalCrsEpsgCode=-1;
 }
 
 PointCloudFile::~PointCloudFile()
@@ -82,6 +83,754 @@ PointCloudFile::~PointCloudFile()
         iterZipFilePaths++;
     }
 
+}
+
+bool PointCloudFile::addPointCloudFile(QString inputFileName,
+                                       QString pointCloudCrsDescription,
+                                       int pointCloudCrsEpsgCode,
+                                       int pointCloudVerticalCrsEpsgCode,
+                                       bool updateHeader,
+                                       QString &strError)
+{
+    if(mMaximumNumberOfPoints!=POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
+            &&mNumberOfPoints>mMaximumNumberOfPoints)
+    {
+        return(true);
+    }
+    if(pointCloudCrsEpsgCode!=mSRID
+            ||pointCloudVerticalCrsEpsgCode!=mVerticalCrsEpsgCode)
+    {
+        strError=QObject::tr("PointCloudFile::addPointCloudFile");
+        strError+=QObject::tr("\nFile CRS EPSG: %1 and project CRS EPSG: %2")
+                .arg(QString::number(pointCloudCrsEpsgCode)).arg(QString::number(mSRID));
+        strError+=QObject::tr("\nor vertical File CRS EPSG: %1 and project CRS EPSG: %2 are different")
+                .arg(QString::number(pointCloudVerticalCrsEpsgCode)).arg(QString::number(mVerticalCrsEpsgCode));
+        strError+=QObject::tr("\nReproject File to project CRS before");
+        return(false);
+    }
+    if(mTempPath.isEmpty())
+    {
+        strError=QObject::tr("PointCloudFile::addPointCloudFile");
+        strError+=QObject::tr("\nTemporal path is empty");
+        return(false);
+    }
+    QWidget* ptrWidget=new QWidget();
+//    if(mFilePtrGeometryByIndex.contains(inputFileName))
+//    {
+//        strError=QObject::tr("PointCloudFile::addPointCloudFile");
+//        strError+=QObject::tr("\nExists point cloud file:\n%1").arg(inputFileName);
+//        return(false);
+//    }
+    QString strAuxError;
+    double minX=1000000000.0;
+    double minY=1000000000.0;
+    double minZ=1000000000.0;
+    double maxX=-1000000000.0;
+    double maxY=-1000000000.0;
+    double maxZ=-1000000000.0;
+
+    QMap<int,QMap<int,int> > tilesNumberOfPoints; // nuevos para este fichero
+    if(mPtrROIsUnion!=NULL)
+    {
+        OGREnvelope* ptrROIsEnvelope=new OGREnvelope();
+        mPtrROIsUnion->getEnvelope(ptrROIsEnvelope);
+        minX=ptrROIsEnvelope->MinX;
+        minY=ptrROIsEnvelope->MinY;
+        maxX=ptrROIsEnvelope->MaxX;
+        maxY=ptrROIsEnvelope->MaxY;
+        delete(ptrROIsEnvelope);
+        // se crean entradas en: mTilesTableName y mTilesTableGeometry
+        if(!addTilesFromBoundingBox(minX,minY,maxX,maxY,
+//                                    inputFileName,
+                                    tilesNumberOfPoints,
+                                    ptrWidget,strAuxError))
+        {
+            strError=QObject::tr("PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError adding tiles from ROIs for file:\n%1\nError:\n%2")
+                    .arg(inputFileName).arg(strAuxError);
+            return(false);
+        }
+        if(tilesNumberOfPoints.size()==0) // no hay tiles para las ROIs
+        {
+            return(true);
+        }
+    }
+
+    QFileInfo inputFileInfo(inputFileName);
+    QString inputFileBaseName=inputFileInfo.completeBaseName();
+    QString tilesPointsFileZipFileName=mPath+"/"+inputFileBaseName+"."+POINTCLOUDFILE_DHL_SUFFIX;
+    if(QFile::exists(tilesPointsFileZipFileName))
+    {
+        if(!QFile::remove(tilesPointsFileZipFileName))
+        {
+            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError removing existing file:\n%1")
+                    .arg(tilesPointsFileZipFileName);
+            return(false);
+        }
+    }
+
+    QString tilesPointsFileZipFilePath=mPath+"/"+inputFileBaseName;
+    QDir currentDir=QDir::currentPath();
+    if(currentDir.exists(tilesPointsFileZipFilePath))
+    {
+        if(!removeDir(tilesPointsFileZipFilePath))
+        {
+            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError removing existing dir:\n%1")
+                    .arg(tilesPointsFileZipFilePath);
+            return(false);
+        }
+    }
+    if(!currentDir.mkpath(tilesPointsFileZipFilePath))
+    {
+        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+        strError+=QObject::tr("\nError making dir:\n%1")
+                .arg(tilesPointsFileZipFilePath);
+        return(false);
+    }
+
+    QString pointsClassFileName=mPath+"/"+inputFileBaseName+"."+POINTCLOUDFILE_PCS_SUFFIX;
+    if(QFile::exists(pointsClassFileName))
+    {
+        if(!QFile::remove(pointsClassFileName))
+        {
+            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError removing existing file:\n%1")
+                    .arg(pointsClassFileName);
+            return(false);
+        }
+    }
+//    QuaZip* ptrTilesPointsFileZip= new QuaZip(tilesPointsFileZipFileName);
+//    if(!ptrTilesPointsFileZip->open(QuaZip::mdCreate))
+//    {
+//        int qazErrorCode=ptrTilesPointsFileZip->getZipError();
+//        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+//        strError+=QObject::tr("\nError creating file:\n%1\nError code:\n%2")
+//                .arg(tilesPointsFileZipFileName).arg(QString::number(qazErrorCode));
+//        return(false);
+//    }
+    std::string stdFileName=inputFileName.toStdString();
+    const char* charFileName=stdFileName.c_str();
+
+    bool storeColor=mStoredFields[POINTCLOUDFILE_PARAMETER_COLOR];
+    bool storeGpsTime=mStoredFields[POINTCLOUDFILE_PARAMETER_GPS_TIME];
+    bool storeUserData=mStoredFields[POINTCLOUDFILE_PARAMETER_USER_DATA];
+    bool storeIntensity=mStoredFields[POINTCLOUDFILE_PARAMETER_INTENSITY];
+    bool storeSourceId=mStoredFields[POINTCLOUDFILE_PARAMETER_SOURCE_ID];
+    bool storeNir=mStoredFields[POINTCLOUDFILE_PARAMETER_NIR];
+    bool storeReturn=mStoredFields[POINTCLOUDFILE_PARAMETER_RETURN];
+    bool storeReturns=mStoredFields[POINTCLOUDFILE_PARAMETER_RETURNS];
+    bool existsColor=false;
+    bool existsGpsTime=false;
+    bool existsUserData=false;
+    bool existsIntensity=false;
+    bool existsSourceId=false;
+    bool existsNir=false;
+    bool existsReturn=false;
+    bool existsReturns=false;
+    if(storeColor||storeGpsTime||storeUserData
+            ||storeIntensity||storeSourceId||storeNir
+            ||storeReturn||storeReturns)
+    {
+        LASreadOpener lasreadopener;
+        lasreadopener.set_file_name(charFileName);
+        if (!lasreadopener.active())
+        {
+            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError opening file:\n%1").arg(inputFileName);
+            return(false);
+        }
+        LASreader* lasreader = lasreadopener.open();
+        LASheader* lasheader = &lasreader->header;
+        int variablesToFind=0;
+        if(storeColor) variablesToFind++;
+        if(storeGpsTime) variablesToFind++;
+        if(storeUserData) variablesToFind++;
+        if(storeIntensity) variablesToFind++;
+        if(storeSourceId) variablesToFind++;
+        if(storeNir) variablesToFind++;
+        if(storeReturn) variablesToFind++;
+        if(storeReturns) variablesToFind++;
+        while(lasreader->read_point())
+        {
+            if(storeColor&&!existsColor)
+            {
+                if(lasreader->point.have_rgb)
+                {
+                    existsColor=true;
+                    variablesToFind--;
+                }
+            }
+            if(storeGpsTime&&!existsGpsTime)
+            {
+                if(lasreader->point.have_gps_time)
+                {
+                    existsGpsTime=true;
+                    variablesToFind--;
+                }
+            }
+            if(storeNir&&!existsNir)
+            {
+                if(lasreader->point.have_nir)
+                {
+                    existsNir=true;
+                    variablesToFind--;
+                }
+            }
+            if(storeIntensity&&!existsIntensity)
+            {
+                if(lasreader->point.get_intensity()!=0)
+                {
+                    existsIntensity=true;
+                    variablesToFind--;
+                }
+            }
+            if(storeUserData&&!existsUserData)
+            {
+                if(lasreader->point.get_user_data()!=0)
+                {
+                    existsUserData=true;
+                    variablesToFind--;
+                }
+            }
+            if(storeSourceId&&!existsSourceId)
+            {
+                if(lasreader->point.get_point_source_ID()!=0)
+                {
+                    existsSourceId=true;
+                    variablesToFind--;
+                }
+            }
+            if(storeReturn&&!existsReturn)
+            {
+                if(lasreader->point.get_return_number()!=0)
+                {
+                    existsReturn=true;
+                    variablesToFind--;
+                }
+            }
+            if(storeReturns&&!existsReturns)
+            {
+                if(lasreader->point.get_number_of_returns()!=0)
+                {
+                    existsReturns=true;
+                    variablesToFind--;
+                }
+            }
+            if(variablesToFind==0) break;
+        }
+        lasreader->close();
+        delete lasreader;
+    }
+
+    LASreadOpener lasreadopener;
+    lasreadopener.set_file_name(charFileName);
+    if (!lasreadopener.active())
+    {
+        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+        strError+=QObject::tr("\nError opening file:\n%1").arg(inputFileName);
+        return(false);
+    }
+
+    LASreader* lasreader = lasreadopener.open();
+    LASheader* lasheader = &lasreader->header;
+    int numberOfPoints=lasreader->npoints;
+    double fileMinX=lasheader->min_x;
+    double fileMinY=lasheader->min_y;
+    double fileMaxX=lasheader->max_x;
+    double fileMaxY=lasheader->max_y;
+    double fileMinZ=lasheader->min_z;
+    double fileMaxZ=lasheader->max_z;
+    if(mPtrROIsUnion==NULL)
+    {
+        minX=fileMinX;
+        minY=fileMinY;
+        maxX=fileMaxX;
+        maxY=fileMaxY;
+        if(!addTilesFromBoundingBox(minX,minY,maxX,maxY,
+//                                    inputFileName,
+                                    tilesNumberOfPoints,
+                                    ptrWidget,strAuxError))
+        {
+            strError=QObject::tr("PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError adding tiles from file:\n%1\nError:\n%2")
+                    .arg(inputFileName).arg(strAuxError);
+            return(false);
+        }
+        if(tilesNumberOfPoints.size()==0) // no hay tiles, ¿fichero sin puntos?
+        {
+            return(true);
+        }
+    }
+    QProgressDialog* ptrProgress=NULL;
+    int pointsByStep=POINTCLOUDFILE_NUMBER_OF_POINTS_TO_PROCESS_BY_STEP;
+    int numberOfSteps=ceil((double)numberOfPoints/(double)pointsByStep);
+    if(numberOfSteps>1
+            &&ptrWidget!=NULL)
+    {
+        QString title=QObject::tr("Adding Point Cloud File:");
+        QString msgGlobal=inputFileName;
+        msgGlobal+="\n";
+        msgGlobal+=QString::number(numberOfPoints,10);
+        msgGlobal+=" points";
+        ptrProgress=new QProgressDialog(title, "Abort",0,numberOfSteps, ptrWidget);
+        ptrProgress->setWindowModality(Qt::WindowModal);
+        ptrProgress->setLabelText(msgGlobal);
+        ptrProgress->show();
+        qApp->processEvents();
+    }
+    int pointPosition=-1;
+    int step=0;
+    int numberOfProcessedPoints=0;
+    int numberOfProcessedPointsInStep=0;
+    U8 pointDataFormat=lasheader->point_data_format;
+    QMap<int,QMap<int,QString> > tilesPointsFileNames;
+    QMap<int,QMap<int,QVector<quint8> > > tilesPointsClass;
+    QMap<int,QMap<int,QMap<int,quint8> > > tilesPointsClassNewByPos; // se guarda vacío
+//    QMap<int,QMap<int,QuaZipFile*> > tilesPtrPointsFiles;
+    QMap<int,QMap<int,QFile*> > tilesPtrPointsFiles;
+    QMap<int,QMap<int,QDataStream*> > tilesPtrPointsDataStreams;
+    QMap<int,QMap<int,int> > tilesNop;
+    while(lasreader->read_point())
+    {
+        double x=lasreader->point.get_X()*lasheader->x_scale_factor+lasheader->x_offset;
+        double y=lasreader->point.get_Y()*lasheader->y_scale_factor+lasheader->y_offset;
+        pointPosition++;
+        numberOfProcessedPoints++;
+        numberOfProcessedPointsInStep++;
+        if(numberOfProcessedPointsInStep==pointsByStep)
+        {
+            step++;
+            numberOfProcessedPointsInStep=0;
+            if(numberOfSteps>1
+                    &&ptrWidget!=NULL)
+            {
+                ptrProgress->setValue(step);
+                qApp->processEvents();
+            }
+        }
+        bool includedPoint=true;
+        int tileX=qRound(floor(floor(x)/mGridSize)*mGridSize);
+        int tileY=qRound(floor(floor(y)/mGridSize)*mGridSize);
+        if(!mTilesName.contains(tileX))
+        {
+            includedPoint=false;
+        }
+        else if(!mTilesName[tileX].contains(tileY))
+        {
+            includedPoint=false;
+        }
+        if(!includedPoint)
+        {
+            continue;
+        }
+        if(mPtrROIsUnion!=NULL)
+        {
+            if(mTilesOverlapsWithROIs[tileX][tileY])
+            {
+                OGRGeometry* ptrPoint=NULL;
+                ptrPoint=OGRGeometryFactory::createGeometry(wkbPoint);
+                ((OGRPoint*)ptrPoint)->setX(x);
+                ((OGRPoint*)ptrPoint)->setY(y);
+                if(!mPtrROIsUnion->Contains(ptrPoint))
+                {
+                    includedPoint=false;
+                }
+                OGRGeometryFactory::destroyGeometry(ptrPoint);
+            }
+        }
+        if(!includedPoint)
+        {
+            continue;
+        }
+        QString tileTableName="tile_"+QString::number(tileX)+"_"+QString::number(tileY);
+        quint8 pointClass=lasreader->point.get_classification();
+        quint16 ix=qRound((x-tileX)*1000.);
+        quint16 iy=qRound((y-tileY)*1000.);
+        double z=lasreader->point.get_Z()*lasheader->z_scale_factor+lasheader->z_offset;
+        if(z<POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE
+                ||z>POINTCLOUDFILE_HEIGHT_MAXIMUM_VALID_VALUE)
+        {
+            // ignoro los puntos con z por debajo de -200 o sobre 6353
+//            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+//            strError+=QObject::tr("\nIn file:\n%1").arg(inputFileName);
+//            strError+=QObject::tr("\nfor point x=%1, y=%2")
+//                    .arg(QString::number(x,'f',3))
+//                    .arg(QString::number(y,'f',3));
+//            strError+=QObject::tr("\nz: %1 out of valid domain: [%2,%3]")
+//                    .arg(QString::number(z,'f',3))
+//                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE,'f',3))
+//                    .arg(QString::number(POINTCLOUDFILE_HEIGHT_MAXIMUM_VALID_VALUE,'f',3));
+//            return(false);
+            continue;
+        }
+        double zt=z-POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE;
+        quint8 z_pc=zt*1000.0-floor(zt*10.)*100.;
+        double nz=floor(zt*10.);
+        quint8 z_pa=floor(nz/256.);
+        quint8 z_pb=nz-z_pa*256.;
+//        double zc=(z_pa*256.0+z_pb)/10.+z_pc/1000.+POINTCLOUDFILE_HEIGHT_MINIMUM_VALID_VALUE;
+        QDataStream* tilePtrPointsDataStream=NULL;
+        bool existsTileFile=true;
+        if(!tilesPointsFileNames.contains(tileX))
+        {
+            existsTileFile=false;
+        }
+        else if(!tilesPointsFileNames[tileX].contains(tileY))
+        {
+            existsTileFile=false;
+        }
+        if(!existsTileFile)
+        {
+//            QString tilePointsFileName=tileTableName;
+//            QuaZipFile* ptrTilePointsFile=new QuaZipFile(ptrTilesPointsFileZip);
+//            if(!ptrTilePointsFile->open(QIODevice::WriteOnly,
+//                                        QuaZipNewInfo(tilePointsFileName)))
+//            {
+//                QString qazError=ptrTilePointsFile->getZipError();
+//                strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+//                strError+=QObject::tr("\nIn file:\n%1\nError creating file:\n%2\nError:\n%3")
+//                        .arg(tilesPointsFileZipFileName).arg(tilePointsFileName).arg(qazError);
+//                return(false);
+//            }
+            QString tilePointsFileName=tilesPointsFileZipFilePath+"/"+tileTableName;
+            QFile* ptrTilePointsFile=new QFile(tilePointsFileName);
+            if(!ptrTilePointsFile->open(QIODevice::WriteOnly))
+            {
+                strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+                strError+=QObject::tr("\nError creating file:\n%1")
+                        .arg(tilePointsFileName);
+                return(false);
+            }
+            tilePtrPointsDataStream=new QDataStream(ptrTilePointsFile);
+            tilesPointsFileNames[tileX][tileY]=tilePointsFileName;
+            tilesPtrPointsFiles[tileX][tileY]=ptrTilePointsFile;
+            tilesPtrPointsDataStreams[tileX][tileY]=tilePtrPointsDataStream;
+            QVector<quint8> auxClasses;
+            tilesPointsClass[tileX][tileY]=auxClasses;
+            tilesNop[tileX][tileY]=0;
+        }
+        else
+        {
+            tilePtrPointsDataStream=tilesPtrPointsDataStreams[tileX][tileY];
+        }
+        (*tilePtrPointsDataStream)<<ix<<iy<<z_pa<<z_pb<<z_pc;
+        if(existsColor)
+        {
+            quint16 color_r=lasreader->point.get_R();
+            quint16 color_g=lasreader->point.get_G();
+            quint16 color_b=lasreader->point.get_B();
+            if(mNumberOfColorBytes==1)
+            {
+                quint8 r=floor(double(color_r)/256.0);
+                if(r>255) r=255;
+                quint8 g=floor(double(color_g)/256.0);
+                if(g>255) g=255;
+                quint8 b=floor(double(color_b)/256.0);
+                if(b>255) b=255;
+                (*tilePtrPointsDataStream)<<r;
+                (*tilePtrPointsDataStream)<<g;
+                (*tilePtrPointsDataStream)<<b;
+            }
+            else
+            {
+                (*tilePtrPointsDataStream)<<color_r;
+                (*tilePtrPointsDataStream)<<color_g;
+                (*tilePtrPointsDataStream)<<color_b;
+            }
+        }
+        if(existsGpsTime)
+        {
+            double gpsTime=lasreader->point.get_gps_time();
+            int dayOfWeek=floor(gpsTime/24./60./60.);
+            gpsTime-=(dayOfWeek*24.*60.*60.);
+            int hours=floor(gpsTime/60./60.);
+            gpsTime-=(hours*60.*60.);
+            double dblMinutes=gpsTime/60.;
+            int ms=qRound((dblMinutes*60.)*pow(10.,6.));
+            quint8 msb1=floor(ms/256./256./256.);
+            quint8 msb2=floor((ms-msb1*256.*256.*256.)/256./256.);
+            quint8 msb3=floor((ms-msb1*256.*256.*256.-msb2*256.*256.)/256.);
+            quint8 gpsTimeDow=dayOfWeek; // 3 bits, 0-7
+            quint8 gpsHour=hours; // 5 bits, 0-23
+            quint8 gpsDowHourPackit;
+            gpsDowHourPackit = (gpsTimeDow << 3) | gpsHour;
+            (*tilePtrPointsDataStream)<<gpsDowHourPackit;
+            (*tilePtrPointsDataStream)<<msb1;
+            (*tilePtrPointsDataStream)<<msb2;
+            (*tilePtrPointsDataStream)<<msb3;
+        }
+        if(existsUserData)
+        {
+            quint8 userData=lasreader->point.get_user_data();
+            (*tilePtrPointsDataStream)<<userData;
+        }
+        if(existsIntensity)
+        {
+            quint16 intensity=lasreader->point.get_intensity();
+            (*tilePtrPointsDataStream)<<intensity;
+        }
+        if(existsSourceId)
+        {
+            quint16 sourceId=lasreader->point.get_point_source_ID();
+            (*tilePtrPointsDataStream)<<sourceId;
+        }
+        if(existsNir)
+        {
+            quint16 nir=lasreader->point.get_NIR();
+            if(mNumberOfColorBytes==1)
+            {
+                quint8 ir=floor(double(nir)/256.0);
+                if(ir>255) ir=255;
+                (*tilePtrPointsDataStream)<<ir;
+            }
+            else
+            {
+                (*tilePtrPointsDataStream)<<nir;
+            }
+        }
+        if(existsReturn)
+        {
+            quint8 returnNumber=lasreader->point.get_return_number();
+            (*tilePtrPointsDataStream)<<returnNumber;
+        }
+        if(existsReturns)
+        {
+            quint8 numberOfReturns=lasreader->point.get_number_of_returns();
+            (*tilePtrPointsDataStream)<<numberOfReturns;
+        }
+        double minX=floor(x);
+        double minY=floor(y);
+        double minZ=floor(z);
+        if(minX<mMinimumFc) mMinimumFc=minX;
+        if(minY<mMinimumSc) mMinimumSc=minY;
+        if(minZ<mMinimumTc) mMinimumTc=minZ;
+        tilesPointsClass[tileX][tileY].push_back(pointClass);
+        tilesNumberOfPoints[tileX][tileY]=tilesNumberOfPoints[tileX][tileY]+1;
+        tilesNop[tileX][tileY]=tilesNop[tileX][tileY]+1;
+        mNumberOfPoints++;
+        if(mMaximumNumberOfPoints!=POINTCLOUDFILE_WITHOUT_MAXIMUM_NUMBER_OF_POINTS_LIMITS
+                &&mNumberOfPoints>mMaximumNumberOfPoints)
+        {
+            break;
+        }
+    }
+    if(numberOfSteps>1
+            &&ptrWidget!=NULL)
+    {
+        ptrProgress->setValue(numberOfSteps);
+        qApp->processEvents();
+        ptrProgress->close();
+        delete(ptrProgress);
+    }
+    lasreader->close();
+    delete lasreader;
+    if(tilesPointsClass.size()==0)
+    {
+        if(!removeDir(tilesPointsFileZipFilePath))
+        {
+            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError removing directory:\n%1")
+                    .arg(tilesPointsFileZipFilePath);
+            return(false);
+        }
+        return(true);
+    }
+    int fileIndex=-1;
+    if(mFilesIndex.contains(inputFileName))
+    {
+        fileIndex=mFilesIndex[inputFileName];
+    }
+    else
+    {
+        /*
+        QString wktGeometry="POLYGON((";
+        wktGeometry+=QString::number(floor(fileMinX),'f',0);
+        wktGeometry+=" ";
+        wktGeometry+=QString::number(floor(fileMinY),'f',0);
+        wktGeometry+=",";
+        wktGeometry+=QString::number(floor(fileMinX),'f',0);
+        wktGeometry+=" ";
+        wktGeometry+=QString::number(floor(fileMaxY),'f',0);
+        wktGeometry+=",";
+        wktGeometry+=QString::number(floor(fileMaxX),'f',0);
+        wktGeometry+=" ";
+        wktGeometry+=QString::number(floor(fileMaxY),'f',0);
+        wktGeometry+=",";
+        wktGeometry+=QString::number(floor(fileMaxX),'f',0);
+        wktGeometry+=" ";
+        wktGeometry+=QString::number(floor(fileMinY),'f',0);
+        wktGeometry+=",";
+        wktGeometry+=QString::number(floor(fileMinX),'f',0);
+        wktGeometry+=" ";
+        wktGeometry+=QString::number(floor(fileMinY),'f',0);
+        wktGeometry+="))";
+        QByteArray byteArrayWktGeometry = wktGeometry.toUtf8();
+        char *charsWktGeometry = byteArrayWktGeometry.data();
+        OGRGeometry* ptrGeometry;
+        ptrGeometry=OGRGeometryFactory::createGeometry(wkbPolygon);
+        if(OGRERR_NONE!=ptrGeometry->importFromWkt(&charsWktGeometry))
+        {
+            strError=QObject::tr("PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError making geometry from WKT: %1").arg(wktGeometry);
+            lasreader->close();
+            return(false);
+        }
+        */
+        fileIndex=mNewFilesIndex;
+        mNewFilesIndex++;
+//        mFilePtrGeometryByIndex[fileIndex]=ptrGeometry;
+        mFilesIndex[inputFileName]=fileIndex;
+        mFileByIndex[fileIndex]=inputFileName;
+        QMap<int,QVector<int> > aux;
+        mTilesByFileIndex[fileIndex]=aux;
+    }
+
+//    QMap<int,QMap<int,QuaZipFile*> >::iterator iterTileXZf=tilesPtrPointsFiles.begin();
+    QMap<int,QMap<int,QFile*> >::iterator iterTileXZf=tilesPtrPointsFiles.begin();
+    while(iterTileXZf!=tilesPtrPointsFiles.end())
+    {
+        int tileX=iterTileXZf.key();
+//        QMap<int,QuaZipFile*>::iterator iterTileYZf=iterTileXZf.value().begin();
+        QMap<int,QFile*>::iterator iterTileYZf=iterTileXZf.value().begin();
+        while(iterTileYZf!=iterTileXZf.value().end())
+        {
+            int tileY=iterTileYZf.key();
+//            QuaZipFile* ptrFile=iterTileYZf.value();
+            QFile* ptrFile=iterTileYZf.value();
+            ptrFile->close();
+//            int qazErrorCode=ptrFile->getZipError();
+//            if(UNZ_OK!=qazErrorCode)
+//            {
+//                int numberOfPoints=tilesPointsClass[tileX][tileY].size();
+//                QString tileFileName=tilesPointsFileNames[tileX][tileY];
+//                strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+//                strError+=QObject::tr("\nIn file:\n%1\nError closing file:\n%2\nError code:\n%3")
+//                        .arg(tilesPointsFileZipFileName).arg(tileFileName).arg(QString::number(qazErrorCode));
+//                return(false);
+//            }
+            delete(tilesPtrPointsDataStreams[tileX][tileY]);
+            tilesPtrPointsDataStreams[tileX][tileY]=NULL;
+            delete(ptrFile);
+            tilesPtrPointsFiles[tileX][tileY]=NULL;
+            iterTileYZf++;
+        }
+        iterTileXZf++;
+    }
+    if(!JlCompress::compressDir(tilesPointsFileZipFileName,
+                                tilesPointsFileZipFilePath))
+    {
+        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+        strError+=QObject::tr("\nError compressing directory:\n%1")
+                .arg(tilesPointsFileZipFilePath);
+        return(false);
+    }
+    if(!removeDir(tilesPointsFileZipFilePath))
+    {
+        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+        strError+=QObject::tr("\nError removing directory:\n%1")
+                .arg(tilesPointsFileZipFilePath);
+        return(false);
+    }
+//    ptrTilesPointsFileZip->close();
+//    int qazErrorCode=ptrTilesPointsFileZip->getZipError();
+//    if(UNZ_OK!=qazErrorCode)
+//    {
+//        strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+//        strError+=QObject::tr("\nError closing file:\n%1\nError:\n%2")
+//                .arg(tilesPointsFileZipFileName).arg(QString::number(qazErrorCode));
+//        return(false);
+//    }
+    QFile pointsClassFile(pointsClassFileName);
+    pointsClassFile.open(QIODevice::WriteOnly);
+    QDataStream outPointsClass(&pointsClassFile);   // we will serialize the data into the file
+    QMap<QString,bool> exitsFields;
+    exitsFields[POINTCLOUDFILE_PARAMETER_COLOR]=existsColor;
+    exitsFields[POINTCLOUDFILE_PARAMETER_GPS_TIME]=existsGpsTime;
+    exitsFields[POINTCLOUDFILE_PARAMETER_USER_DATA]=existsUserData;
+    exitsFields[POINTCLOUDFILE_PARAMETER_INTENSITY]=existsIntensity;
+    exitsFields[POINTCLOUDFILE_PARAMETER_SOURCE_ID]=existsSourceId;
+    exitsFields[POINTCLOUDFILE_PARAMETER_NIR]=existsNir;
+    exitsFields[POINTCLOUDFILE_PARAMETER_RETURN]=existsReturn;
+    exitsFields[POINTCLOUDFILE_PARAMETER_RETURNS]=existsReturns;
+    outPointsClass<<tilesNop;
+    outPointsClass<<exitsFields;
+    outPointsClass<<tilesPointsClass;
+    outPointsClass<<tilesPointsClassNewByPos;
+    pointsClassFile.close();
+    QMap<int,QMap<int,int> >::const_iterator iterTileX=tilesNumberOfPoints.begin();
+    while(iterTileX!=tilesNumberOfPoints.end())
+    {
+        int tileX=iterTileX.key();
+        QMap<int,int>::const_iterator iterTileY=iterTileX.value().begin();
+        while(iterTileY!=iterTileX.value().end())
+        {
+            int tileY=iterTileY.key();
+            int numberOfPoints=iterTileY.value();
+            if(numberOfPoints==0)
+            {
+                if(!removeTile(iterTileX.key(),iterTileY.key(),fileIndex,strAuxError))
+                {
+                    strError=QObject::tr("PointCloudFile::addPointCloudFile");
+                    strError+=QObject::tr("Error removing tile: %1 %2\nfor file:\n%3\nError:\n%4")
+                            .arg(QString::number(iterTileX.key()))
+                            .arg(QString::number(iterTileY.key()))
+                            .arg(inputFileName).arg(strAuxError);
+                    return(false);
+                }
+            }
+            else
+            {
+                mTilesNumberOfPoints[tileX][tileY]=mTilesNumberOfPoints[tileX][tileY]+numberOfPoints;
+                double tileDensity=((double)numberOfPoints)/pow(mGridSize,2.0);
+                if(tileDensity>mMaximumDensity)
+                {
+                    mMaximumDensity=tileDensity;
+                }
+                if(!mTilesByFileIndex[fileIndex].contains(tileX))
+                {
+                    QVector<int> aux;
+                    mTilesByFileIndex[fileIndex][tileX]=aux;
+                }
+                if(mTilesByFileIndex[fileIndex][tileX].indexOf(tileY)==-1)
+                {
+                    mTilesByFileIndex[fileIndex][tileX].push_back(tileY);
+                }
+            }
+            iterTileY++;
+        }
+        iterTileX++;
+    }
+    if(mTilesByFileIndex[fileIndex].size()==0)
+    {
+        mTilesByFileIndex.remove(fileIndex);
+        QString fileName=mFileByIndex[fileIndex];
+        mFilesIndex.remove(fileName);
+        mFileByIndex.remove(fileIndex);
+        /*
+        OGRGeometry* ptrGeometry=mFilePtrGeometryByIndex[fileIndex];
+        if(ptrGeometry!=NULL)
+        {
+            OGRGeometryFactory::destroyGeometry(ptrGeometry);
+            mFilePtrGeometryByIndex[fileIndex]=NULL;
+        }
+        mFilePtrGeometryByIndex.remove(fileIndex);
+        */
+    }
+    mZipFilePathPointsByIndex[fileIndex]=tilesPointsFileZipFilePath;
+    mZipFilePointsByIndex[fileIndex]=tilesPointsFileZipFileName;
+    mClassesFileByIndex[fileIndex]=pointsClassFileName;
+    if(updateHeader)
+    {
+        if(!writeHeader(strAuxError))
+        {
+            strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+            strError+=QObject::tr("\nError writing header after add file:\n%1").arg(inputFileName);
+            return(false);
+        }
+    }
+    return(true);
 }
 
 bool PointCloudFile::addPointCloudFile(QString inputFileName,
@@ -824,6 +1573,238 @@ bool PointCloudFile::addPointCloudFile(QString inputFileName,
             strError=QObject::tr("\PointCloudFile::addPointCloudFile");
             strError+=QObject::tr("\nError writing header after add file:\n%1").arg(inputFileName);
             return(false);
+        }
+    }
+    return(true);
+}
+
+bool PointCloudFile::addPointCloudFiles(QVector<QString> &inputFileNames,
+                                        QString pointCloudCrsDescription,
+                                        int pointCloudCrsEpsgCode,
+                                        int pointCloudVerticalCrsEpsgCode,
+                                        bool updateHeader,
+                                        QString &strError)
+{
+    QString strAuxError;
+    bool useMultiProcess=mPtrPCFManager->getMultiProcess();
+    if(!useMultiProcess)
+    {
+        for(int nf=0;nf<inputFileNames.size();nf++)
+        {
+            QString inputFileName=inputFileNames[nf];
+            if(!addPointCloudFile(inputFileName,
+                                  pointCloudCrsDescription,
+                                  pointCloudVerticalCrsEpsgCode,
+                                  pointCloudCrsEpsgCode,
+                                  updateHeader,
+                                  strAuxError))
+            {
+                strError=QObject::tr("PointCloudFile::addPointCloudFiles");
+                strError+=QObject::tr("\nError adding file:\n%1\nError:\n%2")
+                        .arg(inputFileName).arg(strAuxError);
+                return(false);
+            }
+        }
+        return(true);
+    }
+    if(pointCloudCrsEpsgCode!=mSRID
+            ||pointCloudVerticalCrsEpsgCode!=mVerticalCrsEpsgCode)
+    {
+        strError=QObject::tr("PointCloudFile::addPointCloudFiles");
+        strError+=QObject::tr("\nFile CRS EPSG: %1 and project CRS EPSG: %2")
+                .arg(QString::number(pointCloudCrsEpsgCode)).arg(QString::number(mSRID));
+        strError+=QObject::tr("\nor vertical File CRS EPSG: %1 and project CRS EPSG: %2 are different")
+                .arg(QString::number(pointCloudVerticalCrsEpsgCode)).arg(QString::number(mVerticalCrsEpsgCode));
+        strError+=QObject::tr("\nReproject File to project CRS before");
+        return(false);
+    }
+    if(mTempPath.isEmpty())
+    {
+        strError=QObject::tr("PointCloudFile::addPointCloudFiles");
+        strError+=QObject::tr("\nTemporal path is empty");
+        return(false);
+    }
+    QWidget* ptrWidget=new QWidget();
+//    if(mFilePtrGeometryByIndex.contains(inputFileName))
+//    {
+//        strError=QObject::tr("PointCloudFile::addPointCloudFiles");
+//        strError+=QObject::tr("\nExists point cloud file:\n%1").arg(inputFileName);
+//        return(false);
+//    }
+
+    double minX=1000000000.0;
+    double minY=1000000000.0;
+    double minZ=1000000000.0;
+    double maxX=-1000000000.0;
+    double maxY=-1000000000.0;
+    double maxZ=-1000000000.0;
+
+    QMap<int,QMap<int,int> > tilesNumberOfPoints; // nuevos para este fichero
+    if(mPtrROIsUnion!=NULL)
+    {
+        OGREnvelope* ptrROIsEnvelope=new OGREnvelope();
+        mPtrROIsUnion->getEnvelope(ptrROIsEnvelope);
+        minX=ptrROIsEnvelope->MinX;
+        minY=ptrROIsEnvelope->MinY;
+        maxX=ptrROIsEnvelope->MaxX;
+        maxY=ptrROIsEnvelope->MaxY;
+        delete(ptrROIsEnvelope);
+        // se crean entradas en: mTilesTableName y mTilesTableGeometry
+        if(!addTilesFromBoundingBox(minX,minY,maxX,maxY,
+//                                    inputFileName,
+                                    tilesNumberOfPoints,
+                                    ptrWidget,strAuxError))
+        {
+            strError=QObject::tr("PointCloudFile::addPointCloudFiles");
+            strError+=QObject::tr("\nError adding tiles from ROIs:\n%1")
+                    .arg(strAuxError);
+            return(false);
+        }
+        if(tilesNumberOfPoints.size()==0) // no hay tiles para las ROIs
+        {
+            return(true);
+        }
+    }
+    else
+    {
+        for(int nf=0;nf<inputFileNames.size();nf++)
+        {
+            QString inputFileName=inputFileNames[nf];
+            std::string stdFileName=inputFileName.toStdString();
+            const char* charFileName=stdFileName.c_str();
+            LASreadOpener lasreadopener;
+            lasreadopener.set_file_name(charFileName);
+            if (!lasreadopener.active())
+            {
+                strError=QObject::tr("\PointCloudFile::addPointCloudFile");
+                strError+=QObject::tr("\nError opening file:\n%1").arg(inputFileName);
+                return(false);
+            }
+
+            LASreader* lasreader = lasreadopener.open();
+            LASheader* lasheader = &lasreader->header;
+            int numberOfPoints=lasreader->npoints;
+            double fileMinX=lasheader->min_x;
+            double fileMinY=lasheader->min_y;
+            double fileMaxX=lasheader->max_x;
+            double fileMaxY=lasheader->max_y;
+            double fileMinZ=lasheader->min_z;
+            double fileMaxZ=lasheader->max_z;
+            minX=fileMinX;
+            minY=fileMinY;
+            maxX=fileMaxX;
+            maxY=fileMaxY;
+            if(!addTilesFromBoundingBox(minX,minY,maxX,maxY,
+//                                        inputFileName,
+                                        tilesNumberOfPoints,
+                                        ptrWidget,strAuxError))
+            {
+                strError=QObject::tr("PointCloudFile::addPointCloudFile");
+                strError+=QObject::tr("\nError adding tiles from file:\n%1\nError:\n%2")
+                        .arg(inputFileName).arg(strAuxError);
+                return(false);
+            }
+//            if(tilesNumberOfPoints.size()==0) // no hay tiles, ¿fichero sin puntos?
+//            {
+//                return(true);
+//            }
+        }
+    }
+
+    mUpdateHeader=updateHeader;
+    if(mPtrMpProgressDialog!=NULL)
+    {
+        delete(mPtrMpProgressDialog);
+    }
+    if(ptrWidget!=NULL)
+        mPtrMpProgressDialog=new QProgressDialog(ptrWidget);
+    else
+        mPtrMpProgressDialog=new QProgressDialog();
+    //        mNumberOfSqlsInTransaction=0;
+    mNumberOfFilesToProcess=inputFileNames.size();
+    QString dialogText=QObject::tr("Adding point cloud files");
+    dialogText+=QObject::tr("\nNumber of point cloud files to process:%1").arg(mNumberOfFilesToProcess);
+    dialogText+=QObject::tr("\n... progressing using %1 threads").arg(QThread::idealThreadCount());
+    //                mPtrMpProgressDialog->setWindowTitle(title);
+    mNumberOfPointsToProcessByFileName.clear();
+    for(int nf=0;nf<mNumberOfFilesToProcess;nf++)
+    {
+        QString inputFileName=inputFileNames[nf];
+        dialogText+=QObject::tr("\nPoints to process %1 in file: %2")
+                .arg("All").arg(inputFileName);
+        mNumberOfPointsToProcessByFileName[inputFileName]=-1;
+    }
+    mPtrMpProgressDialog->setLabelText(dialogText);
+    mPtrMpProgressDialog->setModal(true);
+    QFutureWatcher<void> futureWatcher;
+    QObject::connect(&futureWatcher, SIGNAL(finished()), mPtrMpProgressDialog, SLOT(reset()));
+    QObject::connect(mPtrMpProgressDialog, SIGNAL(canceled()), &futureWatcher, SLOT(cancel()));
+    QObject::connect(&futureWatcher, SIGNAL(progressRangeChanged(int,int)), mPtrMpProgressDialog, SLOT(setRange(int,int)));
+    QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), mPtrMpProgressDialog, SLOT(setValue(int)));
+    //                futureWatcher.setFuture(QtConcurrent::map(fieldsValuesToRetrieve, mpLoadPhotovoltaicPanelsFromDb));
+    futureWatcher.setFuture(QtConcurrent::map(inputFileNames,
+                                              [this](QString& data)
+    {mpAddPointCloudFile(data);}));
+    // Display the dialog and start the event loop.
+    mStrErrorMpProgressDialog="";
+    mPtrMpProgressDialog->exec();
+    futureWatcher.waitForFinished();
+    delete(mPtrMpProgressDialog);
+    mPtrMpProgressDialog=NULL;
+    if(!mStrErrorMpProgressDialog.isEmpty())
+    {
+        strError=QObject::tr("PointCloudFile::addPointCloudFiles");
+        strError+=QObject::tr("\nError adding point cloud files");
+        strError+=QObject::tr("\nError:\n%1").arg(mStrErrorMpProgressDialog);
+        return(false);
+    }
+    QVector<int> numberOfTilesToRemoveTileXs;
+    QVector<int> numberOfTilesToRemoveTileYs;
+    QMap<int,QMap<int,int> >::const_iterator iterTileX=mTilesNumberOfPoints.begin();
+    while(iterTileX!=mTilesNumberOfPoints.end())
+    {
+        int tileX=iterTileX.key();
+        QMap<int,int>::const_iterator iterTileY=iterTileX.value().begin();
+        while(iterTileY!=iterTileX.value().end())
+        {
+            int tileY=iterTileY.key();
+            int numberOfPoints=iterTileY.value();
+            if(numberOfPoints==0)
+            {
+                if(!removeTile(iterTileX.key(),iterTileY.key(),strAuxError))
+                {
+                    strError=QObject::tr("PointCloudFile::addPointCloudFiles");
+                    strError+=QObject::tr("Error removing tile: %1 %2\n\nError:\n%3")
+                            .arg(QString::number(iterTileX.key()))
+                            .arg(QString::number(iterTileY.key()))
+                            .arg(strAuxError);
+                    return(false);
+                }
+                numberOfTilesToRemoveTileXs.push_back(tileX);
+                numberOfTilesToRemoveTileYs.push_back(tileY);
+            }
+            //20210316
+//            else
+//            {
+//                double tileDensity=((double)numberOfPoints)/pow(mGridSize,2.0);
+//                if(tileDensity>mMaximumDensity)
+//                {
+//                    mMaximumDensity=tileDensity;
+//                }
+//            }
+            //20210316
+            iterTileY++;
+        }
+        iterTileX++;
+    }
+    for(int ntr=0;ntr<numberOfTilesToRemoveTileXs.size();ntr++)
+    {
+        int tileX=numberOfTilesToRemoveTileXs[ntr];
+        int tileY=numberOfTilesToRemoveTileYs[ntr];
+        mTilesNumberOfPoints[tileX].remove(tileY);
+        if(mTilesNumberOfPoints[tileX].size()==0)
+        {
+            mTilesNumberOfPoints.remove(tileX);
         }
     }
     return(true);
@@ -4039,6 +5020,13 @@ bool PointCloudFile::readHeader(QString &strError)
     headerIn>>mTilesContainedInROIs;
     headerIn>>mTilesOverlapsWithROIs;
     headerIn>>mTilesByFileIndex;
+
+    bool okToInt=false;
+    int verticalCrsEpsgCode=mHeightType.toInt(&okToInt);
+    if(okToInt)
+    {
+        mVerticalCrsEpsgCode=verticalCrsEpsgCode;
+    }
 
     mNumberOfPoints=0;
     QMap<int,QMap<int,int> >::const_iterator iterTileXNumberOfPoints=mTilesNumberOfPoints.begin();
