@@ -2163,6 +2163,7 @@ bool PointCloudFile::create(QString path,
         mCrsProj4String=crsProj4String;
     }
     mHeightType=QString::number(verticalCrsEpsgCode);
+    mVerticalCrsEpsgCode=verticalCrsEpsgCode;
     mGridSize=gridSize;
     mProjectType=projectType;
     mParameterValueByCode.clear();
