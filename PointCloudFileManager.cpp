@@ -6057,6 +6057,30 @@ bool PointCloudFileManager::getMaximumDensity(QString pcfPath,
     return(true);
 }
 
+bool PointCloudFileManager::getMinimumCoordinates(QString pcfPath,
+                                                  double& minFc,
+                                                  double& minSc,
+                                                  double& minTc,
+                                                  QString &strError)
+{
+    QString strAuxError;
+    if(!mPtrPcFiles.contains(pcfPath))
+    {
+        if(!openPointCloudFile(pcfPath,
+                               strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::getMinimumCoordinates");
+            strError+=QObject::tr("\nError openning spatialite:\n%1\nError:\n%2")
+                    .arg(pcfPath).arg(strAuxError);
+            return(false);
+        }
+    }
+    minFc=mPtrPcFiles[pcfPath]->getMinimumFc();
+    minSc=mPtrPcFiles[pcfPath]->getMinimumSc();
+    minTc=mPtrPcFiles[pcfPath]->getMinimumTc();
+    return(true);
+}
+
 bool PointCloudFileManager::getNeighbors(QString pcfPath,
                                          QVector<double> point,
                                          int pointCrsEpsgCode,
@@ -6095,6 +6119,27 @@ bool PointCloudFileManager::getNeighbors(QString pcfPath,
                                               fileIdPoints,
                                               existsFieldsByFileId,
                                               strError));
+    return(true);
+}
+
+bool PointCloudFileManager::getPointCloudFile(QString pcfPath,
+                                              PointCloudFile** ptrPCFile,
+                                              QString& strError)
+{
+    QString strAuxError;
+    (*ptrPCFile)=NULL;
+    if(!mPtrPcFiles.contains(pcfPath))
+    {
+        if(!openPointCloudFile(pcfPath,
+                               strAuxError))
+        {
+            strError=QObject::tr("PointCloudFileManager::getPointCloudFile");
+            strError+=QObject::tr("\nError openning file:\n%1\nError:\n%2")
+                    .arg(pcfPath).arg(strAuxError);
+            return(false);
+        }
+    }
+    (*ptrPCFile)=mPtrPcFiles[pcfPath];
     return(true);
 }
 
@@ -7745,8 +7790,8 @@ bool PointCloudFileManager::addPointCloudFiles(QString fileName,
     {
         if(!mPtrPcFiles[pcPath]->addPointCloudFiles(pointCloudFileNames,
                                                     pointCloudCrsDescription,
-                                                    pointCloudCrsProj4String,
                                                     pointCloudCrsEpsgCode,
+                                                    pointCloudVerticalCrsEpsgCode,
                                                     updateHeader,
                                                     strAuxError))
         {

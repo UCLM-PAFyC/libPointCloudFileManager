@@ -125,6 +125,11 @@ public:
     bool getMaximumDensity(QString pcfPath,
                            double &maximumDensity,
                            QString& strError);
+    bool getMinimumCoordinates(QString pcfPath,
+                               double& minFc,
+                               double& minSc,
+                               double& minTc,
+                               QString& strError);
     bool getMultiProcess(){return(mUseMultiProcess);};
     bool getNeighbors(QString pcfPath,
                       QVector<double> point, // 2d o 3d
@@ -139,6 +144,9 @@ public:
                       QVector<int> &fileIdPoints,
                       QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
                       QString& strError);
+    bool getPointCloudFile(QString pcfPath,
+                           PointCloudFile** ptrPCFile,
+                           QString& strError);
     bool getPointsFromWktGeometry(QString pcfPath,
                                   QString wktGeometry,
                                   int geometryCrsEpsgCode,

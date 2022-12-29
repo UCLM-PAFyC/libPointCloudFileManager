@@ -1594,8 +1594,8 @@ bool PointCloudFile::addPointCloudFiles(QVector<QString> &inputFileNames,
             QString inputFileName=inputFileNames[nf];
             if(!addPointCloudFile(inputFileName,
                                   pointCloudCrsDescription,
-                                  pointCloudVerticalCrsEpsgCode,
                                   pointCloudCrsEpsgCode,
+                                  pointCloudVerticalCrsEpsgCode,
                                   updateHeader,
                                   strAuxError))
             {
@@ -2083,7 +2083,7 @@ bool PointCloudFile::addROIs(QMap<QString, OGRGeometry *> ptrROIsGeometryByRoiId
         OGREnvelope* ptrEnvelope=new OGREnvelope();
         mPtrROIsUnion->getEnvelope(ptrEnvelope);
         double minimumFc=floor(ptrEnvelope->MinX); // aunque sea negativo uso floor
-        double minimumSc=floor(ptrEnvelope->MaxX);
+        double minimumSc=floor(ptrEnvelope->MinY);
         delete(ptrEnvelope);
         if(minimumFc<mMinimumFc) mMinimumFc=minimumFc;
         if(minimumSc<mMinimumSc) mMinimumSc=minimumSc;
@@ -2780,7 +2780,7 @@ bool PointCloudFile::getPointsFromWktGeometry(QString wktGeometry,
     existsFieldsByFileId.clear();
     mMpIgnoreTilesTableName.clear();
     mMpIgnoreTilesTableName=ignoreTilesTableName;
-    QVector<QString> tilesTableNames;
+//    QVector<QString> tilesTableNames;
     QString strAuxError;
     QMap<int,QMap<int,bool> > tilesOverlaps;
     if(mMpPtrGeometry!=NULL)
@@ -5507,7 +5507,7 @@ bool PointCloudFile::writeHeader(QString &strError)
     headerOut<<mSRID;
     headerOut<<mCrsDescription;
     headerOut<<mCrsProj4String;
-    headerOut<<mHeightType;
+    headerOut<<mHeightType;//string vertical crs epsg code
     headerOut<<mGridSize;
     headerOut<<mProjectType;
     headerOut<<mParameterValueByCode;

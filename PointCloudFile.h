@@ -17,8 +17,8 @@
 #include <gdal_utils.h>
 #include <gdal_priv.h>
 
-#include "quazip.h"
-#include "JlCompress.h"
+#include <quazip.h>
+#include <JlCompress.h>
 
 class QProgressDialog;
 
@@ -90,6 +90,9 @@ public:
     double getGridSize(){return(mGridSize);};
     QString getHeightType(){return(mHeightType);};
     double getMaximumDensity(){return(mMaximumDensity);};
+    double getMinimumFc(){return(mMinimumFc);};
+    double getMinimumSc(){return(mMinimumSc);};
+    double getMinimumTc(){return(mMinimumTc);};
     bool getNeighbors(QVector<double> point, // 2d o 3d
                       int pointCrsEpsgCode,
                       QString pointCrsProj4String,
