@@ -81,6 +81,12 @@ public:
                 QString projectType,
                 QString projectParametersString,
                 QString& strError);
+    bool exportLasFileFromWktGeometry(QString outputFileName,//las or laz
+                                      QString wktGeometry,
+                                      int geometryCrsEpsgCode,
+                                      QString geometryCrsProj4String,
+                                      bool tilesFullGeometry,
+                                      QString& strError); // solo coordenadas, color y clase
     int getColorNumberOfBytes(){return(mNumberOfColorBytes);};
     QString getCrsDescription(){return(mCrsDescription);};
     int getCrsEpsgCode(){return(mSRID);};

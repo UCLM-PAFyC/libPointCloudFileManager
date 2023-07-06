@@ -2486,6 +2486,277 @@ bool PointCloudFile::create(QString path,
     return(true);
 }
 
+bool PointCloudFile::exportLasFileFromWktGeometry(QString outputFileName,
+                                                  QString wktGeometry,
+                                                  int geometryCrsEpsgCode,
+                                                  QString geometryCrsProj4String,
+                                                  bool tilesFullGeometry,
+                                                  QString &strError)
+{
+    QString functionName="PointCloudFile::exportLasFileFromWktGeometry";
+    QString strAuxError;
+    QString outputFileExtension=QFileInfo(outputFileName).suffix();
+//    outputFileExtension=outputFileExtension.toLower();
+    if(outputFileExtension.compare("las",Qt::CaseInsensitive)!=0
+            &&outputFileExtension.compare("laz",Qt::CaseInsensitive)!=0)
+    {
+        strError=functionName;
+        strError+=QObject::tr("\nOutput file name extension must be las or laz:\n%1")
+                .arg(outputFileName);
+        return(false);
+    }
+    if(QFile::exists(outputFileName))
+    {
+        if(!QFile::remove(outputFileName))
+        {
+            strError=functionName;
+            strError+=QObject::tr("\nError removing existing output file:\n%1")
+                    .arg(outputFileName);
+            return(false);
+        }
+    }
+    QMap<int,QMap<int,QString> > tilesTableName;
+    QMap<int, QMap<int, QMap<int, QVector<PCFile::Point> > > > pointsByTileByFileId;
+    QMap<int,QMap<QString,bool> > existsFieldsByFileId;
+    QVector<QString> ignoreTilesTableName;
+    if(!getPointsFromWktGeometry(wktGeometry,
+                                 geometryCrsEpsgCode,
+                                 geometryCrsProj4String,
+                                 tilesTableName,
+                                 pointsByTileByFileId, //[fileId][tileX][tileY]
+                                 existsFieldsByFileId,
+                                 ignoreTilesTableName,
+                                 tilesFullGeometry,
+                                 strAuxError))
+    {
+        strError=functionName;
+//        strError+=QObject::tr("\nGetting points for geometry:\n%1\nError:\n%2")
+//                .arg(wktGeometry).arg(strAuxError);
+        strError+=QObject::tr("\nGetting points for geometry:\nError:\n%1")
+                .arg(strAuxError);
+        return(false);
+    }
+    double minFc=1000000000.0;
+    double minSc=1000000000.0;
+    double minTc=mMinimumTc;
+//    QMap<int,QMap<int,QMap<int,QVector<PCFile::Point> > > >::const_iterator iterFileId=pointsByTileByFileId.begin(); //[fileId][tileX][tileY]
+//    while(iterFileId!=pointsByTileByFileId.end())
+//    {
+//        int fileId=iterFileId.key();
+//        QMap<int,QMap<int,QVector<PCFile::Point> > > pointsByTileX=pointsByTileByFileId[fileId];
+//        QMap<int,QMap<int,QVector<PCFile::Point> > >::const_iterator iterPointsByTileX=pointsByTileX.begin();
+//        while(iterPointsByTileX!=pointsByTileX.end())
+//        {
+//            int tileX=iterPointsByTileX.key();
+//            QMap<int,QVector<PCFile::Point> > pointsByTileY=pointsByTileX[tileX];
+//            QMap<int,QVector<PCFile::Point> >::const_iterator iterPointsByTileY=pointsByTileY.begin();
+//            while(iterPointsByTileY!=pointsByTileY.end())
+//            {
+//                int tileY=iterPointsByTileY.key();
+//                QVector<PCFile::Point> pcFilePoints=pointsByTileY[tileY];
+//                for(int np=0;np<pcFilePoints.size();np++)
+//                {
+//                    int ix=pcFilePoints[np].getIx();
+//                    double fcDbl=tileX+ix/1000.;
+//                    if(fcDbl<minFc) minFc=fcDbl;
+//                    int iy=pcFilePoints[np].getIy();
+//                    double scDbl=tileY+iy/1000.;
+//                    if(scDbl<minSc) minSc=scDbl;
+//                    double altitude=pcFilePoints[np].getZ();
+//                    if(altitude<minTc) minTc=altitude;
+//                }
+//                iterPointsByTileY++;
+//            }
+//            iterPointsByTileX++;
+//        }
+//        iterFileId++;
+//    }
+    QMap<int,QMap<int,QString> >::const_iterator iterTileX=tilesTableName.begin();
+    while(iterTileX!=tilesTableName.end())
+    {
+        int tileX=iterTileX.key();
+        if(((double)tileX)<minFc) minFc=(double)tileX;
+        QMap<int,QString>::const_iterator iterTileY=iterTileX.value().begin();
+        while(iterTileY!=iterTileX.value().end())
+        {
+            int tileY=iterTileY.key();
+            if(((double)tileY)<minSc) minSc=(double)tileY;
+            iterTileY++;
+        }
+        iterTileX++;
+    }
+    bool existsClassification=false;
+    bool existsRGB=false;
+    bool existsIntensity=false;
+    //    existsFields[POINTCLOUDFILE_PARAMETER_COLOR]=false;
+    //    existsFields[POINTCLOUDFILE_PARAMETER_GPS_TIME]=false;
+    //    existsFields[POINTCLOUDFILE_PARAMETER_INTENSITY]=false;
+    //    existsFields[POINTCLOUDFILE_PARAMETER_NIR]=false;
+    //    existsFields[POINTCLOUDFILE_PARAMETER_RETURN]=false;
+    //    existsFields[POINTCLOUDFILE_PARAMETER_RETURNS]=false;
+    //    existsFields[POINTCLOUDFILE_PARAMETER_SOURCE_ID]=false;
+    //    existsFields[POINTCLOUDFILE_PARAMETER_USER_DATA]=false;
+    QMap<int,QMap<QString,bool> >::const_iterator iterExistsFields=existsFieldsByFileId.begin();
+    while(iterExistsFields!=existsFieldsByFileId.end())
+    {
+        int fileId=iterExistsFields.key();
+        QMap<QString,bool> existsFields=iterExistsFields.value();
+        if(!existsRGB
+                &&existsFields[POINTCLOUDFILE_PARAMETER_COLOR])
+            existsRGB=true;
+        if(!existsIntensity
+                &&existsIntensity[POINTCLOUDFILE_PARAMETER_INTENSITY])
+            existsIntensity=true;
+        iterExistsFields++;
+    }
+    float rGBColorToUnit=1.0;
+    int colorNumberOfBytes=mNumberOfColorBytes;
+    if(existsRGB)
+    {
+        if(colorNumberOfBytes==1) rGBColorToUnit=1.0/255.0;
+        else if(colorNumberOfBytes==1) rGBColorToUnit=1.0/65535.0;
+    }
+    LASwriteOpener laswriteopener;
+    std::string ssLasFileName=outputFileName.toStdString();
+    const char* ptrCClasFileName=ssLasFileName.c_str();
+    laswriteopener.set_file_name(ptrCClasFileName);
+    if (!laswriteopener.active())
+    {
+        strError=functionName;
+        strError+=QObject::tr("\nError opening laswriter");
+        return(false);
+    }
+    LASheader lasheader;
+    lasheader.x_scale_factor = 0.001;//1.0;//0.1;
+    lasheader.y_scale_factor = 0.001;//1.0;//0.01;
+    lasheader.z_scale_factor = 0.001;//1.0;//0.001;
+    lasheader.x_offset = minFc;
+    lasheader.y_offset = minSc;
+    lasheader.z_offset = minTc;
+    lasheader.point_data_format = 3;
+    lasheader.point_data_record_length = 34;
+    // init point
+    LASpoint laspoint;
+    laspoint.init(&lasheader, lasheader.point_data_format, lasheader.point_data_record_length, 0);
+    // open laswriter
+    bool useRGBs=existsRGB;
+    if(useRGBs)
+    {
+        laspoint.have_rgb=TRUE;
+    }
+    LASwriter* laswriter = laswriteopener.open(&lasheader);
+    if (laswriter == 0)
+    {
+        strError=functionName;
+        strError+=QObject::tr("Error could not open laswriter for file:\n%1").arg(outputFileName);
+    }
+    QMap<int,QMap<int,QMap<int,QVector<PCFile::Point> > > >::const_iterator iterPtf=pointsByTileByFileId.begin(); //[fileId][tileX][tileY]
+    while(iterPtf!=pointsByTileByFileId.end())
+    {
+        int fileId=iterPtf.key();
+        QMap<int,QMap<int,QVector<PCFile::Point> > >::const_iterator iterTileX=iterPtf.value().begin();
+        while(iterTileX!=iterPtf.value().end())
+        {
+            int tileX=iterTileX.key();
+            QMap<int,QVector<PCFile::Point> >::const_iterator iterTileY=iterTileX.value().begin();
+            while(iterTileY!=iterTileX.value().end())
+            {
+                int tileY=iterTileY.key();
+                QVector<PCFile::Point> ptos=iterTileY.value();
+                for(int np=0;np<ptos.size();np++)
+                {
+                    PCFile::Point pto=ptos[np];
+                    int posInTile=pto.getPositionInTile();
+                    int ix=pto.getIx();
+                    double fcDbl=tileX+ix/1000.;
+                    int iy=pto.getIy();
+                    double scDbl=tileY+iy/1000.;
+                    double tcDbl=pto.getZ();
+                    int ptoClass=pto.getClass();
+                    if(!existsClassification&&ptoClass>0) existsClassification=true;
+                    int ptoNewClass=pto.getClassNew();
+                    QMap<QString,quint8> values8bits;
+                    pto.get8BitsValues(values8bits);
+                    QMap<QString,quint16> values16bits;
+                    pto.get16BitsValues(values16bits);
+                    double gpsTime=-1.;
+                    quint16 intensity=0.;
+                    if(existsFieldsByFileId[fileId][POINTCLOUDFILE_PARAMETER_GPS_TIME])
+                    {
+                        gpsTime=pto.getGpsTime();
+                    }
+                    unsigned short rgb[3];
+                    if(existsRGB)
+                    {
+                        if(colorNumberOfBytes==1)
+                        {
+                            if(values8bits.contains(POINTCLOUDFILE_PARAMETER_COLOR_RED))
+                            {
+                                rgb[0]=values8bits[POINTCLOUDFILE_PARAMETER_COLOR_RED]*256;
+                            }
+                            if(values8bits.contains(POINTCLOUDFILE_PARAMETER_COLOR_GREEN))
+                            {
+                                rgb[1]=values8bits[POINTCLOUDFILE_PARAMETER_COLOR_GREEN]*256;
+                            }
+                            if(values8bits.contains(POINTCLOUDFILE_PARAMETER_COLOR_BLUE))
+                            {
+                                rgb[2]=values8bits[POINTCLOUDFILE_PARAMETER_COLOR_BLUE]*256;
+                            }
+                        }
+                        if(colorNumberOfBytes==2)
+                        {
+                            if(values16bits.contains(POINTCLOUDFILE_PARAMETER_COLOR_RED))
+                            {
+                                rgb[0]=values16bits[POINTCLOUDFILE_PARAMETER_COLOR_RED];
+                            }
+                            if(values16bits.contains(POINTCLOUDFILE_PARAMETER_COLOR_GREEN))
+                            {
+                                rgb[1]=values16bits[POINTCLOUDFILE_PARAMETER_COLOR_GREEN];
+                            }
+                            if(values16bits.contains(POINTCLOUDFILE_PARAMETER_COLOR_BLUE))
+                            {
+                                rgb[2]=values16bits[POINTCLOUDFILE_PARAMETER_COLOR_BLUE];
+                            }
+                        }
+                    }
+                    if(existsIntensity)
+                    {
+                        if(values16bits.contains(POINTCLOUDFILE_PARAMETER_INTENSITY))
+                        {
+                            intensity=values16bits[POINTCLOUDFILE_PARAMETER_INTENSITY];
+                        }
+                    }
+                    int x=(fcDbl-minFc)*1000;
+                    int y=(scDbl-minSc)*1000;
+                    int z=(tcDbl-minTc)*1000;
+                    laspoint.set_X(x);
+                    laspoint.set_Y(y);
+                    laspoint.set_Z(z);
+                    if(useRGBs)
+                    {
+                        laspoint.set_RGB(rgb);
+                    }
+            //        laspoint.set_intensity((U16)i);
+            //        laspoint.set_gps_time(0.0006*i);
+                    // write the point
+                    laswriter->write_point(&laspoint);
+                    // add it to the inventory
+                    laswriter->update_inventory(&laspoint);
+                }
+                iterTileY++;
+            }
+            iterTileX++;
+        }
+        iterPtf++;
+    }
+    // update the header
+    laswriter->update_header(&lasheader, TRUE);
+    // close the writer
+    I64 total_bytes = laswriter->close();
+    delete laswriter;
+    return(true);
+}
+
 bool PointCloudFile::getNeighbors(QVector<double> point,
                                   int pointCrsEpsgCode,
                                   QString pointCrsProj4String,
@@ -2499,7 +2770,7 @@ bool PointCloudFile::getNeighbors(QVector<double> point,
                                   QMap<int, QMap<QString, bool> > &existsFieldsByFileId,
                                   QString &strError)
 {
-    QString functionName="CRSTools::PointCloudFile::getNeighbors";
+    QString functionName="PointCloudFile::getNeighbors";
     QString strAuxError;
     points.clear();
     tilesX.clear();
